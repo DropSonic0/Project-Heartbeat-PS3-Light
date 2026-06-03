@@ -223,7 +223,7 @@ func _on_logged_in(json, _params):
 
 func get_jwt_data():
 	var test_json_conv = JSON.new()
-	var json_text := Marshalls.base64_to_utf8(HBUtils.base64url_to_base64(jwt_token.split(".")[1]))
+	var json_text := HBUtils.base64url_to_utf8(jwt_token.split(".")[1])
 	if test_json_conv.parse(json_text) != OK:
 		print("Error parsing JWT: %s\n%s" % [test_json_conv.get_error_message(), json_text])
 	return test_json_conv.data

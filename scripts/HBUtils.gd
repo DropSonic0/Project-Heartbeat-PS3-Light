@@ -616,11 +616,12 @@ static func request_image_url(url: String) -> RequestImageURLResponse:
 	out.texture = HBUtils.array2texture(body)
 	return out
 	
-static func base64url_to_base64(input: String) -> String:
+static func base64url_to_utf8(input: String) -> String:
 	match (input.length() % 4):
 		2: input += "=="
 		3: input += "="
-	return Marshalls.base64_to_utf8(input.replacen("_","/").replacen("-","+"))
+	var out := Marshalls.base64_to_utf8(input.replacen("_","/").replacen("-","+"))
+	return out
 
 static func get_clear_badge(rating: HBResult.RESULT_RATING) -> Texture2D:
 	const clear_badges = {

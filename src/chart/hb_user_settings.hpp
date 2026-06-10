@@ -33,7 +33,7 @@ public:
     HBUserSettingsNative();
     ~HBUserSettingsNative();
 
-    virtual String get_serialized_type() const override { return "UserSettings"; }
+    virtual String get_serialized_type() const GD_OVERRIDE { return "UserSettings"; }
 };
 
 } // namespace godot

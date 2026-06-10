@@ -16,7 +16,7 @@ protected:
 
 private:
     Array layers;
-    int format_version = 2;
+    int format_version;
 
 public:
     HBChartNative();

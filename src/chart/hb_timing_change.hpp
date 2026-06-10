@@ -25,7 +25,7 @@ public:
     void set_time_signature(Dictionary p_time_signature);
     Dictionary get_time_signature() const;
 
-    virtual String get_serialized_type() const override;
+    virtual String get_serialized_type() const GD_OVERRIDE;
 };
 
 } // namespace godot

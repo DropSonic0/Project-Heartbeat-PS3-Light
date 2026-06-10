@@ -42,6 +42,7 @@ void HBChartNative::_bind_methods() {
 }
 
 HBChartNative::HBChartNative() {
+    format_version = 2;
     populate_layers();
 }
 
@@ -105,57 +106,57 @@ Dictionary HBChartNative::serialize() {
 
 static Ref<HBSerializableNative> _factory(const String &p_type) {
     if (p_type == "Note") {
-        return memnew(HBNoteDataNative);
+        return Ref<HBSerializableNative>(memnew(HBNoteDataNative));
     } else if (p_type == "TimingPoint") {
-        return memnew(HBTimingPointNative);
+        return Ref<HBSerializableNative>(memnew(HBTimingPointNative));
     } else if (p_type == "BaseNote") {
-        return memnew(HBBaseNoteNative);
+        return Ref<HBSerializableNative>(memnew(HBBaseNoteNative));
     } else if (p_type == "DurationNote") {
-        return memnew(HBDurationNoteDataNative);
+        return Ref<HBSerializableNative>(memnew(HBDurationNoteDataNative));
     } else if (p_type == "SustainNote") {
-        return memnew(HBSustainNoteNative);
+        return Ref<HBSerializableNative>(memnew(HBSustainNoteNative));
     } else if (p_type == "DoubleNote") {
-        return memnew(HBDoubleNoteNative);
+        return Ref<HBSerializableNative>(memnew(HBDoubleNoteNative));
     } else if (p_type == "RushNote") {
-        return memnew(HBRushNoteNative);
+        return Ref<HBSerializableNative>(memnew(HBRushNoteNative));
     } else if (p_type == "TimingChange") {
-        return memnew(HBTimingChangeNative);
+        return Ref<HBSerializableNative>(memnew(HBTimingChangeNative));
     } else if (p_type == "BpmChange") {
-        return memnew(HBBPMChangeNative);
+        return Ref<HBSerializableNative>(memnew(HBBPMChangeNative));
     } else if (p_type == "ChartSection") {
-        return memnew(HBChartSectionNative);
+        return Ref<HBSerializableNative>(memnew(HBChartSectionNative));
     } else if (p_type == "IntroSkipMarker") {
-        return memnew(HBIntroSkipMarkerNative);
+        return Ref<HBSerializableNative>(memnew(HBIntroSkipMarkerNative));
     } else if (p_type == "Song") {
-        return memnew(HBSongNative);
+        return Ref<HBSerializableNative>(memnew(HBSongNative));
     } else if (p_type == "PPDSong") {
-        return memnew(HBPPDSongNative);
+        return Ref<HBSerializableNative>(memnew(HBPPDSongNative));
     } else if (p_type == "AutoSong") {
-        return memnew(HBAutoSongNative);
+        return Ref<HBSerializableNative>(memnew(HBAutoSongNative));
     } else if (p_type == "Result") {
-        return memnew(HBResultNative);
+        return Ref<HBSerializableNative>(memnew(HBResultNative));
     } else if (p_type == "GameInfo") {
-        return memnew(HBGameInfoNative);
+        return Ref<HBSerializableNative>(memnew(HBGameInfoNative));
     } else if (p_type == "PerSongSettings") {
-        return memnew(HBPerSongSettingsNative);
+        return Ref<HBSerializableNative>(memnew(HBPerSongSettingsNative));
     } else if (p_type == "PerSongEditorSettings") {
-        return memnew(HBPerSongEditorSettingsNative);
+        return Ref<HBSerializableNative>(memnew(HBPerSongEditorSettingsNative));
     } else if (p_type == "SongStats") {
-        return memnew(HBSongStatsNative);
+        return Ref<HBSerializableNative>(memnew(HBSongStatsNative));
     } else if (p_type == "HBSongVariantData") {
-        return memnew(HBSongVariantDataNative);
+        return Ref<HBSerializableNative>(memnew(HBSongVariantDataNative));
     } else if (p_type == "Folder") {
-        return memnew(HBFolderNative);
+        return Ref<HBSerializableNative>(memnew(HBFolderNative));
     } else if (p_type == "UserSettings") {
-        return memnew(HBUserSettingsNative);
+        return Ref<HBSerializableNative>(memnew(HBUserSettingsNative));
     } else if (p_type == "WebUserInfo") {
-        return memnew(HBWebUserInfoNative);
+        return Ref<HBSerializableNative>(memnew(HBWebUserInfoNative));
     } else if (p_type == "EditorTemplate") {
-        return memnew(HBEditorTemplateNative);
+        return Ref<HBSerializableNative>(memnew(HBEditorTemplateNative));
     } else if (p_type == "HBHistoryEntry") {
-        return memnew(HBHistoryEntryNative);
+        return Ref<HBSerializableNative>(memnew(HBHistoryEntryNative));
     }
-    return nullptr;
+    return Ref<HBSerializableNative>();
 }
 
 void HBChartNative::deserialize(Dictionary p_data, Variant p_song) {

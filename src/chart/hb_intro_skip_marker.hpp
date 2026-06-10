@@ -15,7 +15,7 @@ public:
     HBIntroSkipMarkerNative();
     ~HBIntroSkipMarkerNative();
 
-    virtual String get_serialized_type() const override;
+    virtual String get_serialized_type() const GD_OVERRIDE;
 };
 
 } // namespace godot

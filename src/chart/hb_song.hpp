@@ -24,10 +24,10 @@ private:
     String voice;
     String creator;
     String original_title;
-    double bpm = 150.0;
-    String bpm_string = "150";
-    int64_t preview_start = 0;
-    int64_t preview_end = -1;
+    double bpm;
+    String bpm_string;
+    int64_t preview_start;
+    int64_t preview_end;
     Dictionary charts;
     String preview_image;
     String background_image;
@@ -35,23 +35,23 @@ private:
     String circle_logo;
     String youtube_url;
     String youtube_preview_url;
-    bool use_youtube_for_audio = true;
-    bool use_youtube_for_video = true;
+    bool use_youtube_for_audio;
+    bool use_youtube_for_video;
     String ugc_service_name;
-    int64_t ugc_id = 0;
-    bool allows_intro_skip = false;
-    double intro_skip_min_time = 30.0;
-    int64_t start_time = 0;
-    int64_t end_time = -1;
-    double volume = 1.0;
-    bool hide_artist_name = false;
+    int64_t ugc_id;
+    bool allows_intro_skip;
+    double intro_skip_min_time;
+    int64_t start_time;
+    int64_t end_time;
+    double volume;
+    bool hide_artist_name;
     Array lyrics;
-    bool show_epilepsy_warning = false;
-    bool has_audio_loudness = false;
-    double audio_loudness = 0.0;
+    bool show_epilepsy_warning;
+    bool has_audio_loudness;
+    double audio_loudness;
     Array song_variants;
     Array sections;
-    int64_t skin_ugc_id = 0;
+    int64_t skin_ugc_id;
     Array timing_changes;
 
     // Non-serialized
@@ -147,7 +147,7 @@ public:
 
     void update_bpm_string();
 
-    virtual String get_serialized_type() const override;
+    virtual String get_serialized_type() const;
 };
 
 } // namespace godot

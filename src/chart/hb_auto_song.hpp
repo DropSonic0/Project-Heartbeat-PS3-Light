@@ -14,8 +14,8 @@ protected:
 
 private:
     Dictionary pattern;
-    double loudness = 0.0;
-    int64_t offset = 0;
+    double loudness;
+    int64_t offset;
     String audio_path;
     Ref<HBChartNative> chart;
 
@@ -25,7 +25,7 @@ public:
 
     void generate_chart();
 
-    virtual String get_serialized_type() const override { return "AutoSong"; }
+    virtual String get_serialized_type() const;
 };
 
 } // namespace godot

@@ -25,7 +25,7 @@ public:
 
     void set_layer_visibility(bool p_visibility, const String &p_layer_name);
 
-    virtual String get_serialized_type() const override { return "PerSongEditorSettings"; }
+    virtual String get_serialized_type() const GD_OVERRIDE { return "PerSongEditorSettings"; }
 };
 
 } // namespace godot

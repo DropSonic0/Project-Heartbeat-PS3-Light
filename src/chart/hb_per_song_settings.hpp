@@ -29,7 +29,7 @@ public:
     void set_video_enabled(bool p_val) { video_enabled = p_val; }
     bool get_video_enabled() const { return video_enabled; }
 
-    virtual String get_serialized_type() const override { return "PerSongSettings"; }
+    virtual String get_serialized_type() const GD_OVERRIDE { return "PerSongSettings"; }
 };
 
 } // namespace godot

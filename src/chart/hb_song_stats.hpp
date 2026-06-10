@@ -24,7 +24,7 @@ public:
     void set_selected_variant(int32_t p_val) { selected_variant = p_val; }
     int32_t get_selected_variant() const { return selected_variant; }
 
-    virtual String get_serialized_type() const override { return "SongStats"; }
+    virtual String get_serialized_type() const GD_OVERRIDE { return "SongStats"; }
 };
 
 } // namespace godot

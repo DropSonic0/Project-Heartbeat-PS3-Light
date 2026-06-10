@@ -132,6 +132,24 @@ void HBSongNative::_bind_methods() {
 }
 
 HBSongNative::HBSongNative() {
+    bpm = 150.0;
+    bpm_string = "150";
+    preview_start = 0;
+    preview_end = -1;
+    use_youtube_for_audio = true;
+    use_youtube_for_video = true;
+    ugc_id = 0;
+    allows_intro_skip = false;
+    intro_skip_min_time = 30.0;
+    start_time = 0;
+    end_time = -1;
+    volume = 1.0;
+    hide_artist_name = false;
+    show_epilepsy_warning = false;
+    has_audio_loudness = false;
+    audio_loudness = 0.0;
+    skin_ugc_id = 0;
+
     serializable_fields.append("title");
     serializable_fields.append("romanized_title");
     serializable_fields.append("artist");

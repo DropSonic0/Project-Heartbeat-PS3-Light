@@ -21,7 +21,7 @@ public:
     HBPPDSongNative();
     ~HBPPDSongNative();
 
-    virtual String get_serialized_type() const override { return "PPDSong"; }
+    virtual String get_serialized_type() const GD_OVERRIDE { return "PPDSong"; }
 };
 
 } // namespace godot

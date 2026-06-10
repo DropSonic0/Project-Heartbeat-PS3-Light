@@ -1,10 +1,7 @@
 #ifndef HB_SERIALIZABLE_HPP
 #define HB_SERIALIZABLE_HPP
 
-#include <godot_cpp/classes/ref_counted.hpp>
-#include <godot_cpp/variant/variant.hpp>
-#include <godot_cpp/variant/array.hpp>
-#include <godot_cpp/variant/dictionary.hpp>
+#include <godot_cpp/godot.hpp>
 
 namespace godot {
 

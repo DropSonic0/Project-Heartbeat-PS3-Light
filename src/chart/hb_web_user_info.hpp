@@ -23,7 +23,7 @@ public:
     HBWebUserInfoNative();
     ~HBWebUserInfoNative();
 
-    virtual String get_serialized_type() const override { return "WebUserInfo"; }
+    virtual String get_serialized_type() const GD_OVERRIDE { return "WebUserInfo"; }
 };
 
 } // namespace godot

@@ -40,7 +40,7 @@ public:
     void set_audio_only(bool p_val) { audio_only = p_val; }
     bool get_audio_only() const { return audio_only; }
 
-    virtual String get_serialized_type() const override { return "HBSongVariantData"; }
+    virtual String get_serialized_type() const GD_OVERRIDE { return "HBSongVariantData"; }
 };
 
 } // namespace godot

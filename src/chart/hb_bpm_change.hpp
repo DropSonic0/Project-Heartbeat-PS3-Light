@@ -35,7 +35,7 @@ public:
     void set_usage(UsageTypes p_usage);
     UsageTypes get_usage() const;
 
-    virtual String get_serialized_type() const override;
+    virtual String get_serialized_type() const GD_OVERRIDE;
 };
 
 } // namespace godot

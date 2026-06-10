@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
 
 namespace godot {
 
@@ -12,8 +15,16 @@ public:
     String() : std::string() {}
     String(const char* s) : std::string(s) {}
     String(const std::string& s) : std::string(s) {}
-    static String num(double p_num) { return std::to_string(p_num).c_str(); }
-    static String num_int64(long long p_num) { return std::to_string(p_num).c_str(); }
+    static String num(double p_num) {
+        std::stringstream ss;
+        ss << p_num;
+        return ss.str().c_str();
+    }
+    static String num_int64(long long p_num) {
+        std::stringstream ss;
+        ss << p_num;
+        return ss.str().c_str();
+    }
     String lpad(int p_len, const char* p_char) { return *this; }
     bool is_empty() const { return empty(); }
     bool begins_with(const char* s) const { return find(s) == 0; }
@@ -31,8 +42,18 @@ public:
     String strip_edges() const { return *this; } // Placeholder
     String replace(const char* p_old, const char* p_new) const { return *this; } // Placeholder
     String to_lower() const { return *this; } // Placeholder
-    long long to_int() const { return std::stoll(*this); }
-    double to_float() const { return std::stod(*this); }
+    long long to_int() const {
+        std::stringstream ss(*this);
+        long long res;
+        ss >> res;
+        return res;
+    }
+    double to_float() const {
+        std::stringstream ss(*this);
+        double res;
+        ss >> res;
+        return res;
+    }
 };
 
 typedef std::vector<String> PackedStringArray;

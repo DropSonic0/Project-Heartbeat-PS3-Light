@@ -1,7 +1,7 @@
 #ifndef COMPAT_CLASS_DB_HPP
 #define COMPAT_CLASS_DB_HPP
 
-#include "object.hpp"
+#include "../classes/object.hpp"
 #include <string>
 
 namespace godot {

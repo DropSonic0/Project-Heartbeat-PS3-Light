@@ -21,7 +21,7 @@ public:
     void set_end_time(int64_t p_end_time);
     int64_t get_end_time() const;
 
-    virtual String get_serialized_type() const override;
+    virtual String get_serialized_type() const GD_OVERRIDE;
 };
 
 } // namespace godot

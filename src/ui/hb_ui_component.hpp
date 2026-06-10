@@ -23,7 +23,7 @@ public:
     String get_color_string(Color p_color) const;
     Color get_color_from_dict(Dictionary p_dict, String p_key, Color p_backup) const;
 
-    void _ready() override;
+    void _ready() GD_OVERRIDE;
 };
 
 } // namespace godot

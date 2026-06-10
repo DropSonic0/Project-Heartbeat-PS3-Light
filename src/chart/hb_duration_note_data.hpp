@@ -21,7 +21,7 @@ public:
     void set_duration(int64_t p_duration);
     int64_t get_duration_val() const;
 
-    virtual String get_serialized_type() const override;
+    virtual String get_serialized_type() const GD_OVERRIDE;
 };
 
 } // namespace godot

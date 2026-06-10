@@ -31,7 +31,7 @@ public:
 
     int32_t calculate_capped_hit_count() const;
 
-    virtual String get_serialized_type() const override;
+    virtual String get_serialized_type() const GD_OVERRIDE;
 };
 
 } // namespace godot

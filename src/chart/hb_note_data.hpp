@@ -25,7 +25,7 @@ public:
     bool is_slide_hold_piece() const;
     HBBaseNoteNative::NoteType get_chain_type() const;
 
-    virtual String get_serialized_type() const override;
+    virtual String get_serialized_type() const GD_OVERRIDE;
 };
 
 } // namespace godot

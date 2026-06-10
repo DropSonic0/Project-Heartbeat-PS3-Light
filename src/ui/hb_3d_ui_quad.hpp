@@ -22,8 +22,8 @@ public:
     HB3DUIQuadNative();
     ~HB3DUIQuadNative();
 
-    void _ready() override;
-    void _process(double p_delta) override;
+    void _ready() GD_OVERRIDE;
+    void _process(double p_delta) GD_OVERRIDE;
 };
 
 } // namespace godot

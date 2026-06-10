@@ -63,7 +63,7 @@ public:
     void set_wrong_note_ratings(Dictionary p_val) { wrong_note_ratings = p_val; }
     Dictionary get_wrong_note_ratings() const { return wrong_note_ratings; }
 
-    virtual String get_serialized_type() const override { return "Result"; }
+    virtual String get_serialized_type() const GD_OVERRIDE { return "Result"; }
 };
 
 } // namespace godot

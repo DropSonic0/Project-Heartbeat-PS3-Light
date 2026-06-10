@@ -27,7 +27,7 @@ public:
     void set_folder_name(const String &p_name) { folder_name = p_name; }
     String get_folder_name() const { return folder_name; }
 
-    virtual String get_serialized_type() const override { return "Folder"; }
+    virtual String get_serialized_type() const GD_OVERRIDE { return "Folder"; }
 };
 
 } // namespace godot

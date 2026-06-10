@@ -47,7 +47,7 @@ public:
 
     bool is_leaderboard_legal() const;
 
-    virtual String get_serialized_type() const override { return "GameInfo"; }
+    virtual String get_serialized_type() const GD_OVERRIDE { return "GameInfo"; }
 };
 
 } // namespace godot

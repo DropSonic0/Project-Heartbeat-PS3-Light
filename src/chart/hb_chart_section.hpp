@@ -26,7 +26,7 @@ public:
     void set_color(Color p_color);
     Color get_color() const;
 
-    virtual String get_serialized_type() const override;
+    virtual String get_serialized_type() const GD_OVERRIDE;
 };
 
 } // namespace godot

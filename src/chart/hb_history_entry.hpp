@@ -25,7 +25,7 @@ public:
     bool is_result_better(Ref<HBResultNative> p_result);
     void update_entry(Ref<HBGameInfoNative> p_game_info);
 
-    virtual String get_serialized_type() const override { return "HBHistoryEntry"; }
+    virtual String get_serialized_type() const GD_OVERRIDE { return "HBHistoryEntry"; }
 };
 
 } // namespace godot

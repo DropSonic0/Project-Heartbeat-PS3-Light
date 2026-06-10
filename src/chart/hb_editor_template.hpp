@@ -35,7 +35,7 @@ public:
     HBEditorTemplateNative();
     ~HBEditorTemplateNative();
 
-    virtual String get_serialized_type() const override { return "EditorTemplate"; }
+    virtual String get_serialized_type() const GD_OVERRIDE { return "EditorTemplate"; }
 };
 
 } // namespace godot

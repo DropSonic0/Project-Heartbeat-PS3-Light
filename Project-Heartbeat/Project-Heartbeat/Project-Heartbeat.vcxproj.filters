@@ -1,0 +1,381 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="..\..\PS3_COMPATIBILITY.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\hb_game.cpp" />
+    <ClCompile Include="..\..\src\hb_judge.cpp" />
+    <ClCompile Include="..\..\src\hb_song_loader.cpp" />
+    <ClCompile Include="..\..\src\register_types.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_base_note.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_bpm_change.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_chart.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_chart_section.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_double_note.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_duration_note_data.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_editor_template.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_folder.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_game_info.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_history_entry.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_intro_skip_marker.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_note_data.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_per_song_editor_settings.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_per_song_settings.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_result.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_rush_note.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_serializable.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_song.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_song_stats.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_song_variant_data.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_sustain_note.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_timing_change.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_timing_point.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_web_user_info.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\hb_ui_component.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\hb_ini_parser.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\hb_toml_parser.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\hb_utils.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_user_settings.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\hb_error.cpp" />
+    <ClCompile Include="..\..\src\hb_input_event.cpp" />
+    <ClCompile Include="..\..\src\hb_song_verification.cpp" />
+    <ClCompile Include="..\..\src\hb_version.cpp" />
+    <ClCompile Include="..\..\src\audio\hb_shinobu_playback_offset.cpp">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_auto_song.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chart\hb_ppd_song.cpp">
+      <Filter>chart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\hb_3d_ui_quad.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\hb_rich_text_word_rainbow.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\hb_ui_font.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\hb_ui_stylebox_flat.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\hb_ui_stylebox_texture.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\hb_diva_texture_processor.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\hb_mipmap_generator.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\hb_ppd_evd_file.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\hb_ppd_pack.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\hb_shift_jis_table.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\hb_smf_loader.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\hb_game.hpp" />
+    <ClInclude Include="..\..\src\hb_judge.hpp" />
+    <ClInclude Include="..\..\src\hb_song_loader.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_base_note.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_bpm_change.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_chart.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_chart_section.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_double_note.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_duration_note_data.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_editor_template.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_folder.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_game_info.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_history_entry.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_intro_skip_marker.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_note_data.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_per_song_editor_settings.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_per_song_settings.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_result.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_rush_note.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_serializable.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_song.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_song_stats.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_song_variant_data.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_sustain_note.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_timing_change.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_timing_point.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_web_user_info.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\hb_ui_component.hpp">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utils\hb_ini_parser.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utils\hb_toml_parser.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utils\hb_utils.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_user_settings.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\godot.hpp">
+      <Filter>compat\godot_cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\object.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\ref_counted.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\core\class_db.hpp">
+      <Filter>compat\godot_cpp\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\core\defs.hpp">
+      <Filter>compat\godot_cpp\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\utility_functions.hpp">
+      <Filter>compat\godot_cpp\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\variant.hpp">
+      <Filter>compat\godot_cpp\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\hb_error.hpp" />
+    <ClInclude Include="..\..\src\hb_input_event.hpp" />
+    <ClInclude Include="..\..\src\hb_song_verification.hpp" />
+    <ClInclude Include="..\..\src\hb_version.hpp" />
+    <ClInclude Include="..\..\src\audio\hb_shinobu_playback_offset.hpp">
+      <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_auto_song.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\chart\hb_ppd_song.hpp">
+      <Filter>chart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\hb_3d_ui_quad.hpp">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\hb_rich_text_word_rainbow.hpp">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\hb_ui_font.hpp">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\hb_ui_stylebox_flat.hpp">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\hb_ui_stylebox_texture.hpp">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\hb_diva_texture_processor.hpp">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\hb_mipmap_generator.hpp">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utils\hb_ppd_evd_file.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utils\hb_ppd_pack.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utils\hb_shift_jis_table.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utils\hb_smf_loader.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\control.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\node.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\array.hpp">
+      <Filter>compat\godot_cpp\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\color.hpp">
+      <Filter>compat\godot_cpp\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\dictionary.hpp">
+      <Filter>compat\godot_cpp\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\string.hpp">
+      <Filter>compat\godot_cpp\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\vector2.hpp">
+      <Filter>compat\godot_cpp\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\file_access.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\image.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\json.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\reg_ex.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\texture2d.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\time.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\packed_byte_array.hpp">
+      <Filter>compat\godot_cpp\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\packed_string_array.hpp">
+      <Filter>compat\godot_cpp\variant</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="chart">
+      <UniqueIdentifier>{0c835a99-889e-4dba-a3c2-38e344c4507e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{e76a1ce7-41fd-4f58-b66c-ddc7b672e78b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compat">
+      <UniqueIdentifier>{c3d6fcdf-ff3e-4ed1-8d57-196629eaca7a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compat\godot_cpp">
+      <UniqueIdentifier>{237537ef-d787-4adf-b833-02a1f6b3bd89}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compat\godot_cpp\classes">
+      <UniqueIdentifier>{e114382d-c821-426e-8dc9-55e993ecb890}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compat\godot_cpp\core">
+      <UniqueIdentifier>{8876a862-61a5-4a8f-a160-c807c7def77b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compat\godot_cpp\variant">
+      <UniqueIdentifier>{812a39c3-eaa3-4d68-8df8-399375d5b388}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="audio">
+      <UniqueIdentifier>{75cc8b25-3d01-40b8-b253-a7b908a9c6d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{8e485b39-c934-4551-98f7-f1262f83d437}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics">
+      <UniqueIdentifier>{0ce4e3e4-94a9-4110-9146-e64c3a2c89e4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

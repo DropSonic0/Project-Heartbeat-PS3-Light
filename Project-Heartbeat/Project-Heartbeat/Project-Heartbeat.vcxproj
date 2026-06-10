@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|PS3">
+      <Configuration>Debug</Configuration>
+      <Platform>PS3</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|PS3">
+      <Configuration>Release</Configuration>
+      <Platform>PS3</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VSVersion)' == '' and '$(VisualStudioVersion)' == ''">$(VCTargetsPath11)</VCTargetsPath>
+    <ProjectGuid>{AEB5DD7D-7E7B-45C6-9B10-AB5EEDAB5EAD}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|PS3'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>SNC</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|PS3'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>SNC</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup Condition="'$(DebuggerFlavor)'=='PS3Debugger'" Label="OverrideDebuggerDefaults">
+    <!--LocalDebuggerCommand>$(TargetPath)</LocalDebuggerCommand-->
+    <!--LocalDebuggerCommandArguments></LocalDebuggerCommandArguments-->
+    <!--LocalDebuggerCommandLine>-r -e -m</LocalDebuggerCommandLine-->
+    <!--LocalRunCommandLine>-r</LocalRunCommandLine-->
+    <!--LocalTunerCommandLine></LocalTunerCommandLine-->
+    <!--LocalDebuggerFileServingDirectory>$(ProjectDir)</LocalDebuggerFileServingDirectory-->
+    <!--LocalDebuggerHomeDirectory>$(ProjectDir)</LocalDebuggerHomeDirectory-->
+    <!--LocalDebuggerProjectFile></LocalDebuggerProjectFile-->
+    <!--LocalDebuggerResetType>Soft</LocalDebuggerResetType-->
+    <!--LocalDebuggerClearTty>False</LocalDebuggerClearTty-->
+  </PropertyGroup>
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|PS3'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|PS3'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|PS3'">
+    <ClCompile>
+      <PreprocessorDefinitions>_ PS3_SDK;__CELL_ASSERT__;%(PreprocessorDefinitions);</PreprocessorDefinitions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>C:\Project-Heartbeat-PS3-Light\src\compat;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|PS3'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);</PreprocessorDefinitions>
+      <OptimizationLevel>Level2</OptimizationLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="..\..\PS3_COMPATIBILITY.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\audio\hb_shinobu_playback_offset.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_auto_song.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_base_note.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_bpm_change.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_chart.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_chart_section.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_double_note.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_duration_note_data.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_editor_template.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_folder.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_game_info.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_history_entry.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_intro_skip_marker.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_note_data.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_per_song_editor_settings.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_per_song_settings.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_ppd_song.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_result.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_rush_note.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_serializable.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_song.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_song_stats.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_song_variant_data.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_sustain_note.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_timing_change.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_timing_point.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_user_settings.cpp" />
+    <ClCompile Include="..\..\src\chart\hb_web_user_info.cpp" />
+    <ClCompile Include="..\..\src\graphics\hb_diva_texture_processor.cpp" />
+    <ClCompile Include="..\..\src\graphics\hb_mipmap_generator.cpp" />
+    <ClCompile Include="..\..\src\hb_error.cpp" />
+    <ClCompile Include="..\..\src\hb_game.cpp" />
+    <ClCompile Include="..\..\src\hb_input_event.cpp" />
+    <ClCompile Include="..\..\src\hb_judge.cpp" />
+    <ClCompile Include="..\..\src\hb_song_loader.cpp" />
+    <ClCompile Include="..\..\src\hb_song_verification.cpp" />
+    <ClCompile Include="..\..\src\hb_version.cpp" />
+    <ClCompile Include="..\..\src\register_types.cpp" />
+    <ClCompile Include="..\..\src\ui\hb_3d_ui_quad.cpp" />
+    <ClCompile Include="..\..\src\ui\hb_rich_text_word_rainbow.cpp" />
+    <ClCompile Include="..\..\src\ui\hb_ui_component.cpp" />
+    <ClCompile Include="..\..\src\ui\hb_ui_font.cpp" />
+    <ClCompile Include="..\..\src\ui\hb_ui_stylebox_flat.cpp" />
+    <ClCompile Include="..\..\src\ui\hb_ui_stylebox_texture.cpp" />
+    <ClCompile Include="..\..\src\utils\hb_ini_parser.cpp" />
+    <ClCompile Include="..\..\src\utils\hb_ppd_evd_file.cpp" />
+    <ClCompile Include="..\..\src\utils\hb_ppd_pack.cpp" />
+    <ClCompile Include="..\..\src\utils\hb_shift_jis_table.cpp" />
+    <ClCompile Include="..\..\src\utils\hb_smf_loader.cpp" />
+    <ClCompile Include="..\..\src\utils\hb_toml_parser.cpp" />
+    <ClCompile Include="..\..\src\utils\hb_utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\audio\hb_shinobu_playback_offset.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_auto_song.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_base_note.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_bpm_change.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_chart.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_chart_section.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_double_note.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_duration_note_data.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_editor_template.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_folder.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_game_info.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_history_entry.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_intro_skip_marker.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_note_data.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_per_song_editor_settings.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_per_song_settings.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_ppd_song.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_result.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_rush_note.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_serializable.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_song.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_song_stats.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_song_variant_data.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_sustain_note.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_timing_change.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_timing_point.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_user_settings.hpp" />
+    <ClInclude Include="..\..\src\chart\hb_web_user_info.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\control.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\file_access.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\image.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\json.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\node.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\object.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\ref_counted.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\reg_ex.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\texture2d.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\time.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\core\class_db.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\core\defs.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\godot.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\array.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\color.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\dictionary.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\packed_byte_array.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\packed_string_array.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\string.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\utility_functions.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\variant.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\vector2.hpp" />
+    <ClInclude Include="..\..\src\graphics\hb_diva_texture_processor.hpp" />
+    <ClInclude Include="..\..\src\graphics\hb_mipmap_generator.hpp" />
+    <ClInclude Include="..\..\src\hb_error.hpp" />
+    <ClInclude Include="..\..\src\hb_game.hpp" />
+    <ClInclude Include="..\..\src\hb_input_event.hpp" />
+    <ClInclude Include="..\..\src\hb_judge.hpp" />
+    <ClInclude Include="..\..\src\hb_song_loader.hpp" />
+    <ClInclude Include="..\..\src\hb_song_verification.hpp" />
+    <ClInclude Include="..\..\src\hb_version.hpp" />
+    <ClInclude Include="..\..\src\ui\hb_3d_ui_quad.hpp" />
+    <ClInclude Include="..\..\src\ui\hb_rich_text_word_rainbow.hpp" />
+    <ClInclude Include="..\..\src\ui\hb_ui_component.hpp" />
+    <ClInclude Include="..\..\src\ui\hb_ui_font.hpp" />
+    <ClInclude Include="..\..\src\ui\hb_ui_stylebox_flat.hpp" />
+    <ClInclude Include="..\..\src\ui\hb_ui_stylebox_texture.hpp" />
+    <ClInclude Include="..\..\src\utils\hb_ini_parser.hpp" />
+    <ClInclude Include="..\..\src\utils\hb_ppd_evd_file.hpp" />
+    <ClInclude Include="..\..\src\utils\hb_ppd_pack.hpp" />
+    <ClInclude Include="..\..\src\utils\hb_shift_jis_table.hpp" />
+    <ClInclude Include="..\..\src\utils\hb_smf_loader.hpp" />
+    <ClInclude Include="..\..\src\utils\hb_toml_parser.hpp" />
+    <ClInclude Include="..\..\src\utils\hb_utils.hpp" />
+  </ItemGroup>
+  <Import Condition="'$(ConfigurationType)' == 'Makefile' and Exists('$(VCTargetsPath)\Platforms\$(Platform)\SCE.Makefile.$(Platform).targets')" Project="$(VCTargetsPath)\Platforms\$(Platform)\SCE.Makefile.$(Platform).targets" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

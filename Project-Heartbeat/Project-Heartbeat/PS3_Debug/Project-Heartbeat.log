@@ -1,0 +1,13 @@
+﻿Build started 10/6/2026 15:28:23.
+     1>Project "C:\Project-Heartbeat-PS3-Light\Project-Heartbeat\Project-Heartbeat\Project-Heartbeat.vcxproj" on node 2 (Rebuild target(s)).
+     1>ClCompile:
+         hb_shinobu_playback_offset.cpp
+         ps3ppusnc.exe -D"_ PS3_SDK" -D__CELL_ASSERT__ -D__PS3__ -o PS3_Debug\hb_shinobu_playback_offset.o -c -Xdepmode=1 -MD -Xmserrors -I"C:\Project-Heartbeat-PS3-Light\src\compat" -I. -IC:/usr/local/cell\target\ppu\include -IC:/usr/local/cell\target\common\include -I"C:/usr/local/cell\host-win32\sn\ppu\include" -g -O0 -Xc-=rtti C:\Project-Heartbeat-PS3-Light\src\audio\hb_shinobu_playback_offset.cpp
+     1>C:\Project-Heartbeat-PS3-Light\src\compat\godot_cpp/classes/node.hpp(1,24): error 1852: cannot open source file "../object.hpp"
+         
+         Compilation terminated.
+     1>Done Building Project "C:\Project-Heartbeat-PS3-Light\Project-Heartbeat\Project-Heartbeat\Project-Heartbeat.vcxproj" (Rebuild target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:00.34

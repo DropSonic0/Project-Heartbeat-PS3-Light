@@ -1,0 +1,9 @@
+[configuration]
+entry_symbol = "project_heartbeat_library_init"
+compatibility_minimum = 4.1
+
+[libraries]
+linux.debug.x86_64 = "res://addons/project_heartbeat/bin/libproject_heartbeat.linux.debug.x86_64.so"
+linux.release.x86_64 = "res://addons/project_heartbeat/bin/libproject_heartbeat.linux.release.x86_64.so"
+windows.debug.x86_64 = "res://addons/project_heartbeat/bin/libproject_heartbeat.windows.debug.x86_64.dll"
+windows.release.x86_64 = "res://addons/project_heartbeat/bin/libproject_heartbeat.windows.release.x86_64.dll"

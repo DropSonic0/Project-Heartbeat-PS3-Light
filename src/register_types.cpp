@@ -1,6 +1,13 @@
+#ifdef __PPU__
+#include "compat/gdextension_interface.h"
+#include "compat/godot_cpp/core/defs.hpp"
+#include "compat/godot_cpp/godot.hpp"
+#include "compat/godot_cpp/core/class_db.hpp"
+#else
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
+#endif
 
 #include "utils/hb_utils.hpp"
 #include "chart/hb_chart.hpp"

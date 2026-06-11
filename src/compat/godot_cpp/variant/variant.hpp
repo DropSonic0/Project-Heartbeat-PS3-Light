@@ -58,6 +58,11 @@ public:
 };
 
 typedef std::vector<String> PackedStringArray;
+typedef std::vector<uint8_t> PackedByteArray;
+typedef std::vector<int32_t> PackedInt32Array;
+typedef std::vector<int64_t> PackedInt64Array;
+typedef std::vector<float> PackedFloat32Array;
+typedef std::vector<double> PackedFloat64Array;
 
 class Array;
 class Dictionary;

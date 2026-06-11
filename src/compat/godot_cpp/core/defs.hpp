@@ -6,6 +6,9 @@
 
 #if defined(__PPU__) || defined(__SNC__) || (defined(_MSC_VER) && _MSC_VER <= 1700)
 #define GD_OVERRIDE
+#ifndef nullptr
+#define nullptr 0
+#endif
 #else
 #define GD_OVERRIDE override
 #endif

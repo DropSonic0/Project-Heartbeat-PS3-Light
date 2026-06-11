@@ -48,10 +48,10 @@ public:
     bool is_leaderboard_legal() const;
 
     virtual String get_serialized_type() const GD_OVERRIDE { return "GameInfo"; }
+
+    VARIANT_ENUM_CAST(GameSessionType);
 };
 
 } // namespace godot
-
-VARIANT_ENUM_CAST(HBGameInfoNative::GameSessionType);
 
 #endif // HB_GAME_INFO_HPP

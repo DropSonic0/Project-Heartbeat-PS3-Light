@@ -71,10 +71,10 @@ public:
     int64_t get_score(int p_rating) const;
 
     virtual String get_serialized_type() const GD_OVERRIDE;
+
+    VARIANT_ENUM_CAST(NoteType);
 };
 
 } // namespace godot
-
-VARIANT_ENUM_CAST(HBBaseNoteNative::NoteType);
 
 #endif // HB_BASE_NOTE_HPP

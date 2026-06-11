@@ -28,12 +28,14 @@ struct RatingWindow {
     HBJudgeNative::JudgeRatings rating;
 };
 
-static const std::vector<RatingWindow> RATING_WINDOWS = {
+static const RatingWindow RATING_WINDOWS[] = {
     {32, HBJudgeNative::COOL},
     {64, HBJudgeNative::FINE},
     {96, HBJudgeNative::SAFE},
     {128, HBJudgeNative::SAD}
 };
+
+static const int RATING_WINDOWS_COUNT = 4;
 
 HBJudgeNative::HBJudgeNative() {}
 HBJudgeNative::~HBJudgeNative() {}
@@ -50,8 +52,9 @@ int HBJudgeNative::judge_note(int64_t p_hit_time_msec, int64_t p_target_note_tim
         return WORST;
     }
 
-    int64_t abs_diff = std::abs(diff);
-    for (const auto& rw : RATING_WINDOWS) {
+    int64_t abs_diff = std::abs((double)diff);
+    for (int i = 0; i < RATING_WINDOWS_COUNT; i++) {
+        const RatingWindow& rw = RATING_WINDOWS[i];
         if (abs_diff <= (int64_t)(rw.window * timing_window_scale)) {
             return rw.rating;
         }
@@ -72,8 +75,9 @@ int HBJudgeNative::judge_note_usec(int64_t p_hit_time_usec, int64_t p_target_not
         return WORST;
     }
 
-    int64_t abs_diff = std::abs(diff);
-    for (const auto& rw : RATING_WINDOWS) {
+    int64_t abs_diff = std::abs((double)diff);
+    for (int i = 0; i < RATING_WINDOWS_COUNT; i++) {
+        const RatingWindow& rw = RATING_WINDOWS[i];
         if (abs_diff <= (int64_t)(rw.window * 1000 * timing_window_scale)) {
             return rw.rating;
         }
@@ -91,7 +95,8 @@ int64_t HBJudgeNative::get_target_window_usec() const {
 }
 
 int64_t HBJudgeNative::get_window_for_rating(int p_rating) const {
-    for (const auto& rw : RATING_WINDOWS) {
+    for (int i = 0; i < RATING_WINDOWS_COUNT; i++) {
+        const RatingWindow& rw = RATING_WINDOWS[i];
         if (rw.rating == p_rating) {
             return (int64_t)(rw.window * timing_window_scale);
         }

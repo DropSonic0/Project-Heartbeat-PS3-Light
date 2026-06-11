@@ -3,6 +3,7 @@
 
 #include "core/defs.hpp"
 #include "variant/variant.hpp"
+#include "variant/callable.hpp"
 #include "classes/object.hpp"
 #include "classes/ref_counted.hpp"
 

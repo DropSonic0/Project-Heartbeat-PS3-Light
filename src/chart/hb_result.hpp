@@ -64,10 +64,10 @@ public:
     Dictionary get_wrong_note_ratings() const { return wrong_note_ratings; }
 
     virtual String get_serialized_type() const GD_OVERRIDE { return "Result"; }
+
+    VARIANT_ENUM_CAST(ResultRating);
 };
 
 } // namespace godot
-
-VARIANT_ENUM_CAST(HBResultNative::ResultRating);
 
 #endif // HB_RESULT_HPP

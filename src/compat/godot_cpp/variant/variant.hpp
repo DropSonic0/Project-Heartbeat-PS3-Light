@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include "../core/defs.hpp"
 
 namespace godot {
 
@@ -39,9 +40,9 @@ public:
         res.push_back(substr(start));
         return res;
     }
-    String strip_edges() const { return *this; } // Placeholder
-    String replace(const char* p_old, const char* p_new) const { return *this; } // Placeholder
-    String to_lower() const { return *this; } // Placeholder
+    String strip_edges() const { return *this; }
+    String replace(const char* p_old, const char* p_new) const { return *this; }
+    String to_lower() const { return *this; }
     long long to_int() const {
         std::stringstream ss(*this);
         long long res;
@@ -58,27 +59,54 @@ public:
 
 typedef std::vector<String> PackedStringArray;
 
+class Array;
+class Dictionary;
+class Callable;
+class Object;
+template <class T> class Ref;
+
 class Variant {
 public:
-    enum Type { NIL, BOOL, INT, FLOAT, STRING, VECTOR2, COLOR, DICTIONARY, ARRAY, OBJECT };
+    enum Type { NIL, BOOL, INT, FLOAT, STRING, VECTOR2, COLOR, DICTIONARY, ARRAY, OBJECT, CALLABLE };
     Variant() : type(NIL) {}
     Variant(bool p_bool) : type(BOOL) {}
+    Variant(int p_int) : type(INT) {}
     Variant(long long p_int) : type(INT) {}
     Variant(double p_float) : type(FLOAT) {}
+    Variant(float p_float) : type(FLOAT) {}
     Variant(const String& p_string) : type(STRING) {}
+    Variant(const char* p_string) : type(STRING) {}
+    Variant(const Array& p_array);
+    Variant(const Dictionary& p_dict);
+    Variant(const Callable& p_callable);
+
+    template <class T>
+    Variant(const Ref<T> &p_ref) : type(OBJECT) {}
+
     Type get_type() const { return type; }
 
-    // Simplistic casting
     operator String() const { return ""; }
     operator long long() const { return 0; }
     operator double() const { return 0.0; }
+    operator float() const { return 0.0f; }
+    operator int() const { return 0; }
     operator bool() const { return false; }
+    operator Array() const;
+    operator Dictionary() const;
+    operator const void*() const { return NULL; }
+    operator Object*() const;
 
-    template<class T>
-    T* operator=(T* p_obj) { return p_obj; }
+    template <class T>
+    operator Ref<T>() const;
+
+    Variant& operator=(Object* p_obj);
+    Variant& operator=(const Array& p_array);
+    Variant& operator=(const Dictionary& p_dict);
 
     Variant get(const String& p_name) const { return Variant(); }
-    void call(const String& p_method, ...) {}
+    Variant call(const String& p_method, ...);
+    
+    void sort_custom(const Variant& p_callable) {}
 
 private:
     Type type;
@@ -96,7 +124,7 @@ public:
     Variant& operator[](size_t p_idx) { return data[p_idx]; }
     const Variant& operator[](size_t p_idx) const { return data[p_idx]; }
     int find(const Variant& p_val) const { return -1; }
-    void sort_custom(void* p_callable) {}
+    void sort_custom(const Variant& p_callable) {}
     void append_array(const Array& p_other) {
         for(size_t i=0; i<p_other.size(); i++) data.push_back(p_other[i]);
     }
@@ -106,7 +134,21 @@ class Dictionary {
     std::map<String, Variant> data;
 public:
     bool has(const String& s) const { return data.find(s) != data.end(); }
+    bool is_empty() const { return data.empty(); }
     Variant& operator[](const String& s) { return data[s]; }
+    Variant& operator[](const char* s) { return data[String(s)]; }
+    Variant& operator[](int p_idx) { return data[String::num_int64(p_idx)]; }
+    Variant& operator[](long long p_idx) { return data[String::num_int64(p_idx)]; }
+    Variant& operator[](const Variant& p_key) { return data[String(p_key)]; }
+    const Variant& operator[](const String& s) const {
+        static Variant nil;
+        std::map<String, Variant>::const_iterator it = data.find(s);
+        return it != data.end() ? it->second : nil;
+    }
+    const Variant& operator[](const char* s) const { return (*this)[String(s)]; }
+    const Variant& operator[](int p_idx) const { return (*this)[String::num_int64(p_idx)]; }
+    const Variant& operator[](long long p_idx) const { return (*this)[String::num_int64(p_idx)]; }
+    const Variant& operator[](const Variant& p_key) const { return (*this)[String(p_key)]; }
     Array keys() const {
         Array a;
         for (std::map<String, Variant>::const_iterator it = data.begin(); it != data.end(); ++it) {
@@ -117,6 +159,29 @@ public:
     void erase(const String& s) { data.erase(s); }
 };
 
+} // namespace godot
+
+#include "callable.hpp"
+#include "../classes/object.hpp"
+
+namespace godot {
+inline Variant::Variant(const Array& p_array) : type(ARRAY) {}
+inline Variant::Variant(const Dictionary& p_dict) : type(DICTIONARY) {}
+inline Variant::Variant(const Callable& p_callable) : type(CALLABLE) {}
+
+inline Variant::operator Array() const { return Array(); }
+inline Variant::operator Dictionary() const { return Dictionary(); }
+inline Variant::operator Object*() const { return NULL; }
+
+template <class T>
+inline Variant::operator Ref<T>() const { return Ref<T>(); }
+
+inline Variant& Variant::operator=(Object* p_obj) { type = OBJECT; return *this; }
+inline Variant& Variant::operator=(const Array& p_array) { type = ARRAY; return *this; }
+inline Variant& Variant::operator=(const Dictionary& p_dict) { type = DICTIONARY; return *this; }
+
+inline Variant Variant::call(const String& p_method, ...) { return Variant(); }
+inline Variant Object::call(const char* p_method, ...) { return Variant(); }
 }
 
 #endif

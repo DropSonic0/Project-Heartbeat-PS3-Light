@@ -34,10 +34,10 @@ public:
 
     int get_note_type_at_time(double p_time);
     double get_slide_scale_at_time(double p_time);
+
+    VARIANT_ENUM_CAST(PPDEventType);
 };
 
 } // namespace godot
-
-VARIANT_ENUM_CAST(PPDEVDFileNative::PPDEventType);
 
 #endif // HB_PPD_EVD_FILE_HPP

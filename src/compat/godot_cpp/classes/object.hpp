@@ -7,12 +7,14 @@
 
 namespace godot {
 
+class Variant;
 class Object {
 public:
     virtual ~Object() {}
     virtual void set(const std::string &p_name, const void* p_value) {}
     virtual void* get(const std::string &p_name) const { return NULL; }
     virtual bool has_method(const std::string &p_method) const { return false; }
+    virtual Variant call(const char* p_method, ...);
 };
 
 #define GDCLASS(m_class, m_inherits) \

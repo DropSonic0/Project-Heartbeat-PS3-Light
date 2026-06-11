@@ -42,10 +42,10 @@ public:
     static int64_t bsearch_upper(Array p_array, int64_t p_value);
     static int64_t bsearch_closest(Array p_array, int64_t p_value);
     static float bsearch_linear(Array p_array, int64_t p_value);
+
+    VARIANT_ENUM_CAST(TimeFormat);
 };
 
 } // namespace godot
-
-VARIANT_ENUM_CAST(HBUtilsNative::TimeFormat);
 
 #endif // HB_UTILS_HPP

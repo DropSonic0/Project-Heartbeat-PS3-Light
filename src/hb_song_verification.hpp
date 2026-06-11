@@ -40,11 +40,11 @@ public:
 
     Dictionary verify_song(Ref<HBSongNative> p_song);
     bool has_fatal_error(Dictionary p_errors, bool p_count_ugc = false);
+
+    VARIANT_ENUM_CAST(ChartError);
+    VARIANT_ENUM_CAST(MetaError);
 };
 
 } // namespace godot
-
-VARIANT_ENUM_CAST(HBSongVerificationNative::ChartError);
-VARIANT_ENUM_CAST(HBSongVerificationNative::MetaError);
 
 #endif // HB_SONG_VERIFICATION_HPP

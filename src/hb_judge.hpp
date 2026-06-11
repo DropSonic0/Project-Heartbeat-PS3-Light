@@ -37,10 +37,10 @@ public:
 
     void set_timing_window_scale(double p_scale) { timing_window_scale = p_scale; }
     double get_timing_window_scale() const { return timing_window_scale; }
+
+    VARIANT_ENUM_CAST(JudgeRatings);
 };
 
 } // namespace godot
-
-VARIANT_ENUM_CAST(HBJudgeNative::JudgeRatings);
 
 #endif // HB_JUDGE_HPP

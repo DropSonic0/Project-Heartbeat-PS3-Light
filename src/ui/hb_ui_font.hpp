@@ -20,10 +20,10 @@ public:
 
     HBUIFontNative();
     ~HBUIFontNative();
+
+    VARIANT_ENUM_CAST(FallbackHint);
 };
 
 } // namespace godot
-
-VARIANT_ENUM_CAST(HBUIFontNative::FallbackHint);
 
 #endif // HB_UI_FONT_HPP

@@ -36,10 +36,10 @@ public:
     UsageTypes get_usage() const;
 
     virtual String get_serialized_type() const GD_OVERRIDE;
+
+    VARIANT_ENUM_CAST(UsageTypes);
 };
 
 } // namespace godot
-
-VARIANT_ENUM_CAST(HBBPMChangeNative::UsageTypes);
 
 #endif // HB_BPM_CHANGE_HPP

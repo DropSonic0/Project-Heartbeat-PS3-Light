@@ -2,6 +2,7 @@
 #define COMPAT_TIME_HPP
 
 #include "object.hpp"
+#include <time.h>
 
 namespace godot {
 
@@ -11,7 +12,9 @@ public:
         static Time* singleton = new Time();
         return singleton;
     }
-    double get_unix_time_from_system() { return 0.0; }
+    double get_unix_time_from_system() {
+        return (double)time(NULL);
+    }
 };
 
 }

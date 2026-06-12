@@ -3,6 +3,9 @@
 #include "compat/godot_cpp/core/defs.hpp"
 #include "compat/godot_cpp/godot.hpp"
 #include "compat/godot_cpp/core/class_db.hpp"
+#include "compat/godot_cpp/classes/file_access.hpp"
+#include "compat/godot_cpp/classes/json.hpp"
+#include "compat/godot_cpp/variant/utility_functions.hpp"
 #else
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
@@ -137,3 +140,59 @@ GDExtensionBool GDE_EXPORT project_heartbeat_library_init(GDExtensionInterfaceGe
     return init_obj.init();
 }
 }
+
+#ifdef __PPU__
+#include <fstream>
+int main(int argc, char *argv[]) {
+    using namespace godot;
+    std::ofstream log_file("/dev_hdd0/game/PROJECTHB/USRDIR/log.txt");
+    if (log_file.is_open()) {
+        log_file << "Project Heartbeat PS3 Started" << std::endl;
+        log_file.close();
+    }
+
+    UtilityFunctions::print("Initializing Module...");
+    initialize_project_heartbeat_module(MODULE_INITIALIZATION_LEVEL_SCENE);
+    UtilityFunctions::print("Module Initialized.");
+
+    // Simple Test Loop
+    UtilityFunctions::print("Running tests...");
+    Ref<FileAccess> fa = FileAccess::open("/dev_hdd0/game/PROJECTHB/USRDIR/log.txt", FileAccess::READ);
+    if (fa.is_valid()) {
+        UtilityFunctions::print("Self-test: Read own log success.");
+    } else {
+        UtilityFunctions::print("Self-test: FileAccess failed.");
+    }
+
+    UtilityFunctions::print("Testing JSON and Object properties...");
+    String test_json = "{\"title\": \"Test Song\", \"bpm\": 120, \"is_classic\": true}";
+    Ref<JSON> json;
+    json.instantiate();
+    if (json->parse(test_json) == 0) {
+        UtilityFunctions::print("JSON Parse success.");
+        Variant data = json->get_data();
+        if (data.get_type() == Variant::DICTIONARY) {
+            Dictionary d = data;
+            UtilityFunctions::print("JSON Data is Dictionary.");
+            
+            UtilityFunctions::print("Song Title: " + (String)d["title"]);
+            
+            Object obj;
+            obj.set("metadata", data);
+            UtilityFunctions::print("Object Property set success.");
+            
+            Variant retrieved = obj.get("metadata");
+            if (retrieved.get_type() == Variant::DICTIONARY) {
+                Dictionary d2 = retrieved;
+                UtilityFunctions::print("Object Property retrieve success. BPM: " + String::num((double)d2["bpm"]));
+            }
+        }
+    } else {
+        UtilityFunctions::print("JSON Parse failed.");
+    }
+
+    UtilityFunctions::print("Tests finished. Result: SUCCESS");
+
+    return 0;
+}
+#endif

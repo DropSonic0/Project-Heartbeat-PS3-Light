@@ -3,12 +3,15 @@
 
 #include "ref_counted.hpp"
 #include "../variant/variant.hpp"
+#include <fstream>
+#include <sstream>
 
 namespace godot {
 
 class FileAccess : public RefCounted {
     GDCLASS(FileAccess, RefCounted);
 
+    String path;
 public:
     enum ModeFlags {
         READ = 1,
@@ -18,10 +21,26 @@ public:
     };
 
     static Ref<FileAccess> open(const String& p_path, ModeFlags p_mode) {
-        return Ref<FileAccess>(new FileAccess());
+        FileAccess *fa = new FileAccess();
+        fa->path = p_path;
+        // Check if file exists/can be opened for reading
+        if (p_mode == READ) {
+            std::ifstream f(p_path.c_str());
+            if (!f.good()) {
+                delete fa;
+                return Ref<FileAccess>(NULL);
+            }
+        }
+        return Ref<FileAccess>(fa);
     }
 
-    String get_as_text() const { return ""; }
+    String get_as_text() const {
+        std::ifstream f(path.c_str());
+        if (!f.is_open()) return "";
+        std::stringstream ss;
+        ss << f.rdbuf();
+        return ss.str().c_str();
+    }
 };
 
 }

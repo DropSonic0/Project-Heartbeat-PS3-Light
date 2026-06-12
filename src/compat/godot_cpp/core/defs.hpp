@@ -9,6 +9,9 @@
 #ifndef nullptr
 #define nullptr 0
 #endif
+#ifdef __SNC__
+#include <yvals.h>
+#endif
 #else
 #define GD_OVERRIDE override
 #endif
@@ -29,7 +32,7 @@ public:
     bool is_valid() const { return reference != 0; }
     bool is_null() const { return reference == 0; }
     void instantiate() { reference = new T(); }
-    T* ptr() { return reference; }
+    T* ptr() const { return reference; }
 };
 
 }

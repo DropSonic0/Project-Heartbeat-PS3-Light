@@ -1,12 +1,12 @@
 #ifndef COMPAT_CONTROL_HPP
 #define COMPAT_CONTROL_HPP
 
-#include "object.hpp"
+#include "canvas_item.hpp"
 
 namespace godot {
 
-class Control : public Object {
-    GDCLASS(Control, Object);
+class Control : public CanvasItem {
+    GDCLASS(Control, CanvasItem);
 };
 
 }

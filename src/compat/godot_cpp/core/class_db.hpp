@@ -25,8 +25,14 @@ public:
     template<class M>
     static void bind_static_method(const char* p_class, const char* p_method, M p_func) {}
     
-    template<class M, class D>
-    static void bind_static_method(const char* p_class, const char* p_method, M p_func, D p_def) {}
+    template<class M, class D1>
+    static void bind_static_method(const char* p_class, const char* p_method, M p_func, D1 p_def1) {}
+
+    template<class M, class D1, class D2>
+    static void bind_static_method(const char* p_class, const char* p_method, M p_func, D1 p_def1, D2 p_def2) {}
+
+    template<class M, class D1, class D2, class D3>
+    static void bind_static_method(const char* p_class, const char* p_method, M p_func, D1 p_def1, D2 p_def2, D3 p_def3) {}
 
     static void add_property(const char* p_class, const void* p_info, const char* p_set, const char* p_get) {}
 };

@@ -47,7 +47,7 @@ String HBUtilsNative::format_time(float p_time, int p_format, const String &p_di
     }
 
     if (p_format & FORMAT_SECONDS) {
-        digits.append(String::num_int64((int64_t)std::fmod(s, 60.0)).lpad(2, "0"));
+        digits.append(String::num_int64((int64_t)std::fmod((double)s, 60.0)).lpad(2, "0"));
     }
 
     String formatted = "";
@@ -62,7 +62,7 @@ String HBUtilsNative::format_time(float p_time, int p_format, const String &p_di
     }
 
     if (p_format & FORMAT_MILISECONDS) {
-        formatted += "." + String::num_int64((int64_t)std::fmod(p_time, 1000.0)).lpad(3, "0");
+        formatted += "." + String::num_int64((int64_t)std::fmod((double)p_time, 1000.0)).lpad(3, "0");
     }
 
     if (p_time < 0.0) {
@@ -201,8 +201,8 @@ int64_t HBUtilsNative::bsearch_closest(Array p_array, int64_t p_value) {
     if (p_array.is_empty()) {
         return 0;
     }
-    int64_t idx = std::min((int64_t)p_array.bsearch(p_value), (int64_t)p_array.size() - 1);
-    if (idx == 0 || std::abs((int64_t)p_array[idx] - p_value) < std::abs((int64_t)p_array[idx-1] - p_value)) {
+    int64_t idx = std::min<int64_t>((int64_t)p_array.bsearch(p_value), (int64_t)p_array.size() - 1);
+    if (idx == 0 || std::abs((long long)((int64_t)p_array[idx] - p_value)) < std::abs((long long)((int64_t)p_array[idx-1] - p_value))) {
         return idx;
     } else {
         return idx - 1;

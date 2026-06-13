@@ -11,6 +11,10 @@ public:
         static ProjectSettings* singleton = new ProjectSettings();
         return singleton;
     }
+
+    bool load_resource_pack(const String& p_pack, bool p_replace_files = true, int p_offset = 0) {
+        return true;
+    }
 };
 
 }

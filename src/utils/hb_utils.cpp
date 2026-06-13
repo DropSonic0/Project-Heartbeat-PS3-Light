@@ -137,6 +137,9 @@ String HBUtilsNative::thousands_sep(int64_t p_number, const String &p_prefix) {
 }
 
 float HBUtilsNative::remap(float p_value, float p_low1, float p_low2, float p_high1, float p_high2) {
+#ifdef __PPU__
+    // UtilityFunctions::print("Remap: val=" + String::num(p_value) + " low1=" + String::num(p_low1) + " low2=" + String::num(p_low2) + " high1=" + String::num(p_high1) + " high2=" + String::num(p_high2));
+#endif
     return p_low2 + (p_value - p_low1) * (p_high2 - p_low2) / (p_high1 - p_low1);
 }
 

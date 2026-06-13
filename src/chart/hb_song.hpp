@@ -62,8 +62,8 @@ public:
     HBSongNative();
     ~HBSongNative();
 
-    void set_title(String p_title) { title = p_title; }
-    String get_title() const { return title; }
+    void set_title(String p_title) { title = p_title; set("title", p_title); }
+    String get_title() const { return get("title"); }
     void set_romanized_title(String p_val) { romanized_title = p_val; }
     String get_romanized_title() const { return romanized_title; }
     void set_artist(String p_val) { artist = p_val; }
@@ -86,9 +86,9 @@ public:
     String get_creator() const { return creator; }
     void set_original_title(String p_val) { original_title = p_val; }
     String get_original_title() const { return original_title; }
-    void set_bpm(double p_val) { bpm = p_val; }
-    double get_bpm() const { return bpm; }
-    void set_bpm_string(String p_val) { bpm_string = p_val; }
+    void set_bpm(double p_val) { bpm = p_val; set("bpm", p_val); }
+    double get_bpm() const { return get("bpm"); }
+    void set_bpm_string(String p_val) { bpm_string = p_val; set("bpm_string", p_val); }
     String get_bpm_string() const { return bpm_string; }
     void set_preview_start(int64_t p_val) { preview_start = p_val; }
     int64_t get_preview_start() const { return preview_start; }

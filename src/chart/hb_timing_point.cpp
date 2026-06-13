@@ -18,6 +18,7 @@ HBTimingPointNative::~HBTimingPointNative() {}
 
 void HBTimingPointNative::set_time(int64_t p_time) {
     time = p_time;
+    set("time", p_time);
 }
 
 int64_t HBTimingPointNative::get_time() const {

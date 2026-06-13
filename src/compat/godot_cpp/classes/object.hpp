@@ -18,8 +18,8 @@ public:
     virtual void set_ptr(const std::string &p_name, const void* p_value) {}
     virtual void* get_ptr(const std::string &p_name) const { return NULL; }
     
-    virtual bool has_method(const std::string &p_method) const { return false; }
-    virtual Variant call(const char* p_method, ...);
+    virtual bool has_method(const std::string &p_method) const;
+    virtual Variant call(const std::string &p_method, const Variant& p_arg1, const Variant& p_arg2);
     static void _bind_methods() {}
 };
 

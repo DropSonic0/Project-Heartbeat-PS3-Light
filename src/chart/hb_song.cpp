@@ -132,8 +132,8 @@ void HBSongNative::_bind_methods() {
 }
 
 HBSongNative::HBSongNative() {
-    bpm = 150.0;
-    bpm_string = "150";
+    set_bpm(150.0);
+    set_bpm_string("150");
     preview_start = 0;
     preview_end = -1;
     use_youtube_for_audio = true;

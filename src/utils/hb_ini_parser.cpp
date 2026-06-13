@@ -21,12 +21,12 @@ Dictionary HBINIParserNative::parse(const String &p_contents) {
             if (vk_pair.size() > 1) {
                 if (!current_section.is_empty()) {
                     Dictionary section_dict = dict[current_section];
-                    section_dict[vk_pair[0]] = vk_pair[1];
+                    section_dict[((String)vk_pair[0]).strip_edges()] = ((String)vk_pair[1]).strip_edges();
                 }
             } else if (vk_pair.size() == 1) {
                 if (!current_section.is_empty()) {
                     Dictionary section_dict = dict[current_section];
-                    section_dict[vk_pair[0]] = Variant();
+                    section_dict[((String)vk_pair[0]).strip_edges()] = Variant();
                 }
             }
         }

@@ -41,6 +41,7 @@ public:
     enum _variant_enum_cast_##m_enum {}
 
 #define memnew(m_class) new m_class
+#define memdelete(m_instance) delete m_instance
 
 enum Error {
     OK,

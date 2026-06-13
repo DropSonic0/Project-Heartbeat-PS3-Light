@@ -17,9 +17,9 @@ Dictionary HBSerializableNative::serialize(bool p_serialize_defaults) {
         String field = serializable_fields[i];
         Variant val = get(field);
         if (val.get_type() == Variant::OBJECT) {
-            Object *obj = val;
+            Object *obj = (Object*)val;
             if (obj && obj->has_method("serialize")) {
-                data[field] = obj->call("serialize", p_serialize_defaults);
+                data[field] = obj->call("serialize", p_serialize_defaults, Variant());
             } else {
                 data[field] = val;
             }
@@ -33,4 +33,16 @@ Dictionary HBSerializableNative::serialize(bool p_serialize_defaults) {
 
 String HBSerializableNative::get_serialized_type() const {
     return "Serializable";
+}
+
+bool HBSerializableNative::has_method(const std::string &p_method) const {
+    if (p_method == "serialize") return true;
+    return Object::has_method(p_method);
+}
+
+Variant HBSerializableNative::call(const std::string &p_method, const Variant& p_arg1, const Variant& p_arg2) {
+    if (p_method == "serialize") {
+        return serialize((bool)p_arg1);
+    }
+    return Object::call(p_method, p_arg1, p_arg2);
 }

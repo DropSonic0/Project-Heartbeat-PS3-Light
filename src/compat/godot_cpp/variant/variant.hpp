@@ -31,7 +31,17 @@ public:
     String substr(size_t p_from, size_t p_chars = (size_t)std::string::npos) const {
         return ((const std::string*)this)->std::string::substr(p_from, p_chars).c_str();
     }
-    String lpad(int p_len, const char* p_char) { return *this; }
+    String lpad(int p_len, const char* p_char = " ") const {
+        if ((int)size() >= p_len) return *this;
+        int pad_len = p_len - (int)size();
+        std::string pad_str = "";
+        std::string p_char_str = p_char;
+        if (p_char_str.empty()) return *this;
+        while ((int)pad_str.size() < pad_len) {
+            pad_str += p_char_str;
+        }
+        return String(pad_str.substr(0, pad_len) + *this);
+    }
     bool is_empty() const { return empty(); }
     bool begins_with(const char* s) const { return find(s) == 0; }
     bool ends_with(const char* s) const { return size() >= std::string(s).size() && rfind(s) == size() - std::string(s).size(); }
@@ -45,9 +55,31 @@ public:
         res.push_back(substr(start));
         return res;
     }
-    String strip_edges() const { return *this; }
-    String replace(const char* p_old, const char* p_new) const { return *this; }
-    String to_lower() const { return *this; }
+    String strip_edges() const {
+        size_t first = find_first_not_of(" \t\n\r");
+        if (std::string::npos == first) return String("");
+        size_t last = find_last_not_of(" \t\n\r");
+        return String(this->std::string::substr(first, (last - first + 1)));
+    }
+    String replace(const char* p_old, const char* p_new) const {
+        std::string res = *this;
+        std::string from = p_old;
+        std::string to = p_new;
+        if (from.empty()) return *this;
+        size_t start_pos = 0;
+        while((start_pos = res.find(from, start_pos)) != std::string::npos) {
+            res.replace(start_pos, from.length(), to);
+            start_pos += to.length();
+        }
+        return String(res);
+    }
+    String to_lower() const {
+        std::string res = *this;
+        for (size_t i = 0; i < res.size(); i++) {
+            if (res[i] >= 'A' && res[i] <= 'Z') res[i] += 32;
+        }
+        return String(res);
+    }
     long long to_int() const {
         std::stringstream ss(*this);
         long long res;
@@ -75,7 +107,12 @@ public:
 };
 
 typedef std::vector<unsigned char> PackedByteArray;
-typedef std::vector<String> PackedStringArray;
+class PackedStringArray : public std::vector<String> {
+public:
+    PackedStringArray() {}
+    PackedStringArray(const std::vector<String>& p_vec) : std::vector<String>(p_vec) {}
+    void append(const String& p_string) { push_back(p_string); }
+};
 typedef std::vector<int32_t> PackedInt32Array;
 typedef std::vector<int64_t> PackedInt64Array;
 typedef std::vector<float> PackedFloat32Array;
@@ -110,12 +147,24 @@ public:
 
     Type get_type() const { return type; }
 
-    operator String() const { return s_val; }
+    operator String() const {
+        if (type == STRING) return s_val;
+        if (type == INT) return String::num_int64(i_val);
+        if (type == FLOAT) return String::num(f_val);
+        if (type == BOOL) return i_val ? "true" : "false";
+        return "";
+    }
     operator long long() const { return (type == FLOAT) ? (long long)f_val : i_val; }
     operator double() const { return (type == INT || type == BOOL) ? (double)i_val : f_val; }
     operator float() const { return (type == INT || type == BOOL) ? (float)i_val : (float)f_val; }
     operator int() const { return (type == FLOAT) ? (int)f_val : (int)i_val; }
-    operator bool() const { return i_val != 0 || f_val != 0.0 || obj_val != 0; }
+    operator bool() const {
+        if (type == BOOL || type == INT) return i_val != 0;
+        if (type == FLOAT) return f_val != 0.0;
+        if (type == STRING) return !s_val.empty();
+        if (type == OBJECT) return obj_val != 0;
+        return false;
+    }
     operator Array() const;
     operator Dictionary() const;
     operator const void*() const { return (const void*)obj_val; }
@@ -130,8 +179,8 @@ public:
     Variant& operator=(const Dictionary& p_dict);
     Variant& operator=(const std::string& p_string);
 
-    Variant get(const String& p_name) const { return Variant(); }
-    Variant call(const String& p_method, ...);
+    Variant get(const String& p_name) const;
+    Variant call(const String& p_method, const Variant& p_arg1 = Variant(), const Variant& p_arg2 = Variant());
     
     void sort_custom(const Variant& p_callable) {}
 
@@ -161,44 +210,74 @@ private:
 };
 
 class Array {
-public:
-    std::vector<Variant> data;
-    Array() {}
-    Array(const std::vector<String>& p_vec) {
-        for (size_t i = 0; i < p_vec.size(); i++) {
-            data.push_back(p_vec[i]);
+    struct Data {
+        std::vector<Variant> vec;
+        int refcount;
+    } *data;
+    void _ref(const Array& p_other) {
+        data = p_other.data;
+        if (data) data->refcount++;
+    }
+    void _unref() {
+        if (data) {
+            data->refcount--;
+            if (data->refcount <= 0) {
+                delete data;
+            }
+            data = 0;
         }
     }
-    bool is_empty() const { return data.empty(); }
-    size_t size() const { return data.size(); }
-    void append(const Variant& p_val) { data.push_back(p_val); }
-    void push_back(const Variant& p_val) { data.push_back(p_val); }
+public:
+    Array() {
+        data = new Data;
+        data->refcount = 1;
+    }
+    Array(const Array& p_other) { _ref(p_other); }
+    Array& operator=(const Array& p_other) {
+        if (this == &p_other) return *this;
+        _unref();
+        _ref(p_other);
+        return *this;
+    }
+    ~Array() { _unref(); }
+
+    Array(const std::vector<String>& p_vec) {
+        data = new Data;
+        data->refcount = 1;
+        for (size_t i = 0; i < p_vec.size(); i++) {
+            data->vec.push_back(p_vec[i]);
+        }
+    }
+    bool is_empty() const { return data->vec.empty(); }
+    size_t size() const { return data->vec.size(); }
+    void append(const Variant& p_val) { data->vec.push_back(p_val); }
+    void push_back(const Variant& p_val) { data->vec.push_back(p_val); }
     Variant pop_back() {
-        if (data.empty()) return Variant();
-        Variant v = data.back();
-        data.pop_back();
+        if (data->vec.empty()) return Variant();
+        Variant v = data->vec.back();
+        data->vec.pop_back();
         return v;
     }
-    void remove_at(size_t p_idx) { data.erase(data.begin() + p_idx); }
-    void clear() { data.clear(); }
-    Variant& operator[](size_t p_idx) { return data[p_idx]; }
-    const Variant& operator[](size_t p_idx) const { return data[p_idx]; }
+    void remove_at(size_t p_idx) { data->vec.erase(data->vec.begin() + p_idx); }
+    void clear() { data->vec.clear(); }
+    Variant& operator[](size_t p_idx) { return data->vec[p_idx]; }
+    const Variant& operator[](size_t p_idx) const { return data->vec[p_idx]; }
     int find(const Variant& p_val) const {
-        for (size_t i = 0; i < data.size(); i++) {
-            if (data[i] == p_val) return (int)i;
+        for (size_t i = 0; i < data->vec.size(); i++) {
+            if (data->vec[i] == p_val) return (int)i;
         }
         return -1;
     }
     int bsearch(const Variant& p_val, bool p_before = true) const {
         int low = 0;
-        int high = (int)data.size();
+        int high = (int)data->vec.size();
         while (low < high) {
             int mid = low + (high - low) / 2;
             if (p_before) {
-                if (data[mid] < p_val) low = mid + 1;
+                if (data->vec[mid] < p_val) low = mid + 1;
                 else high = mid;
             } else {
-                if (p_val < data[mid]) high = mid;
+                if (p_val < data->vec[mid]) high = mid;
                 else low = mid + 1;
             }
         }
@@ -206,24 +285,53 @@ public:
     }
     void sort_custom(const Variant& p_callable) {}
     void append_array(const Array& p_other) {
-        for(size_t i=0; i<p_other.size(); i++) data.push_back(p_other[i]);
+        for(size_t i=0; i<p_other.size(); i++) data->vec.push_back(p_other[i]);
     }
 };
 
 class Dictionary {
+    struct Data {
+        std::map<String, Variant> map;
+        int refcount;
+    } *data;
+    void _ref(const Dictionary& p_other) {
+        data = p_other.data;
+        if (data) data->refcount++;
+    }
+    void _unref() {
+        if (data) {
+            data->refcount--;
+            if (data->refcount <= 0) {
+                delete data;
+            }
+            data = 0;
+        }
+    }
 public:
-    std::map<String, Variant> data;
-    bool has(const String& s) const { return data.find(s) != data.end(); }
-    bool is_empty() const { return data.empty(); }
-    Variant& operator[](const String& s) { return data[s]; }
-    Variant& operator[](const char* s) { return data[String(s)]; }
-    Variant& operator[](int p_idx) { return data[String::num_int64(p_idx)]; }
-    Variant& operator[](long long p_idx) { return data[String::num_int64(p_idx)]; }
-    Variant& operator[](const Variant& p_key) { return data[String(p_key)]; }
+    Dictionary() {
+        data = new Data;
+        data->refcount = 1;
+    }
+    Dictionary(const Dictionary& p_other) { _ref(p_other); }
+    Dictionary& operator=(const Dictionary& p_other) {
+        if (this == &p_other) return *this;
+        _unref();
+        _ref(p_other);
+        return *this;
+    }
+    ~Dictionary() { _unref(); }
+
+    bool has(const String& s) const { return data->map.find(s) != data->map.end(); }
+    bool is_empty() const { return data->map.empty(); }
+    Variant& operator[](const String& s) { return data->map[s]; }
+    Variant& operator[](const char* s) { return data->map[String(s)]; }
+    Variant& operator[](int p_idx) { return data->map[String::num_int64(p_idx)]; }
+    Variant& operator[](long long p_idx) { return data->map[String::num_int64(p_idx)]; }
+    Variant& operator[](const Variant& p_key) { return data->map[String(p_key)]; }
     const Variant& operator[](const String& s) const {
         static Variant nil;
-        std::map<String, Variant>::const_iterator it = data.find(s);
-        return it != data.end() ? it->second : nil;
+        std::map<String, Variant>::const_iterator it = data->map.find(s);
+        return it != data->map.end() ? it->second : nil;
     }
     const Variant& operator[](const char* s) const { return (*this)[String(s)]; }
     const Variant& operator[](int p_idx) const { return (*this)[String::num_int64(p_idx)]; }
@@ -231,12 +339,12 @@ public:
     const Variant& operator[](const Variant& p_key) const { return (*this)[String(p_key)]; }
     Array keys() const {
         Array a;
-        for (std::map<String, Variant>::const_iterator it = data.begin(); it != data.end(); ++it) {
+        for (std::map<String, Variant>::const_iterator it = data->map.begin(); it != data->map.end(); ++it) {
             a.append(it->first);
         }
         return a;
     }
-    void erase(const String& s) { data.erase(s); }
+    void erase(const String& s) { data->map.erase(s); }
 };
 
 } // namespace godot
@@ -256,10 +364,6 @@ inline Variant::Variant(const Variant& p_other) : type(NIL), array_val(0), dict_
     *this = p_other;
 }
 
-inline Variant::~Variant() {
-    if (array_val) delete array_val;
-    if (dict_val) delete dict_val;
-}
 
 inline Variant::operator Array() const { return array_val ? *array_val : Array(); }
 inline Variant::operator Dictionary() const { return dict_val ? *dict_val : Dictionary(); }
@@ -281,34 +385,7 @@ inline Variant& Variant::operator=(const Variant& p_other) {
     return *this;
 }
 
-inline Variant& Variant::operator=(Object* p_obj) {
-    if (array_val) { delete array_val; array_val = 0; }
-    if (dict_val) { delete dict_val; dict_val = 0; }
-    type = OBJECT;
-    obj_val = p_obj;
-    return *this;
-}
-inline Variant& Variant::operator=(const Array& p_array) {
-    if (array_val) delete array_val;
-    if (dict_val) { delete dict_val; dict_val = 0; }
-    type = ARRAY;
-    array_val = new Array(p_array);
-    return *this;
-}
-inline Variant& Variant::operator=(const Dictionary& p_dict) {
-    if (dict_val) delete dict_val;
-    if (array_val) { delete array_val; array_val = 0; }
-    type = DICTIONARY;
-    dict_val = new Dictionary(p_dict);
-    return *this;
-}
-inline Variant& Variant::operator=(const std::string& p_string) {
-    if (array_val) { delete array_val; array_val = 0; }
-    if (dict_val) { delete dict_val; dict_val = 0; }
-    type = STRING; s_val = p_string; return *this;
-}
 
-inline Variant Variant::call(const String& p_method, ...) { return Variant(); }
 }
 
 #endif

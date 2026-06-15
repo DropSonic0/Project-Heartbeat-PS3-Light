@@ -5,6 +5,8 @@
 #include "../variant/variant.hpp"
 #include <fstream>
 #include <sstream>
+#include <string>
+#include <stdint.h>
 
 namespace godot {
 
@@ -99,6 +101,37 @@ public:
                ((v & 0x00FF0000) >> 8)  | 
                ((v & 0xFF000000) >> 24);
 #endif
+    }
+
+    uint64_t get_64() const {
+        uint64_t v = 0;
+        f_in.read((char*)&v, 8);
+#ifdef __PPU__
+        return v;
+#else
+        return ((v & 0x00000000000000FFULL) << 56) |
+               ((v & 0x000000000000FF00ULL) << 40) |
+               ((v & 0x0000000000FF0000ULL) << 24) |
+               ((v & 0x00000000FF000000ULL) << 8)  |
+               ((v & 0x000000FF00000000ULL) >> 8)  |
+               ((v & 0x0000FF0000000000ULL) >> 24) |
+               ((v & 0x00FF000000000000ULL) >> 40) |
+               ((v & 0xFF00000000000000ULL) >> 56);
+#endif
+    }
+
+    float get_float() const {
+        uint32_t v = get_32();
+        return *((float*)&v);
+    }
+
+    String get_line() const {
+        std::string line;
+        std::getline(f_in, line);
+        if (!line.empty() && line[line.length() - 1] == '\r') {
+            line.resize(line.length() - 1);
+        }
+        return line.c_str();
     }
 
     PackedByteArray get_buffer(size_t p_len) const {

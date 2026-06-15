@@ -2,7 +2,9 @@
 #define HB_EDITOR_TEMPLATE_HPP
 
 #include "hb_serializable.hpp"
+#endif
 #include "hb_base_note.hpp"
+#endif
 
 namespace godot {
 

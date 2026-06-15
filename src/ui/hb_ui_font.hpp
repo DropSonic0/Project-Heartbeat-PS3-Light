@@ -1,7 +1,11 @@
 #ifndef HB_UI_FONT_HPP
 #define HB_UI_FONT_HPP
 
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/font_variation.hpp"
+#else
 #include <godot_cpp/classes/font_variation.hpp>
+#endif
 
 namespace godot {
 

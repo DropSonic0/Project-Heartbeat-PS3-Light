@@ -1,9 +1,21 @@
 #ifndef HB_UI_COMPONENT_HPP
 #define HB_UI_COMPONENT_HPP
 
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/control.hpp"
+#else
 #include <godot_cpp/classes/control.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/dictionary.hpp"
+#else
 #include <godot_cpp/variant/dictionary.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/color.hpp"
+#else
 #include <godot_cpp/variant/color.hpp>
+#endif
 
 namespace godot {
 

@@ -1,8 +1,16 @@
 #ifndef HB_PPD_PACK_HPP
 #define HB_PPD_PACK_HPP
 
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/node.hpp"
+#else
 #include <godot_cpp/classes/node.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/file_access.hpp"
+#else
 #include <godot_cpp/classes/file_access.hpp>
+#endif
 
 namespace godot {
 
@@ -25,6 +33,8 @@ public:
 
     bool load(const String &p_path);
     int get_file_index(const String &p_file_name);
+    PackedByteArray get_file_data(int p_index);
+    PackedStringArray get_files() const;
 };
 
 } // namespace godot

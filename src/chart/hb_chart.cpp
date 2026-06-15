@@ -212,16 +212,101 @@ void HBChartNative::deserialize(Dictionary p_data, Variant p_song) {
 double HBChartNative::get_max_score() {
     Array tp = get_timing_points();
     double max_score = 0.0;
+    
+    int64_t last_time = -1;
+    
+    for (int i = 0; i < tp.size(); i++) {
+        Variant v = tp[i];
+        if (v.get_type() != Variant::OBJECT) continue;
+        Object *obj = (Object*)v;
+        
+        Ref<HBBaseNoteNative> base = Ref<HBBaseNoteNative>((HBBaseNoteNative*)obj);
+        if (base.is_valid()) {
+            if (base->get_time() == last_time) {
+                continue;
+            }
+            
+            Ref<HBNoteDataNative> note = Ref<HBNoteDataNative>((HBNoteDataNative*)obj);
+            if (note.is_valid() && note->is_slide_hold_piece()) {
+                continue;
+            } else {
+                last_time = base->get_time();
+                max_score += (double)base->get_score(4); // 4 = COOL
+            }
+        }
+    }
     return max_score;
 }
 
 Dictionary HBChartNative::get_slide_hold_chains_for_points(Array p_timing_points) {
+    Ref<HBNoteDataNative> last_right_slide;
+    Ref<HBNoteDataNative> last_left_slide;
     Dictionary slide_hold_chains;
+    
+    for (int i = 0; i < p_timing_points.size(); i++) {
+        Variant v = p_timing_points[i];
+        if (v.get_type() != Variant::OBJECT) continue;
+        Ref<HBNoteDataNative> point = Ref<HBNoteDataNative>((HBNoteDataNative*)(Object*)v);
+        if (point.is_null()) continue;
+
+        if (point->get_note_type() == HBBaseNoteNative::SLIDE_LEFT) {
+            last_left_slide = point;
+            Dictionary chain;
+            chain["time"] = point->get_time();
+            chain["pieces"] = Array();
+            chain["slide"] = point;
+            slide_hold_chains[point] = chain;
+        } else if (point->get_note_type() == HBBaseNoteNative::SLIDE_RIGHT) {
+            last_right_slide = point;
+            Dictionary chain;
+            chain["time"] = point->get_time();
+            chain["pieces"] = Array();
+            chain["slide"] = point;
+            slide_hold_chains[point] = chain;
+        } else if (point->get_note_type() == HBBaseNoteNative::SLIDE_CHAIN_PIECE_LEFT) {
+            if (last_left_slide.is_valid()) {
+                Dictionary chain = slide_hold_chains[last_left_slide];
+                Array pieces = chain["pieces"];
+                pieces.append(point);
+            }
+        } else if (point->get_note_type() == HBBaseNoteNative::SLIDE_CHAIN_PIECE_RIGHT) {
+            if (last_right_slide.is_valid()) {
+                Dictionary chain = slide_hold_chains[last_right_slide];
+                Array pieces = chain["pieces"];
+                pieces.append(point);
+            }
+        }
+    }
+    
+    Array keys = slide_hold_chains.keys();
+    for (int i = 0; i < keys.size(); i++) {
+        Variant key = keys[i];
+        Dictionary chain = slide_hold_chains[key];
+        Array pieces = chain["pieces"];
+        if (pieces.size() == 0) {
+            slide_hold_chains.erase(key);
+        }
+    }
     return slide_hold_chains;
 }
 
 Dictionary HBChartNative::get_slide_hold_chains() {
+    static const char* target_layers[] = {"SLIDE_LEFT", "SLIDE_LEFT2", "SLIDE_RIGHT", "SLIDE_RIGHT2"};
     Dictionary slide_hold_chains;
+    for (int i = 0; i < 4; i++) {
+        int layer_i = get_layer_i(target_layers[i]);
+        if (layer_i != -1) {
+            Dictionary layer = layers[layer_i];
+            Array points = layer["timing_points"];
+            Dictionary r = get_slide_hold_chains_for_points(points);
+            
+            Array r_keys = r.keys();
+            for (int j = 0; j < r_keys.size(); j++) {
+                Variant key = r_keys[j];
+                slide_hold_chains[key] = r[key];
+            }
+        }
+    }
     return slide_hold_chains;
 }
 

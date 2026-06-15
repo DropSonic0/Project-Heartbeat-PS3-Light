@@ -1,8 +1,16 @@
 #ifndef HB_SMF_LOADER_HPP
 #define HB_SMF_LOADER_HPP
 
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/object.hpp"
+#else
 #include <godot_cpp/classes/object.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/packed_byte_array.hpp"
+#else
 #include <godot_cpp/variant/packed_byte_array.hpp>
+#endif
 
 namespace godot {
 

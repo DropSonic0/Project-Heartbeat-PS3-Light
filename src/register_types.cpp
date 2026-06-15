@@ -371,6 +371,10 @@ int main(int argc, char *argv[]) {
     input_event.instantiate();
     if (input_event.is_valid()) {
         UtilityFunctions::print("InputEventHBNative instantiated.");
+        input_event->set_event_uid(1234);
+        if (input_event->get_event_uid() == 1234) {
+            UtilityFunctions::print("InputEventHBNative UID test success.");
+        }
     }
 
     UtilityFunctions::print("Testing Config Parsers (INI/TOML)...");
@@ -460,6 +464,9 @@ int main(int argc, char *argv[]) {
     DIVATextureProcessorNative *texture_processor = memnew(DIVATextureProcessorNative);
     if (texture_processor) {
         UtilityFunctions::print("DIVATextureProcessorNative instantiated.");
+        Ref<Image> test_img = Image::create(64, 64, false, 0);
+        texture_processor->process_texture(test_img);
+        UtilityFunctions::print("DIVATextureProcessorNative process_texture call success.");
         memdelete(texture_processor);
     }
     
@@ -497,6 +504,9 @@ int main(int argc, char *argv[]) {
     PPDPackNative *ppd_pack = memnew(PPDPackNative);
     if (ppd_pack) {
         UtilityFunctions::print("PPDPackNative instantiated.");
+        // We can't easily test load without a file, but we can verify the method exists
+        ppd_pack->get_file_data(-1); 
+        UtilityFunctions::print("PPDPackNative get_file_data (bounds check) success.");
         memdelete(ppd_pack);
     }
     

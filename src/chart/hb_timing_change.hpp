@@ -2,6 +2,7 @@
 #define HB_TIMING_CHANGE_HPP
 
 #include "hb_timing_point.hpp"
+#endif
 
 namespace godot {
 

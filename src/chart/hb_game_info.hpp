@@ -2,7 +2,9 @@
 #define HB_GAME_INFO_HPP
 
 #include "hb_serializable.hpp"
+#endif
 #include "hb_result.hpp"
+#endif
 
 namespace godot {
 

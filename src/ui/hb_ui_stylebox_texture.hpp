@@ -1,7 +1,11 @@
 #ifndef HB_UI_STYLEBOX_TEXTURE_HPP
 #define HB_UI_STYLEBOX_TEXTURE_HPP
 
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/style_box_texture.hpp"
+#else
 #include <godot_cpp/classes/style_box_texture.hpp>
+#endif
 
 namespace godot {
 

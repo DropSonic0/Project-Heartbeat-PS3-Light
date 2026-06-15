@@ -88,6 +88,10 @@ void HBSongNative::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_timing_changes", "timing_changes"), &HBSongNative::set_timing_changes);
     ClassDB::bind_method(D_METHOD("get_timing_changes"), &HBSongNative::get_timing_changes);
 
+    ClassDB::bind_method(D_METHOD("get_song_audio_res_path"), &HBSongNative::get_song_audio_res_path);
+    ClassDB::bind_method(D_METHOD("get_song_voice_res_path"), &HBSongNative::get_song_voice_res_path);
+    ClassDB::bind_method(D_METHOD("get_song_preview_res_path"), &HBSongNative::get_song_preview_res_path);
+
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "title"), "set_title", "get_title");
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "romanized_title"), "set_romanized_title", "get_romanized_title");
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "artist"), "set_artist", "get_artist");
@@ -130,6 +134,8 @@ void HBSongNative::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(Variant::INT, "skin_ugc_id"), "set_skin_ugc_id", "get_skin_ugc_id");
     ADD_PROPERTY(PropertyInfo(Variant::ARRAY, "timing_changes"), "set_timing_changes", "get_timing_changes");
 }
+
+#include "../utils/hb_utils.hpp"
 
 HBSongNative::HBSongNative() {
     set_bpm(150.0);
@@ -213,6 +219,30 @@ void HBSongNative::update_bpm_string() {
         } else {
             bpm_string = String::num(min_bpm);
         }
+    }
+}
+
+String HBSongNative::get_song_audio_res_path() const {
+    if (!audio.is_empty()) {
+        return HBUtilsNative::join_path(path, audio);
+    } else {
+        return HBUtilsNative::join_path(path, HBUtilsNative::get_valid_filename(title) + ".ogg");
+    }
+}
+
+String HBSongNative::get_song_voice_res_path() const {
+    if (!voice.is_empty()) {
+        return HBUtilsNative::join_path(path, voice);
+    } else {
+        return HBUtilsNative::join_path(path, "voice.ogg");
+    }
+}
+
+String HBSongNative::get_song_preview_res_path() const {
+    if (!preview_image.is_empty()) {
+        return HBUtilsNative::join_path(path, preview_image);
+    } else {
+        return "";
     }
 }
 

@@ -2,7 +2,11 @@
 #define HB_BASE_NOTE_HPP
 
 #include "hb_timing_point.hpp"
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/vector2.hpp"
+#else
 #include <godot_cpp/variant/vector2.hpp>
+#endif
 
 namespace godot {
 

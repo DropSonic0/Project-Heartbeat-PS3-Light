@@ -1,8 +1,16 @@
 #ifndef HB_VERSION_HPP
 #define HB_VERSION_HPP
 
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/node.hpp"
+#else
 #include <godot_cpp/classes/node.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/string.hpp"
+#else
 #include <godot_cpp/variant/string.hpp>
+#endif
 
 namespace godot {
 

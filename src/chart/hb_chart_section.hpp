@@ -2,7 +2,11 @@
 #define HB_CHART_SECTION_HPP
 
 #include "hb_timing_point.hpp"
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/color.hpp"
+#else
 #include <godot_cpp/variant/color.hpp>
+#endif
 
 namespace godot {
 

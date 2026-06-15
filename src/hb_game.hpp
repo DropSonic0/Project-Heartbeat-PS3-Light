@@ -1,9 +1,21 @@
 #ifndef HB_GAME_HPP
 #define HB_GAME_HPP
 
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/node.hpp"
+#else
 #include <godot_cpp/classes/node.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/dictionary.hpp"
+#else
 #include <godot_cpp/variant/dictionary.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/array.hpp"
+#else
 #include <godot_cpp/variant/array.hpp>
+#endif
 
 namespace godot {
 

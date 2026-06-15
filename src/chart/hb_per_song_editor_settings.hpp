@@ -2,6 +2,7 @@
 #define HB_PER_SONG_EDITOR_SETTINGS_HPP
 
 #include "hb_serializable.hpp"
+#endif
 
 namespace godot {
 

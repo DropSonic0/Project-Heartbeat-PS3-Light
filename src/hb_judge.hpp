@@ -1,8 +1,16 @@
 #ifndef HB_JUDGE_HPP
 #define HB_JUDGE_HPP
 
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/ref_counted.hpp"
+#else
 #include <godot_cpp/classes/ref_counted.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/dictionary.hpp"
+#else
 #include <godot_cpp/variant/dictionary.hpp>
+#endif
 
 namespace godot {
 

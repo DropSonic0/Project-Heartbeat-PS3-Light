@@ -1,7 +1,11 @@
 #ifndef HB_UI_STYLEBOX_FLAT_HPP
 #define HB_UI_STYLEBOX_FLAT_HPP
 
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/style_box_flat.hpp"
+#else
 #include <godot_cpp/classes/style_box_flat.hpp>
+#endif
 
 namespace godot {
 

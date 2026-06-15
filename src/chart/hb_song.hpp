@@ -145,6 +145,15 @@ public:
     void set_timing_changes(Array p_val) { timing_changes = p_val; }
     Array get_timing_changes() const { return timing_changes; }
 
+    void set_path(String p_path) { path = p_path; }
+    String get_path() const { return path; }
+    void set_id(String p_id) { id = p_id; }
+    String get_id() const { return id; }
+
+    String get_song_audio_res_path() const;
+    String get_song_voice_res_path() const;
+    String get_song_preview_res_path() const;
+
     void update_bpm_string();
 
     virtual String get_serialized_type() const;

@@ -2,6 +2,7 @@
 #define HB_SONG_VARIANT_DATA_HPP
 
 #include "hb_serializable.hpp"
+#endif
 
 namespace godot {
 

@@ -2,6 +2,7 @@
 #define HB_INTRO_SKIP_MARKER_HPP
 
 #include "hb_timing_point.hpp"
+#endif
 
 namespace godot {
 

@@ -6,9 +6,21 @@
 #include "compat/godot_cpp/classes/sub_viewport.hpp"
 #include "compat/godot_cpp/classes/mesh_instance3d.hpp"
 #else
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/area3d.hpp"
+#else
 #include <godot_cpp/classes/area3d.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/sub_viewport.hpp"
+#else
 #include <godot_cpp/classes/sub_viewport.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/mesh_instance3d.hpp"
+#else
 #include <godot_cpp/classes/mesh_instance3d.hpp>
+#endif
 #endif
 
 namespace godot {
@@ -23,6 +35,7 @@ private:
     SubViewport *node_viewport;
     MeshInstance3D *node_quad;
     Area3D *node_area;
+    Vector2 size;
 
 public:
     HB3DUIQuadNative();
@@ -30,6 +43,9 @@ public:
 
     void _ready() GD_OVERRIDE;
     void _process(double p_delta) GD_OVERRIDE;
+
+    void set_size(Vector2 p_size);
+    Vector2 get_size() const;
 };
 
 } // namespace godot

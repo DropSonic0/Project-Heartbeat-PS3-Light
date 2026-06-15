@@ -2,7 +2,9 @@
 #define HB_USER_SETTINGS_HPP
 
 #include "hb_serializable.hpp"
+#endif
 #include "hb_folder.hpp"
+#endif
 
 namespace godot {
 

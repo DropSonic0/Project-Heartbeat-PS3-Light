@@ -1,10 +1,26 @@
 #ifndef HB_CHART_HPP
 #define HB_CHART_HPP
 
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/ref_counted.hpp"
+#else
 #include <godot_cpp/classes/ref_counted.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/variant.hpp"
+#else
 #include <godot_cpp/variant/variant.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/array.hpp"
+#else
 #include <godot_cpp/variant/array.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/dictionary.hpp"
+#else
 #include <godot_cpp/variant/dictionary.hpp>
+#endif
 
 namespace godot {
 

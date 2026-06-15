@@ -1,7 +1,11 @@
 #ifndef HB_SERIALIZABLE_HPP
 #define HB_SERIALIZABLE_HPP
 
+#ifdef __PPU__
+#include "compat/godot_cpp/godot.hpp"
+#else
 #include <godot_cpp/godot.hpp>
+#endif
 
 namespace godot {
 

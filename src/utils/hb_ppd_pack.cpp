@@ -6,6 +6,8 @@ using namespace godot;
 void PPDPackNative::_bind_methods() {
     ClassDB::bind_method(D_METHOD("load", "path"), &PPDPackNative::load);
     ClassDB::bind_method(D_METHOD("get_file_index", "file_name"), &PPDPackNative::get_file_index);
+    ClassDB::bind_method(D_METHOD("get_file_data", "index"), &PPDPackNative::get_file_data);
+    ClassDB::bind_method(D_METHOD("get_files"), &PPDPackNative::get_files);
 }
 
 PPDPackNative::PPDPackNative() {}
@@ -60,4 +62,21 @@ int PPDPackNative::get_file_index(const String &p_file_name) {
         }
     }
     return -1;
+}
+
+PackedByteArray PPDPackNative::get_file_data(int p_index) {
+    if (file.is_null() || p_index < 0 || p_index >= (int)file_offsets.size()) {
+        return PackedByteArray();
+    }
+
+    file->seek(file_offsets[p_index]);
+    return file->get_buffer(file_sizes[p_index]);
+}
+
+PackedStringArray PPDPackNative::get_files() const {
+    PackedStringArray res;
+    for (size_t i = 0; i < file_names.size(); i++) {
+        res.append(file_names[i]);
+    }
+    return res;
 }

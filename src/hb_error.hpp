@@ -1,9 +1,21 @@
 #ifndef HB_ERROR_HPP
 #define HB_ERROR_HPP
 
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/object.hpp"
+#else
 #include <godot_cpp/classes/object.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/string.hpp"
+#else
 #include <godot_cpp/variant/string.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/variant.hpp"
+#else
 #include <godot_cpp/variant/variant.hpp>
+#endif
 
 namespace godot {
 

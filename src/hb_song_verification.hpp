@@ -1,8 +1,16 @@
 #ifndef HB_SONG_VERIFICATION_HPP
 #define HB_SONG_VERIFICATION_HPP
 
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/node.hpp"
+#else
 #include <godot_cpp/classes/node.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/dictionary.hpp"
+#else
 #include <godot_cpp/variant/dictionary.hpp>
+#endif
 #include "chart/hb_song.hpp"
 
 namespace godot {

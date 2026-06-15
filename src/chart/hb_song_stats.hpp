@@ -2,6 +2,7 @@
 #define HB_SONG_STATS_HPP
 
 #include "hb_serializable.hpp"
+#endif
 
 namespace godot {
 

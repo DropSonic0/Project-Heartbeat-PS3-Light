@@ -1,7 +1,11 @@
 #ifndef HB_RICH_TEXT_WORD_RAINBOW_HPP
 #define HB_RICH_TEXT_WORD_RAINBOW_HPP
 
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/rich_text_effect.hpp"
+#else
 #include <godot_cpp/classes/rich_text_effect.hpp>
+#endif
 
 namespace godot {
 

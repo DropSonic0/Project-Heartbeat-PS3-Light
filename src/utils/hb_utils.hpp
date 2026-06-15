@@ -1,14 +1,46 @@
 #ifndef HB_UTILS_HPP
 #define HB_UTILS_HPP
 
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/node.hpp"
+#else
 #include <godot_cpp/classes/node.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/variant.hpp"
+#else
 #include <godot_cpp/variant/variant.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/string.hpp"
+#else
 #include <godot_cpp/variant/string.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/dictionary.hpp"
+#else
 #include <godot_cpp/variant/dictionary.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/packed_byte_array.hpp"
+#else
 #include <godot_cpp/variant/packed_byte_array.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/variant/vector2.hpp"
+#else
 #include <godot_cpp/variant/vector2.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/image.hpp"
+#else
 #include <godot_cpp/classes/image.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/texture2d.hpp"
+#else
 #include <godot_cpp/classes/texture2d.hpp>
+#endif
 
 namespace godot {
 

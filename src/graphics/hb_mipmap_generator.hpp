@@ -5,8 +5,16 @@
 #include "compat/godot_cpp/classes/object.hpp"
 #include "compat/godot_cpp/classes/image.hpp"
 #else
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/object.hpp"
+#else
 #include <godot_cpp/classes/object.hpp>
+#endif
+#ifdef __PPU__
+#include "compat/godot_cpp/classes/image.hpp"
+#else
 #include <godot_cpp/classes/image.hpp>
+#endif
 #endif
 
 namespace godot {

@@ -34,6 +34,11 @@ public:
         return Ref<FileAccess>(fa);
     }
 
+    static bool file_exists(const String& p_path) {
+        std::ifstream f(p_path.c_str());
+        return f.good();
+    }
+
     String get_as_text() const {
         std::ifstream f(path.c_str());
         if (!f.is_open()) return "";

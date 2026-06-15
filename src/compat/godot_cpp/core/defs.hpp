@@ -25,6 +25,11 @@ class Ref {
 public:
     Ref() : reference(0) {}
     Ref(T *p_ptr) : reference(p_ptr) {}
+    
+    // Upcasting support
+    template <class T_Other>
+    Ref(const Ref<T_Other> &p_other) : reference((T*)p_other.ptr()) {}
+
     T *operator->() { return reference; }
     const T *operator->() const { return reference; }
     T &operator*() { return *reference; }
@@ -33,6 +38,12 @@ public:
     bool is_null() const { return reference == 0; }
     void instantiate() { reference = new T(); }
     T* ptr() const { return reference; }
+
+    template <class T_Other>
+    Ref<T>& operator=(const Ref<T_Other> &p_other) {
+        reference = (T*)p_other.ptr();
+        return *this;
+    }
 };
 
 }

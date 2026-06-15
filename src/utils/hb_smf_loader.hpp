@@ -15,6 +15,8 @@ protected:
 public:
     SMFLoaderNative();
     ~SMFLoaderNative();
+
+    Dictionary read_file(const String &p_path);
 };
 
 } // namespace godot

@@ -15,11 +15,15 @@ protected:
 private:
     Ref<FileAccess> file;
     bool valid = true;
+    std::vector<String> file_names;
+    std::vector<uint32_t> file_sizes;
+    std::vector<size_t> file_offsets;
 
 public:
     PPDPackNative();
     ~PPDPackNative();
 
+    bool load(const String &p_path);
     int get_file_index(const String &p_file_name);
 };
 

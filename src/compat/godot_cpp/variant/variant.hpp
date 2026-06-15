@@ -126,21 +126,22 @@ template <class T> class Ref;
 
 class Variant {
 public:
-    enum Type { NIL, BOOL, INT, FLOAT, STRING, VECTOR2, COLOR, DICTIONARY, ARRAY, OBJECT, CALLABLE };
-    Variant() : type(NIL), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val(0) {}
-    Variant(bool p_bool) : type(BOOL), i_val(p_bool ? 1 : 0), f_val(0.0), array_val(0), dict_val(0), obj_val(0) {}
-    Variant(int p_int) : type(INT), i_val(p_int), f_val(0.0), array_val(0), dict_val(0), obj_val(0) {}
-    Variant(long long p_int) : type(INT), i_val(p_int), f_val(0.0), array_val(0), dict_val(0), obj_val(0) {}
-    Variant(double p_float) : type(FLOAT), i_val(0), f_val(p_float), array_val(0), dict_val(0), obj_val(0) {}
-    Variant(float p_float) : type(FLOAT), i_val(0), f_val(p_float), array_val(0), dict_val(0), obj_val(0) {}
-    Variant(const String& p_string) : type(STRING), s_val(p_string), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val(0) {}
-    Variant(const char* p_string) : type(STRING), s_val(p_string), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val(0) {}
+    enum Type { NIL, BOOL, INT, FLOAT, STRING, VECTOR2, COLOR, DICTIONARY, ARRAY, OBJECT, CALLABLE, PACKED_BYTE_ARRAY };
+    Variant() : type(NIL), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
+    Variant(bool p_bool) : type(BOOL), i_val(p_bool ? 1 : 0), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
+    Variant(int p_int) : type(INT), i_val(p_int), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
+    Variant(long long p_int) : type(INT), i_val(p_int), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
+    Variant(double p_float) : type(FLOAT), i_val(0), f_val(p_float), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
+    Variant(float p_float) : type(FLOAT), i_val(0), f_val(p_float), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
+    Variant(const String& p_string) : type(STRING), s_val(p_string), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
+    Variant(const char* p_string) : type(STRING), s_val(p_string), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
     Variant(const Array& p_array);
     Variant(const Dictionary& p_dict);
     Variant(const Callable& p_callable);
+    Variant(const PackedByteArray& p_packed_byte_array);
 
     template <class T>
-    Variant(const Ref<T> &p_ref) : type(OBJECT), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val((Object*)p_ref.ptr()) {}
+    Variant(const Ref<T> &p_ref) : type(OBJECT), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val((Object*)p_ref.ptr()), packed_byte_array_val(0) {}
 
     Variant(const Variant& p_other);
     ~Variant();
@@ -167,6 +168,7 @@ public:
     }
     operator Array() const;
     operator Dictionary() const;
+    operator PackedByteArray() const;
     operator const void*() const { return (const void*)obj_val; }
     operator Object*() const { return obj_val; }
 
@@ -178,6 +180,7 @@ public:
     Variant& operator=(const Array& p_array);
     Variant& operator=(const Dictionary& p_dict);
     Variant& operator=(const std::string& p_string);
+    Variant& operator=(const PackedByteArray& p_packed_byte_array);
 
     Variant get(const String& p_name) const;
     Variant call(const String& p_method, const Variant& p_arg1 = Variant(), const Variant& p_arg2 = Variant());
@@ -207,6 +210,7 @@ private:
     Array *array_val;
     Dictionary *dict_val;
     Object *obj_val;
+    PackedByteArray *packed_byte_array_val;
 };
 
 class Array {
@@ -352,21 +356,26 @@ public:
 #include "callable.hpp"
 
 namespace godot {
-inline Variant::Variant(const Array& p_array) : type(ARRAY), i_val(0), f_val(0.0), dict_val(0), obj_val(0) {
+inline Variant::Variant(const Array& p_array) : type(ARRAY), i_val(0), f_val(0.0), dict_val(0), obj_val(0), packed_byte_array_val(0) {
     array_val = new Array(p_array);
 }
-inline Variant::Variant(const Dictionary& p_dict) : type(DICTIONARY), i_val(0), f_val(0.0), array_val(0), obj_val(0) {
+inline Variant::Variant(const Dictionary& p_dict) : type(DICTIONARY), i_val(0), f_val(0.0), array_val(0), obj_val(0), packed_byte_array_val(0) {
     dict_val = new Dictionary(p_dict);
 }
-inline Variant::Variant(const Callable& p_callable) : type(CALLABLE), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val(0) {}
+inline Variant::Variant(const Callable& p_callable) : type(CALLABLE), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
 
-inline Variant::Variant(const Variant& p_other) : type(NIL), array_val(0), dict_val(0), obj_val(0) {
+inline Variant::Variant(const PackedByteArray& p_packed_byte_array) : type(PACKED_BYTE_ARRAY), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val(0) {
+    packed_byte_array_val = new PackedByteArray(p_packed_byte_array);
+}
+
+inline Variant::Variant(const Variant& p_other) : type(NIL), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {
     *this = p_other;
 }
 
 
 inline Variant::operator Array() const { return array_val ? *array_val : Array(); }
 inline Variant::operator Dictionary() const { return dict_val ? *dict_val : Dictionary(); }
+inline Variant::operator PackedByteArray() const { return packed_byte_array_val ? *packed_byte_array_val : PackedByteArray(); }
 
 template <class T>
 inline Variant::operator Ref<T>() const { return Ref<T>((T*)obj_val); }
@@ -375,6 +384,7 @@ inline Variant& Variant::operator=(const Variant& p_other) {
     if (this == &p_other) return *this;
     if (array_val) { delete array_val; array_val = 0; }
     if (dict_val) { delete dict_val; dict_val = 0; }
+    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
     type = p_other.type;
     s_val = p_other.s_val;
     i_val = p_other.i_val;
@@ -382,9 +392,9 @@ inline Variant& Variant::operator=(const Variant& p_other) {
     obj_val = p_other.obj_val;
     if (p_other.array_val) array_val = new Array(*p_other.array_val);
     if (p_other.dict_val) dict_val = new Dictionary(*p_other.dict_val);
+    if (p_other.packed_byte_array_val) packed_byte_array_val = new PackedByteArray(*p_other.packed_byte_array_val);
     return *this;
 }
-
 
 }
 

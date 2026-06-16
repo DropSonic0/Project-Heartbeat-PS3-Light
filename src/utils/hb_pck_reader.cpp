@@ -29,33 +29,39 @@ bool PCKReader::load_pck(const String& p_path) {
     UtilityFunctions::print("PCK: Version: " + String::num(pck_version));
     UtilityFunctions::print("PCK: Godot Version: " + String::num(ver_major) + "." + String::num(ver_minor) + "." + String::num(ver_rev));
 
-    uint64_t file_table_offset = 0;
+    uint64_t file_base = 0;
     if (pck_version == 2) {
-        f->get_32_le(); // flags
-        file_table_offset = f->get_64_le();
+        f->get_32_le(); // flags (4 bytes)
+        file_base = f->get_64_le(); // file_base (8 bytes)
     }
+    UtilityFunctions::print("PCK: File Base: " + String::num_int64(file_base));
 
-    // Reserved
+    // Reserved (16 * 4 = 64 bytes)
     for (int i=0; i<16; i++) f->get_32_le();
-
-    if (pck_version == 2 && file_table_offset != 0) {
-        f->seek((size_t)file_table_offset);
-    }
 
     uint32_t file_count = f->get_32_le();
     UtilityFunctions::print("PCK: File Count: " + String::num(file_count));
     
-    // In Godot 4 (PCK v2), the file table follows the count.
-    // If there's an offset specified in the header, we might need to seek there,
-    // but usually it's just sequential after file_count.
-    
     for (uint32_t i = 0; i < file_count; i++) {
         uint32_t path_len = f->get_32_le();
+        if (path_len > 1024) {
+            UtilityFunctions::print("PCK: Error: path_len too long: " + String::num(path_len));
+            return false;
+        }
         PackedByteArray path_buf = f->get_buffer(path_len);
         
-        String path_str = "res://";
+        // Path is padded to 4 bytes
+        uint32_t padding = (4 - (path_len % 4)) % 4;
+        for (uint32_t j = 0; j < padding; j++) {
+            f->get_8();
+        }
+
+        String path_str = "";
         for(uint32_t j=0; j<path_len; j++) {
             if (path_buf[j] != 0) path_str += (char)path_buf[j];
+        }
+        if (!path_str.begins_with("res://")) {
+            path_str = "res://" + path_str;
         }
         
         if (i < 20 || !path_str.begins_with("res://.godot")) {

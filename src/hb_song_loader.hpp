@@ -37,6 +37,7 @@ public:
 
     void add_song(Ref<HBSongNative> p_song);
     Ref<HBSongNative> load_song_meta(const String &p_path, const String &p_id);
+    void scan_songs_recursive(const String& p_path);
 
     Dictionary get_songs() const { return songs; }
     bool is_initial_load_done() const { return initial_load_done; }

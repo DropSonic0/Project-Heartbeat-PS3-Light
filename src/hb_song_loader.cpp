@@ -1,7 +1,9 @@
 #include "hb_song_loader.hpp"
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/classes/file_access.hpp>
+#include <godot_cpp/classes/dir_access.hpp>
 #include <godot_cpp/classes/json.hpp>
+#include "compat/godot_cpp/variant/utility_functions.hpp"
 
 using namespace godot;
 
@@ -30,6 +32,29 @@ HBSongLoaderNative::~HBSongLoaderNative() {
 void HBSongLoaderNative::add_song(Ref<HBSongNative> p_song) {
     if (p_song.is_valid()) {
         songs[p_song->get_title()] = p_song; // This is a simplification, should use ID
+    }
+}
+
+void HBSongLoaderNative::scan_songs_recursive(const String& p_path) {
+    UtilityFunctions::print("HBSongLoader: Scanning: " + p_path);
+    Ref<DirAccess> da = DirAccess::open(p_path);
+    if (da.is_valid()) {
+        PackedStringArray dirs = da->get_directories();
+        for (int i = 0; i < dirs.size(); i++) {
+            scan_songs_recursive(p_path.path_join(dirs[i]));
+        }
+
+        PackedStringArray files = da->get_files();
+        for (int i = 0; i < files.size(); i++) {
+            String file_name = files[i];
+            if (file_name == "song.json") {
+                Ref<HBSongNative> song = load_song_meta(p_path.path_join(file_name), p_path.get_file());
+                if (song.is_valid()) {
+                    add_song(song);
+                    UtilityFunctions::print("HBSongLoader: Loaded song: " + song->get_title());
+                }
+            }
+        }
     }
 }
 

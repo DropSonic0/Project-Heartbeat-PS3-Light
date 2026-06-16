@@ -18,9 +18,13 @@ void HBGameNative::_bind_methods() {
 HBGameNative::HBGameNative() {
     singleton = this;
     HBVideoDriverPSGL::initialize();
+    main_menu = new HBMainMenuNative();
 }
 
 HBGameNative::~HBGameNative() {
+    if (main_menu) {
+        delete main_menu;
+    }
     HBVideoDriverPSGL::terminate();
     singleton = nullptr;
 }
@@ -34,9 +38,17 @@ void HBGameNative::register_serializable_type(const String &p_name, const Varian
 }
 
 void HBGameNative::main_loop_step() {
+    HBVideoDriverPSGL::update_system_callbacks();
+    
+    if (main_menu) {
+        main_menu->update();
+    }
+
     HBVideoDriverPSGL::clear_buffer();
     
-    // Draw logic would go here
+    if (main_menu) {
+        main_menu->draw();
+    }
     
     HBVideoDriverPSGL::swap_buffers();
 }

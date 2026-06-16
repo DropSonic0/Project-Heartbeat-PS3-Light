@@ -69,6 +69,7 @@
 #include "audio/hb_shinobu_playback_offset.hpp"
 #include "graphics/hb_diva_texture_processor.hpp"
 #include "graphics/hb_mipmap_generator.hpp"
+#include "graphics/hb_video_driver_psgl.hpp"
 
 using namespace godot;
 
@@ -619,23 +620,51 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    UtilityFunctions::print("Testing Global Game State...");
-    HBGameNative *game = memnew(HBGameNative);
-    if (game) {
-        UtilityFunctions::print("HBGameNative instantiated.");
-        if (HBGameNative::get_singleton() == game) {
-            UtilityFunctions::print("HBGameNative Singleton verified.");
+    UtilityFunctions::print("Scanning for songs...");
+    HBSongLoaderNative *global_song_loader = memnew(HBSongLoaderNative);
+    if (global_song_loader) {
+        global_song_loader->scan_songs_recursive("/dev_hdd0/game/PROJECTHB/USRDIR/songs");
+        global_song_loader->scan_songs_recursive("res://songs");
+        
+        Dictionary discovered_songs = global_song_loader->get_songs();
+        UtilityFunctions::print("Song scanning finished. Total songs found: " + String::num(discovered_songs.size()));
+        Array song_names = discovered_songs.keys();
+        for (int i=0; i<song_names.size(); i++) {
+            UtilityFunctions::print(" - " + (String)song_names[i]);
         }
-        game->set_demo_mode(true);
-        if (game->get_demo_mode()) {
-            UtilityFunctions::print("HBGameNative property test success.");
-        }
-        memdelete(game);
-        UtilityFunctions::print("HBGameNative deleted.");
+    } else {
+        UtilityFunctions::print("FATAL: Failed to instantiate global HBSongLoaderNative.");
     }
-    
+
     UtilityFunctions::print("Tests finished. Result: SUCCESS");
 
+    UtilityFunctions::print("Starting Game Session...");
+    HBGameNative *game = memnew(HBGameNative);
+    if (game) {
+        UtilityFunctions::print("HBGameNative instantiated for main loop.");
+        
+        UtilityFunctions::print("Entering main loop...");
+        // In a real Godot app, the engine handles the loop.
+        // Here we manually step the game native class.
+        int frame_count = 0;
+        while (!godot::HBVideoDriverPSGL::should_exit()) {
+            game->main_loop_step();
+            frame_count++;
+            if (frame_count % 600 == 0) {
+                UtilityFunctions::print("Main loop running... frame: " + String::num(frame_count));
+            }
+        }
+        UtilityFunctions::print("Exiting main loop... (Exit requested by system)");
+        memdelete(game);
+    } else {
+        UtilityFunctions::print("FATAL: Failed to instantiate HBGameNative for main loop.");
+    }
+
+    if (global_song_loader) {
+        memdelete(global_song_loader);
+    }
+
+    UtilityFunctions::print("Project Heartbeat PS3 Shutting Down.");
     return 0;
 }
 #endif

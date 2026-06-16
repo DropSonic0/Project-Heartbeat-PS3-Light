@@ -65,9 +65,6 @@ public:
         size_t prev_level_offset = 0;
         size_t curr_level_offset = w * h * 4;
         
-        int prev_w = w;
-        int prev_h = h;
-        
         while (w > 1 || h > 1) {
             int next_w = std::max(1, w / 2);
             int next_h = std::max(1, h / 2);

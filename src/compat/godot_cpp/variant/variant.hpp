@@ -74,6 +74,22 @@ public:
         }
         return String(res);
     }
+    String path_join(const String& p_file) const {
+        if (is_empty()) return p_file;
+        if (p_file.is_empty()) return *this;
+        String res = *this;
+        if (res[res.size() - 1] != '/' && res[res.size() - 1] != '\\' &&
+            p_file[0] != '/' && p_file[0] != '\\') {
+            res += "/";
+        }
+        res += p_file;
+        return res;
+    }
+    String get_file() const {
+        size_t pos = find_last_of("/\\");
+        if (pos == std::string::npos) return *this;
+        return substr(pos + 1);
+    }
     String to_lower() const {
         std::string res = *this;
         for (size_t i = 0; i < res.size(); i++) {
@@ -338,6 +354,7 @@ public:
 
     bool has(const String& s) const { return data->map.find(s) != data->map.end(); }
     bool is_empty() const { return data->map.empty(); }
+    int size() const { return (int)data->map.size(); }
     Variant& operator[](const String& s) { return data->map[s]; }
     Variant& operator[](const char* s) { return data->map[String(s)]; }
     Variant& operator[](int p_idx) { return data->map[String::num_int64(p_idx)]; }

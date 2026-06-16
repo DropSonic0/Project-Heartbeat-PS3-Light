@@ -3,6 +3,7 @@
 
 #include "ref_counted.hpp"
 #include "../variant/variant.hpp"
+#include "project_settings.hpp"
 #include <vector>
 #include <string>
 
@@ -29,6 +30,10 @@ public:
 
     PackedStringArray get_directories() {
         PackedStringArray res;
+        if (path.begins_with("res://")) {
+            res = ProjectSettings::get_singleton()->get_directories_in_packs(path);
+            return res; // Don't attempt physical scan for res://
+        }
 #ifdef __PPU__
         int fd;
         if (cellFsOpendir(path.c_str(), &fd) == 0) {
@@ -57,6 +62,10 @@ public:
 
     PackedStringArray get_files() {
         PackedStringArray res;
+        if (path.begins_with("res://")) {
+            res = ProjectSettings::get_singleton()->get_files_in_packs(path);
+            return res; // Don't attempt physical scan for res://
+        }
 #ifdef __PPU__
         int fd;
         if (cellFsOpendir(path.c_str(), &fd) == 0) {
@@ -83,6 +92,11 @@ public:
     }
 
     bool dir_exists(const String& p_dir) {
+        if (p_dir.begins_with("res://")) {
+            // Simplified: if it has files in packs, it exists
+            return !ProjectSettings::get_singleton()->get_files_in_packs(p_dir).empty() || 
+                   !ProjectSettings::get_singleton()->get_directories_in_packs(p_dir).empty();
+        }
 #ifdef __PPU__
         CellFsStat stat;
         if (cellFsStat(p_dir.c_str(), &stat) == CELL_FS_SUCCEEDED) {
@@ -93,6 +107,10 @@ public:
     }
 
     bool file_exists(const String& p_file) {
+        if (p_file.begins_with("res://")) {
+            String pck_path;
+            if (ProjectSettings::get_singleton()->find_file_in_packs(p_file, pck_path).size > 0) return true;
+        }
 #ifdef __PPU__
         CellFsStat stat;
         if (cellFsStat(p_file.c_str(), &stat) == CELL_FS_SUCCEEDED) {

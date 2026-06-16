@@ -16,6 +16,7 @@
 #else
 #include <godot_cpp/variant/array.hpp>
 #endif
+#include "ui/hb_main_menu_native.hpp"
 
 namespace godot {
 
@@ -28,6 +29,7 @@ protected:
 private:
     bool demo_mode = false;
     Dictionary serializable_types;
+    HBMainMenuNative* main_menu = nullptr;
 
 public:
     HBGameNative();

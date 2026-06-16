@@ -2,6 +2,7 @@
 #define COMPAT_VARIANT_HPP
 
 #include "../core/defs.hpp"
+#include "rid.hpp"
 #include <string>
 #include <vector>
 #include <map>
@@ -126,10 +127,11 @@ template <class T> class Ref;
 
 class Variant {
 public:
-    enum Type { NIL, BOOL, INT, FLOAT, STRING, VECTOR2, COLOR, DICTIONARY, ARRAY, OBJECT, CALLABLE, PACKED_BYTE_ARRAY };
+    enum Type { NIL, BOOL, INT, FLOAT, STRING, VECTOR2, COLOR, DICTIONARY, ARRAY, OBJECT, CALLABLE, RID_TYPE, PACKED_BYTE_ARRAY };
     Variant() : type(NIL), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
     Variant(bool p_bool) : type(BOOL), i_val(p_bool ? 1 : 0), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
     Variant(int p_int) : type(INT), i_val(p_int), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
+    Variant(long p_int) : type(INT), i_val(p_int), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
     Variant(long long p_int) : type(INT), i_val(p_int), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
     Variant(double p_float) : type(FLOAT), i_val(0), f_val(p_float), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
     Variant(float p_float) : type(FLOAT), i_val(0), f_val(p_float), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
@@ -139,6 +141,7 @@ public:
     Variant(const Dictionary& p_dict);
     Variant(const Callable& p_callable);
     Variant(const PackedByteArray& p_packed_byte_array);
+    Variant(const RID& p_rid) : type(RID_TYPE), i_val(p_rid.get_id()), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
 
     template <class T>
     Variant(const Ref<T> &p_ref) : type(OBJECT), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val((Object*)p_ref.ptr()), packed_byte_array_val(0) {}
@@ -156,6 +159,7 @@ public:
         return "";
     }
     operator long long() const { return (type == FLOAT) ? (long long)f_val : i_val; }
+    operator long() const { return (type == FLOAT) ? (long)f_val : (long)i_val; }
     operator double() const { return (type == INT || type == BOOL) ? (double)i_val : f_val; }
     operator float() const { return (type == INT || type == BOOL) ? (float)i_val : (float)f_val; }
     operator int() const { return (type == FLOAT) ? (int)f_val : (int)i_val; }
@@ -168,6 +172,7 @@ public:
     }
     operator Array() const;
     operator Dictionary() const;
+    operator RID() const { return RID(); } // Stub
     operator PackedByteArray() const;
     operator const void*() const { return (const void*)obj_val; }
     operator Object*() const { return obj_val; }
@@ -180,6 +185,12 @@ public:
     Variant& operator=(const Array& p_array);
     Variant& operator=(const Dictionary& p_dict);
     Variant& operator=(const std::string& p_string);
+    Variant& operator=(const char* p_string);
+    Variant& operator=(int p_int);
+    Variant& operator=(long p_int);
+    Variant& operator=(long long p_int);
+    Variant& operator=(double p_float);
+    Variant& operator=(float p_float);
     Variant& operator=(const PackedByteArray& p_packed_byte_array);
 
     Variant get(const String& p_name) const;

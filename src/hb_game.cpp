@@ -1,5 +1,6 @@
 #include "hb_game.hpp"
 #include <godot_cpp/core/class_db.hpp>
+#include "graphics/hb_video_driver_psgl.hpp"
 
 using namespace godot;
 
@@ -16,9 +17,11 @@ void HBGameNative::_bind_methods() {
 
 HBGameNative::HBGameNative() {
     singleton = this;
+    HBVideoDriverPSGL::initialize();
 }
 
 HBGameNative::~HBGameNative() {
+    HBVideoDriverPSGL::terminate();
     singleton = nullptr;
 }
 
@@ -28,6 +31,14 @@ bool HBGameNative::get_demo_mode() const { return demo_mode; }
 Dictionary HBGameNative::get_serializable_types() const { return serializable_types; }
 void HBGameNative::register_serializable_type(const String &p_name, const Variant &p_type) {
     serializable_types[p_name] = p_type;
+}
+
+void HBGameNative::main_loop_step() {
+    HBVideoDriverPSGL::clear_buffer();
+    
+    // Draw logic would go here
+    
+    HBVideoDriverPSGL::swap_buffers();
 }
 
 HBGameNative *HBGameNative::get_singleton() {

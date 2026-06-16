@@ -106,11 +106,20 @@ enum Error {
     ERR_PRINTER_ON_FIRE
 };
 
-namespace std {
+namespace godot {
     template<class T>
-    const T& clamp(const T& v, const T& lo, const T& hi) {
+    inline const T& clamp(const T& v, const T& lo, const T& hi) {
         return (v < lo) ? lo : (hi < v) ? hi : v;
     }
+}
+
+namespace std {
+#if __cplusplus < 201703L
+    template<class T>
+    inline const T& clamp(const T& v, const T& lo, const T& hi) {
+        return (v < lo) ? lo : (hi < v) ? hi : v;
+    }
+#endif
 }
 
 #endif

@@ -28,10 +28,19 @@ public:
     void set_offset(float p_offset);
     float get_offset() const;
 
+    void start();
+    void stop();
+    bool is_playing() const;
+    void seek(int64_t p_msec);
+    int64_t get_playback_position_msec() const;
+
 private:
     float volume = 1.0f;
     float pitch_scale = 1.0f;
     float offset = 0.0f;
+    bool playing = false;
+    int64_t last_start_time = 0;
+    int64_t position_at_stop = 0;
 };
 
 } // namespace godot

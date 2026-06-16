@@ -2,7 +2,6 @@
 #define HB_WEB_USER_INFO_HPP
 
 #include "hb_serializable.hpp"
-#endif
 
 namespace godot {
 

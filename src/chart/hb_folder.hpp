@@ -2,7 +2,6 @@
 #define HB_FOLDER_HPP
 
 #include "hb_serializable.hpp"
-#endif
 
 namespace godot {
 

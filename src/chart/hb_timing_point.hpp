@@ -2,7 +2,6 @@
 #define HB_TIMING_POINT_HPP
 
 #include "hb_serializable.hpp"
-#endif
 
 #include <stdint.h>
 

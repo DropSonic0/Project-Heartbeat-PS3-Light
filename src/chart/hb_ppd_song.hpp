@@ -2,7 +2,6 @@
 #define HB_PPD_SONG_HPP
 
 #include "hb_song.hpp"
-#endif
 
 namespace godot {
 

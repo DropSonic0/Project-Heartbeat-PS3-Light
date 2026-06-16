@@ -90,6 +90,48 @@ Variant& Variant::operator=(const std::string& p_string) {
     type = STRING; s_val = p_string; return *this;
 }
 
+Variant& Variant::operator=(long p_int) {
+    if (array_val) { delete array_val; array_val = 0; }
+    if (dict_val) { delete dict_val; dict_val = 0; }
+    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
+    type = INT; i_val = p_int; return *this;
+}
+
+Variant& Variant::operator=(double p_float) {
+    if (array_val) { delete array_val; array_val = 0; }
+    if (dict_val) { delete dict_val; dict_val = 0; }
+    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
+    type = FLOAT; f_val = p_float; return *this;
+}
+
+Variant& Variant::operator=(float p_float) {
+    if (array_val) { delete array_val; array_val = 0; }
+    if (dict_val) { delete dict_val; dict_val = 0; }
+    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
+    type = FLOAT; f_val = p_float; return *this;
+}
+
+Variant& Variant::operator=(long long p_int) {
+    if (array_val) { delete array_val; array_val = 0; }
+    if (dict_val) { delete dict_val; dict_val = 0; }
+    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
+    type = INT; i_val = p_int; return *this;
+}
+
+Variant& Variant::operator=(int p_int) {
+    if (array_val) { delete array_val; array_val = 0; }
+    if (dict_val) { delete dict_val; dict_val = 0; }
+    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
+    type = INT; i_val = p_int; return *this;
+}
+
+Variant& Variant::operator=(const char* p_string) {
+    if (array_val) { delete array_val; array_val = 0; }
+    if (dict_val) { delete dict_val; dict_val = 0; }
+    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
+    type = STRING; s_val = p_string; return *this;
+}
+
 Variant& Variant::operator=(const PackedByteArray& p_packed_byte_array) {
     if (array_val) { delete array_val; array_val = 0; }
     if (dict_val) { delete dict_val; dict_val = 0; }

@@ -39,6 +39,8 @@ public:
     Dictionary get_serializable_types() const;
     void register_serializable_type(const String &p_name, const Variant &p_type);
 
+    void main_loop_step();
+
     static HBGameNative *get_singleton();
 };
 

@@ -12,6 +12,8 @@ class Node : public Object {
 public:
     void add_to_group(const String& p_group, bool p_persistent = false) {}
     void add_child(Node* p_child) {}
+    virtual void _ready() {}
+    virtual void _process(double p_delta) {}
 };
 
 }

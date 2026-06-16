@@ -2,7 +2,6 @@
 #define HB_NOTE_DATA_HPP
 
 #include "hb_base_note.hpp"
-#endif
 
 namespace godot {
 

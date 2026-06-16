@@ -5,22 +5,12 @@
 #include "compat/godot_cpp/classes/area3d.hpp"
 #include "compat/godot_cpp/classes/sub_viewport.hpp"
 #include "compat/godot_cpp/classes/mesh_instance3d.hpp"
-#else
-#ifdef __PPU__
-#include "compat/godot_cpp/classes/area3d.hpp"
+#include "compat/godot_cpp/variant/vector2.hpp"
 #else
 #include <godot_cpp/classes/area3d.hpp>
-#endif
-#ifdef __PPU__
-#include "compat/godot_cpp/classes/sub_viewport.hpp"
-#else
 #include <godot_cpp/classes/sub_viewport.hpp>
-#endif
-#ifdef __PPU__
-#include "compat/godot_cpp/classes/mesh_instance3d.hpp"
-#else
 #include <godot_cpp/classes/mesh_instance3d.hpp>
-#endif
+#include <godot_cpp/variant/vector2.hpp>
 #endif
 
 namespace godot {

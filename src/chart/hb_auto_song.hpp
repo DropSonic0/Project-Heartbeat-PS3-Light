@@ -2,9 +2,7 @@
 #define HB_AUTO_SONG_HPP
 
 #include "hb_song.hpp"
-#endif
 #include "hb_chart.hpp"
-#endif
 
 namespace godot {
 

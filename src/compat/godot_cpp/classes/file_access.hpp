@@ -7,6 +7,9 @@
 #include <sstream>
 #include <string>
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <algorithm>
 #include "project_settings.hpp"
 
 namespace godot {
@@ -84,10 +87,31 @@ public:
 
     String get_as_text() const {
         if (is_pck_file) {
+            f_in.clear();
             uint64_t current_pos = f_in.tellg();
-            f_in.seekg(pck_entry.offset);
+            f_in.seekg((std::streampos)pck_entry.offset);
+            if (!f_in.good()) {
+                UtilityFunctions::print("FileAccess: ERROR: seekg failed for " + path + " at " + String::num_int64(pck_entry.offset));
+            }
             std::vector<char> buffer(pck_entry.size);
             f_in.read(&buffer[0], (std::streamsize)pck_entry.size);
+            if ((uint64_t)f_in.gcount() != pck_entry.size) {
+                 UtilityFunctions::print("FileAccess: ERROR: read failed for " + path + ". Expected " + String::num_int64(pck_entry.size) + " got " + String::num_int64((uint64_t)f_in.gcount()));
+            }
+            
+            if (path.find("song.json") != std::string::npos) {
+                UtilityFunctions::print("FileAccess: Read " + String::num_int64(pck_entry.size) + " bytes from PCK at " + String::num_int64(pck_entry.offset) + " for " + path);
+                if (pck_entry.size > 0) {
+                    std::string hex_dump = "";
+                    for (int i=0; i<std::min((int)pck_entry.size, 64); i++) {
+                        char b[4];
+                        sprintf(b, "%02X ", (unsigned char)buffer[i]);
+                        hex_dump += b;
+                    }
+                    UtilityFunctions::print("FileAccess: Hex (first 64): " + String(hex_dump.c_str()));
+                }
+            }
+
             f_in.clear();
             f_in.seekg(current_pos);
             return String(std::string(&buffer[0], pck_entry.size));
@@ -115,74 +139,41 @@ public:
     }
 
     uint16_t get_16() const {
-        uint16_t v = 0;
-        f_in.read((char*)&v, (std::streamsize)2);
-#ifdef __PPU__
-        // PS3 is Big Endian, and MIDI/PPD data is Big Endian
-        return v;
-#else
-        // x86 is Little Endian, swap to get Big Endian value from file
-        return ((v & 0xFF) << 8) | ((v & 0xFF00) >> 8);
-#endif
+        uint8_t b[2];
+        f_in.read((char*)b, 2);
+        return (uint16_t)b[0] << 8 | (uint16_t)b[1];
     }
 
     uint32_t get_32() const {
-        uint32_t v = 0;
-        f_in.read((char*)&v, (std::streamsize)4);
-#ifdef __PPU__
-        return v;
-#else
-        return ((v & 0x000000FF) << 24) | 
-               ((v & 0x0000FF00) << 8)  | 
-               ((v & 0x00FF0000) >> 8)  | 
-               ((v & 0xFF000000) >> 24);
-#endif
+        uint8_t b[4];
+        f_in.read((char*)b, 4);
+        return (uint32_t)b[0] << 24 | (uint32_t)b[1] << 16 | (uint32_t)b[2] << 8 | (uint32_t)b[3];
     }
 
     uint32_t get_32_le() const {
-        uint32_t v = 0;
-        f_in.read((char*)&v, (std::streamsize)4);
-#ifdef __PPU__
-        return ((v & 0x000000FF) << 24) | 
-               ((v & 0x0000FF00) << 8)  | 
-               ((v & 0x00FF0000) >> 8)  | 
-               ((v & 0xFF000000) >> 24);
-#else
-        return v;
-#endif
+        uint8_t b[4];
+        f_in.read((char*)b, 4);
+        return (uint32_t)b[0] | ((uint32_t)b[1] << 8) | ((uint32_t)b[2] << 16) | ((uint32_t)b[3] << 24);
     }
 
     uint64_t get_64() const {
-        uint64_t v = 0;
-        f_in.read((char*)&v, (std::streamsize)8);
-#ifdef __PPU__
-        return v;
-#else
-        return ((v & 0x00000000000000FFULL) << 56) |
-               ((v & 0x000000000000FF00ULL) << 40) |
-               ((v & 0x0000000000FF0000ULL) << 24) |
-               ((v & 0x00000000FF000000ULL) << 8)  |
-               ((v & 0x000000FF00000000ULL) >> 8)  |
-               ((v & 0x0000FF0000000000ULL) >> 24) |
-               ((v & 0x00FF000000000000ULL) >> 40) |
-               ((v & 0xFF00000000000000ULL) >> 56);
-#endif
+        uint8_t b[8];
+        f_in.read((char*)b, 8);
+        return ((uint64_t)b[0] << 56) | ((uint64_t)b[1] << 48) | ((uint64_t)b[2] << 40) | ((uint64_t)b[3] << 32) |
+               ((uint64_t)b[4] << 24) | ((uint64_t)b[5] << 16) | ((uint64_t)b[6] << 8) | ((uint64_t)b[7]);
     }
 
     uint64_t get_64_le() const {
-        uint64_t v = 0;
-        f_in.read((char*)&v, (std::streamsize)8);
-#ifdef __PPU__
-        return ((v & 0x00000000000000FFULL) << 56) |
-               ((v & 0x000000000000FF00ULL) << 40) |
-               ((v & 0x0000000000FF0000ULL) << 24) |
-               ((v & 0x00000000FF000000ULL) << 8)  |
-               ((v & 0x000000FF00000000ULL) >> 8)  |
-               ((v & 0x00FF000000000000ULL) >> 40) |
-               ((v & 0xFF00000000000000ULL) >> 56);
-#else
-        return v;
-#endif
+        uint8_t b[8];
+        f_in.read((char*)b, 8);
+        return (uint64_t)b[0] | 
+               ((uint64_t)b[1] << 8) | 
+               ((uint64_t)b[2] << 16) | 
+               ((uint64_t)b[3] << 24) |
+               ((uint64_t)b[4] << 32) | 
+               ((uint64_t)b[5] << 40) | 
+               ((uint64_t)b[6] << 48) | 
+               ((uint64_t)b[7] << 56);
     }
 
     float get_float() const {
@@ -202,9 +193,16 @@ public:
     PackedByteArray get_buffer(size_t p_len) const {
         PackedByteArray res;
         if (is_pck_file) {
-            uint64_t current_relative = (uint64_t)f_in.tellg() - pck_entry.offset;
-            if (current_relative + (uint64_t)p_len > pck_entry.size) {
-                p_len = (size_t)(pck_entry.size - current_relative);
+            uint64_t current_pos = (uint64_t)f_in.tellg();
+            if (current_pos < pck_entry.offset) {
+                p_len = 0;
+            } else {
+                uint64_t current_relative = current_pos - pck_entry.offset;
+                if (current_relative >= pck_entry.size) {
+                    p_len = 0;
+                } else if (current_relative + (uint64_t)p_len > pck_entry.size) {
+                    p_len = (size_t)(pck_entry.size - current_relative);
+                }
             }
         }
         res.resize(p_len);
@@ -225,10 +223,10 @@ public:
     void seek(size_t p_pos) {
         if (mode == READ) {
             f_in.clear();
-            if (is_pck_file) f_in.seekg(pck_entry.offset + p_pos);
-            else f_in.seekg(p_pos);
+            if (is_pck_file) f_in.seekg((std::streampos)(pck_entry.offset + p_pos));
+            else f_in.seekg((std::streampos)p_pos);
         } else {
-            f_out.seekp(p_pos);
+            f_out.seekp((std::streampos)p_pos);
         }
     }
 

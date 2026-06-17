@@ -40,39 +40,56 @@ void HBSongLoaderNative::scan_songs_recursive(const String& p_path) {
     Ref<DirAccess> da = DirAccess::open(p_path);
     if (da.is_valid()) {
         PackedStringArray dirs = da->get_directories();
+        UtilityFunctions::print("HBSongLoader: Found " + String::num(dirs.size()) + " directories in " + p_path);
         for (int i = 0; i < dirs.size(); i++) {
             scan_songs_recursive(p_path.path_join(dirs[i]));
         }
 
         PackedStringArray files = da->get_files();
+        UtilityFunctions::print("HBSongLoader: Found " + String::num(files.size()) + " files in " + p_path);
         for (int i = 0; i < files.size(); i++) {
             String file_name = files[i];
-            if (file_name == "song.json") {
+            // UtilityFunctions::print("HBSongLoader: Checking file: " + file_name);
+            if (file_name == "song.json" || file_name == "song.json.pck") {
                 Ref<HBSongNative> song = load_song_meta(p_path.path_join(file_name), p_path.get_file());
                 if (song.is_valid()) {
                     add_song(song);
                     UtilityFunctions::print("HBSongLoader: Loaded song: " + song->get_title());
+                } else {
+                    UtilityFunctions::print("HBSongLoader: Failed to load song meta from: " + p_path.path_join(file_name));
                 }
             }
         }
+    } else {
+        UtilityFunctions::print("HBSongLoader: DirAccess invalid for: " + p_path);
     }
 }
 
 Ref<HBSongNative> HBSongLoaderNative::load_song_meta(const String &p_path, const String &p_id) {
     Ref<FileAccess> file = FileAccess::open(p_path, FileAccess::READ);
     if (file.is_null()) {
+        UtilityFunctions::print("HBSongLoader: Could not open file: " + p_path);
         return nullptr;
     }
 
     String content = file->get_as_text();
+    if (content.length() > 0) {
+        String head = content.substr(0, 100);
+        UtilityFunctions::print("HBSongLoader: File content head for " + p_path + ": " + head);
+    } else {
+        UtilityFunctions::print("HBSongLoader: File content is EMPTY for " + p_path);
+    }
+    
     Ref<JSON> json;
     json.instantiate();
     if (json->parse(content) != OK) {
+        UtilityFunctions::print("HBSongLoader: JSON parse error for file: " + p_path);
         return nullptr;
     }
 
     Variant data = json->get_data();
     if (data.get_type() != Variant::DICTIONARY) {
+        UtilityFunctions::print("HBSongLoader: JSON data is not a dictionary for " + p_path + " (Type: " + String::num(data.get_type()) + ")");
         return nullptr;
     }
 

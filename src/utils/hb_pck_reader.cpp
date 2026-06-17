@@ -58,28 +58,39 @@ bool PCKReader::load_pck(const String& p_path) {
 
         String path_str = "";
         for(uint32_t j=0; j<path_len; j++) {
-            if (path_buf[j] != 0) path_str += (char)path_buf[j];
+            char c = (char)path_buf[j];
+            if (c == 0) continue;
+            if (c == '\\') c = '/'; // Normalize slashes
+            path_str += c;
         }
         if (!path_str.begins_with("res://")) {
-            path_str = "res://" + path_str;
+            if (path_str.begins_with("/")) {
+                path_str = "res://" + path_str.substr(1);
+            } else {
+                path_str = "res://" + path_str;
+            }
         }
         
-        if (i < 20 || !path_str.begins_with("res://.godot")) {
-            UtilityFunctions::print("PCK: File " + String::num(i) + ": " + path_str);
-        }
-
         uint64_t offset = f->get_64_le();
         uint64_t size = f->get_64_le();
         
         // Skip MD5 (16 bytes)
         f->get_buffer(16);
 
+        uint32_t flags = 0;
         // Check if there are flags (Version 2)
         if (pck_version >= 2) {
-            f->get_32_le(); // flags
+            flags = f->get_32_le(); // flags
+        }
+        
+        if (i < 50 || path_str.find("song.json") != std::string::npos) {
+            UtilityFunctions::print("PCK: File " + String::num(i) + ": " + path_str + " (Size: " + String::num(size) + ", Flags: " + String::num(flags) + ", Offset: " + String::num_int64(offset) + " Base: " + String::num_int64(file_base) + ")");
+            if (flags != 0) {
+                UtilityFunctions::print("PCK: WARNING: File has FLAGS: " + String::num(flags) + " (Encrypted/Compressed?)");
+            }
         }
 
-        files[path_str] = {offset, size};
+        files[path_str] = {offset + file_base, size, flags};
         // UtilityFunctions::print("PCK: Found file: " + path_str);
     }
 
@@ -95,7 +106,7 @@ bool PCKReader::file_exists(const String& p_path) const {
 PCKFileEntry PCKReader::get_file_entry(const String& p_path) const {
     auto it = files.find(p_path);
     if (it != files.end()) return it->second;
-    return {0, 0};
+    return {0, 0, 0};
 }
 
 }

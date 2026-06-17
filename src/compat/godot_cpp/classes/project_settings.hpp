@@ -10,6 +10,7 @@ namespace godot {
 struct PCKFileEntry {
     uint64_t offset;
     uint64_t size;
+    uint32_t flags;
 };
 
 class PCKReader;

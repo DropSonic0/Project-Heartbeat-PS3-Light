@@ -18,7 +18,8 @@ public:
     bool file_exists(const String& p_path) const;
     PCKFileEntry get_file_entry(const String& p_path) const;
     String get_pck_path() const { return pck_path; }
-    
+    void set_file_entry(const String& p_path, const PCKFileEntry& p_entry) { files[p_path] = p_entry; }
+
     std::vector<String> get_all_files() const {
         std::vector<String> res;
         for (std::map<String, PCKFileEntry>::const_iterator it = files.begin(); it != files.end(); ++it) {

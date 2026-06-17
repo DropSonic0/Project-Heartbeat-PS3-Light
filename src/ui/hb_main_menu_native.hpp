@@ -3,12 +3,29 @@
 
 #include "hb_song_loader.hpp"
 #include "compat/godot_cpp/classes/node.hpp"
+#include "compat/godot_cpp/classes/image.hpp"
+#include <vector>
 
 namespace godot {
 
 class HBMainMenuNative : public Node {
-    int selected_song_index = 0;
-    Array song_titles;
+    struct MenuItem {
+        String label;
+        String next_menu;
+        Ref<Image> icon;
+    };
+    
+    enum State {
+        PRESS_START,
+        MAIN_MENU
+    };
+
+    State state = PRESS_START;
+    int selected_index = 0;
+    std::vector<MenuItem> menu_items;
+    Ref<Image> logo;
+    Ref<Resource> font;
+    float time_passed = 0.0f;
 
 public:
     HBMainMenuNative();

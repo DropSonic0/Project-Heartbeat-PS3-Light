@@ -11,6 +11,7 @@ namespace godot {
 class PCKReader : public Object {
     String pck_path;
     std::map<String, PCKFileEntry> files;
+    std::map<String, String> lowercase_files;
 
 public:
     PCKReader();

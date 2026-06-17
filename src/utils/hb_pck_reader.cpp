@@ -83,7 +83,8 @@ bool PCKReader::load_pck(const String& p_path) {
             flags = f->get_32_le(); // flags
         }
         
-        if (i < 50 || path_str.find("song.json") != std::string::npos) {
+        String path_lower_diag = path_str.to_lower();
+        if (i < 50 || path_str.find("song.json") != std::string::npos || path_lower_diag.find("logo") != std::string::npos || path_lower_diag.find("icon") != std::string::npos || path_lower_diag.find("graphics") != std::string::npos) {
             UtilityFunctions::print("PCK: File " + String::num(i) + ": " + path_str + " (Size: " + String::num(size) + ", Flags: " + String::num(flags) + ", Offset: " + String::num_int64(offset) + " Base: " + String::num_int64(file_base) + ")");
             if (flags != 0) {
                 UtilityFunctions::print("PCK: WARNING: File has FLAGS: " + String::num(flags) + " (Encrypted/Compressed?)");
@@ -91,6 +92,7 @@ bool PCKReader::load_pck(const String& p_path) {
         }
 
         files[path_str] = {offset + file_base, size, flags};
+        lowercase_files[path_str.to_lower()] = path_str;
         // UtilityFunctions::print("PCK: Found file: " + path_str);
     }
 
@@ -100,12 +102,20 @@ bool PCKReader::load_pck(const String& p_path) {
 }
 
 bool PCKReader::file_exists(const String& p_path) const {
-    return files.find(p_path) != files.end();
+    if (files.find(p_path) != files.end()) return true;
+    return lowercase_files.find(p_path.to_lower()) != lowercase_files.end();
 }
 
 PCKFileEntry PCKReader::get_file_entry(const String& p_path) const {
     auto it = files.find(p_path);
     if (it != files.end()) return it->second;
+
+    auto it_lower = lowercase_files.find(p_path.to_lower());
+    if (it_lower != lowercase_files.end()) {
+        auto it_orig = files.find(it_lower->second);
+        if (it_orig != files.end()) return it_orig->second;
+    }
+
     return {0, 0, 0};
 }
 

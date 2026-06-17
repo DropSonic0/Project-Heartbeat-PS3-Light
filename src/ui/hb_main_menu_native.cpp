@@ -2,65 +2,110 @@
 #include "utils/hb_input_native.hpp"
 #include "graphics/hb_video_driver_psgl.hpp"
 #include "compat/godot_cpp/variant/utility_functions.hpp"
+#include "compat/godot_cpp/classes/resource_loader.hpp"
+#include <cmath>
 
 namespace godot {
 
 HBMainMenuNative::HBMainMenuNative() {
-    HBSongLoaderNative* loader = HBSongLoaderNative::get_singleton();
-    if (loader) {
-        Dictionary songs = loader->get_songs();
-        song_titles = songs.keys();
-    }
-    if (song_titles.size() == 0) {
-        song_titles.append("No songs found in PCK/USRDIR");
-    }
+    menu_items.push_back({"Free Play", "song_list", ResourceLoader::get_singleton()->load("res://graphics/icons/music-box-outline.svg")});
+    menu_items.push_back({"Workshop", "workshop_browser", ResourceLoader::get_singleton()->load("res://graphics/icons/steam.svg")});
+    menu_items.push_back({"How to play", "tutorial", ResourceLoader::get_singleton()->load("res://graphics/icons/help-circle.svg")});
+    menu_items.push_back({"Multiplayer", "lobby_list", ResourceLoader::get_singleton()->load("res://graphics/icons/earth.svg")});
+    menu_items.push_back({"Downloads", "download_queue", ResourceLoader::get_singleton()->load("res://graphics/icons/download.svg")});
+    menu_items.push_back({"Options", "options_menu", ResourceLoader::get_singleton()->load("res://graphics/icons/settings.svg")});
+    menu_items.push_back({"Tools", "tools_menu", ResourceLoader::get_singleton()->load("res://graphics/icons/tools.svg")});
+    menu_items.push_back({"Exit", "exit", ResourceLoader::get_singleton()->load("res://graphics/icons/exit-run.svg")});
+
+    logo = ResourceLoader::get_singleton()->load("res://graphics/Logo.png");
 }
 
 void HBMainMenuNative::update() {
     HBInputNative::update();
+    time_passed += 0.016f; // Approx 60fps
 
-    if (song_titles.size() > 0) {
+    if (state == PRESS_START) {
+        if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_ACCEPT) || 
+            HBInputNative::is_action_just_pressed(HBInputNative::ACTION_UP) ||
+            HBInputNative::is_action_just_pressed(HBInputNative::ACTION_DOWN)) {
+            state = MAIN_MENU;
+        }
+    } else if (state == MAIN_MENU) {
         if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_DOWN)) {
-            selected_song_index = (selected_song_index + 1) % song_titles.size();
-            UtilityFunctions::print("Menu: Selected song: " + (String)song_titles[selected_song_index]);
+            selected_index = (selected_index + 1) % menu_items.size();
         }
         if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_UP)) {
-            selected_song_index = (selected_song_index - 1 + song_titles.size()) % song_titles.size();
-            UtilityFunctions::print("Menu: Selected song: " + (String)song_titles[selected_song_index]);
+            selected_index = (selected_index - 1 + menu_items.size()) % menu_items.size();
         }
         if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_ACCEPT)) {
-            UtilityFunctions::print("Menu: ACCEPT song: " + (String)song_titles[selected_song_index]);
+            UtilityFunctions::print("Menu: ACCEPT: " + menu_items[selected_index].label);
+        }
+        if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_BACK)) {
+            state = PRESS_START;
         }
     }
 }
 
 void HBMainMenuNative::draw() {
-    // Draw background (dark blueish gray)
-    HBVideoDriverPSGL::draw_rect(Rect2(0, 0, 1920, 1080), Color(0.05f, 0.05f, 0.15f, 1.0f));
+    // Draw background (matching PC's dark theme)
+    HBVideoDriverPSGL::draw_rect(Rect2(0, 0, 1920, 1080), Color(0.01f, 0.01f, 0.04f, 1.0f));
 
-    // Draw a header bar
-    HBVideoDriverPSGL::draw_rect(Rect2(0, 0, 1920, 80), Color(0.1f, 0.1f, 0.1f, 1.0f));
-
-    // Draw song list items
-    for (int i = 0; i < song_titles.size(); i++) {
-        float item_y = 100 + i * 60;
-        
-        Color item_color = Color(0.2f, 0.2f, 0.2f, 0.8f);
-        if (i == selected_song_index) {
-            // Selected item: Light blue
-            item_color = Color(0.2f, 0.5f, 0.9f, 1.0f);
-            // Draw a selection highlight border
-            HBVideoDriverPSGL::draw_rect(Rect2(95, item_y - 5, 1730, 60), Color(1.0f, 1.0f, 1.0f, 0.5f));
+    if (state == PRESS_START) {
+        // Draw logo centered
+        if (logo.is_valid()) {
+            HBVideoDriverPSGL::draw_texture(logo, Rect2(560, 200, 800, 400));
+        } else {
+            HBVideoDriverPSGL::draw_text("Project Heartbeat", Vector2(650, 350), Color(1, 1, 1, 1), 6.0f, true);
         }
 
-        HBVideoDriverPSGL::draw_rect(Rect2(100, item_y, 1720, 50), item_color);
-        
-        // Draw a small "thumbnail" placeholder
-        HBVideoDriverPSGL::draw_rect(Rect2(110, item_y + 5, 40, 40), Color(0.8f, 0.8f, 0.8f, 1.0f));
+        // Pulse "Press Start"
+        float alpha = 0.6f + 0.4f * std::sin(time_passed * 4.0f);
+        HBVideoDriverPSGL::draw_text("PRESS START", Vector2(810, 800), Color(1, 1, 1, alpha), 4.5f, true);
+    } else {
+        // Main Menu Layout matching PC's MainMenuLeft.tscn
+        if (logo.is_valid()) {
+            HBVideoDriverPSGL::draw_texture(logo, Rect2(2, 62, 800, 400));
+        } else {
+            HBVideoDriverPSGL::draw_text("Project Heartbeat", Vector2(100, 200), Color(1, 1, 1, 1), 4.0f, true);
+        }
+
+        float button_width = 430;
+        float button_height = 60;
+        float separation = 20; // Exact match to MainMenuLeft.tscn
+        int num_items = (int)menu_items.size();
+        float total_height = num_items * button_height + (num_items - 1) * separation;
+        float start_y = (1080 - total_height) / 2.0f + 120.0f; // Shifted slightly for PS3 aspect
+
+        for (int i = 0; i < num_items; i++) {
+            float item_y = start_y + i * (button_height + separation);
+            
+            Color item_color = Color(0.08f, 0.08f, 0.1f, 0.9f);
+            Color text_color = Color(0.85f, 0.85f, 0.85f, 1.0f);
+            if (i == selected_index) {
+                // Exact PC highlight blue
+                item_color = Color(0.17f, 0.47f, 0.88f, 1.0f);
+                text_color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+                // Selection border glow
+                HBVideoDriverPSGL::draw_rect(Rect2(48, item_y - 4, button_width + 10, button_height + 8), Color(1.0f, 1.0f, 1.0f, 0.25f));
+            }
+
+            HBVideoDriverPSGL::draw_rect(Rect2(53, item_y, button_width, button_height), item_color);
+            
+            // Icon
+            if (menu_items[i].icon.is_valid()) {
+                HBVideoDriverPSGL::draw_texture(menu_items[i].icon, Rect2(65, item_y + 10, 40, 40));
+            } else {
+                HBVideoDriverPSGL::draw_rect(Rect2(65, item_y + 10, 40, 40), Color(1.0f, 1.0f, 1.0f, 0.3f));
+            }
+
+            // Label with shadow
+            HBVideoDriverPSGL::draw_text(menu_items[i].label, Vector2(120, item_y + 18), text_color, 2.8f, true);
+        }
     }
     
-    // In a real port we would draw text here using PSGL and a font loader.
-    // For now, we rely on console output for names.
+    // Footer
+    HBVideoDriverPSGL::draw_text("HeartbeatNET: Connected", Vector2(20, 1010), Color(0.6, 0.6, 0.6, 0.8), 2.2f, true);
+    HBVideoDriverPSGL::draw_text("Project Heartbeat PS3 Marina's Legacy v1.0.0", Vector2(20, 1045), Color(0.6, 0.6, 0.6, 0.8), 2.2f, true);
 }
 
 }

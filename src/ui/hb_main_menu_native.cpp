@@ -8,6 +8,7 @@
 namespace godot {
 
 HBMainMenuNative::HBMainMenuNative() {
+    UtilityFunctions::randomize();
     menu_items.push_back({"Juego Libre", "song_list", ResourceLoader::get_singleton()->load("res://graphics/icons/music-box-outline.svg")});
     menu_items.push_back({"Workshop", "workshop_browser", ResourceLoader::get_singleton()->load("res://graphics/icons/steam.svg")});
     menu_items.push_back({"Como jugar", "tutorial", ResourceLoader::get_singleton()->load("res://graphics/icons/help-circle.svg")});
@@ -32,6 +33,30 @@ HBMainMenuNative::HBMainMenuNative() {
     quotes.push_back("Keep on drumming!");
     quotes.push_back("Powered by PSGL");
     quotes.push_back("Made with <3");
+    quotes.push_back("Cha-cha now y'all");
+    quotes.push_back("Imagine the nerves");
+    quotes.push_back("Original handcrafted code!");
+    quotes.push_back("Now featuring 100% more leaderboards");
+    quotes.push_back("Powered by Godot");
+    quotes.push_back("Made with love, from Spain");
+    quotes.push_back("↑ ↑ ↓ ↓ ← → ← → X O");
+    quotes.push_back("Tontoelquelolea");
+    quotes.push_back("Como que 33?");
+    quotes.push_back("An offer you can't refuse!");
+    quotes.push_back("Pick up that can");
+    quotes.push_back("Dangerous choking hazard!");
+    quotes.push_back("No plastic instruments required!");
+    quotes.push_back("Excellent-o");
+    quotes.push_back("You're winner!");
+    quotes.push_back("Bwoah");
+    quotes.push_back("Just leave me alone, I know what to do");
+    quotes.push_back("Steam Deck compatible!");
+    quotes.push_back("Better on Linux (tm)");
+    quotes.push_back("Illo Illo Illo");
+    quotes.push_back("DIVALLER compatible");
+    quotes.push_back("Uoooooooh");
+    quotes.push_back("Feliz jueves... no es jue... oh es jueves, es jueves...");
+    quotes.push_back("Project Project Disappointment");
     
     current_quote = quotes[UtilityFunctions::randi() % quotes.size()];
 

@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <cstdlib>
+#include <ctime>
 #include "variant.hpp"
 
 namespace godot {
@@ -16,6 +17,7 @@ public:
     }
     static double deg_to_rad(double p_deg) { return p_deg * 3.14159265358979323846 / 180.0; }
     static int randi() { return std::rand(); }
+    static void randomize() { std::srand((unsigned int)std::time(nullptr)); }
     static double randf_range(double from, double to) {
         return from + (double)std::rand() / (double)RAND_MAX * (to - from);
     }

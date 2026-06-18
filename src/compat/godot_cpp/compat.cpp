@@ -323,6 +323,35 @@ void FontVariation::set_data(const PackedByteArray& p_data) {
     }
 }
 
+static uint32_t decode_utf8(const char** s) {
+    uint32_t c = (unsigned char)**s;
+    if (c == 0) return 0;
+    if (c < 0x80) {
+        (*s)++;
+        return c;
+    }
+    if ((c & 0xE0) == 0xC0) {
+        if ((*s)[1] == 0) { (*s)++; return 0; }
+        c = ((c & 0x1F) << 6) | ((unsigned char)(*s)[1] & 0x3F);
+        *s += 2;
+        return c;
+    }
+    if ((c & 0xF0) == 0xE0) {
+        if ((*s)[1] == 0 || (*s)[2] == 0) { (*s)++; return 0; }
+        c = ((c & 0x0F) << 12) | (((unsigned char)(*s)[1] & 0x3F) << 6) | ((unsigned char)(*s)[2] & 0x3F);
+        *s += 3;
+        return c;
+    }
+    if ((c & 0xF8) == 0xF0) {
+        if ((*s)[1] == 0 || (*s)[2] == 0 || (*s)[3] == 0) { (*s)++; return 0; }
+        c = ((c & 0x07) << 18) | (((unsigned char)(*s)[1] & 0x3F) << 12) | (((unsigned char)(*s)[2] & 0x3F) << 6) | ((unsigned char)(*s)[3] & 0x3F);
+        *s += 4;
+        return c;
+    }
+    (*s)++;
+    return 0;
+}
+
 Ref<Image> FontVariation::render_text(const String& p_text, int p_font_size) const {
     if (!font_info || p_text.is_empty()) return Ref<Image>();
 
@@ -341,15 +370,21 @@ Ref<Image> FontVariation::render_text(const String& p_text, int p_font_size) con
     int ascent, descent, lineGap;
     stbtt_GetFontVMetrics(info, &ascent, &descent, &lineGap);
     
+    std::vector<uint32_t> codepoints;
+    const char* p = p_text.c_str();
+    while (*p) {
+        codepoints.push_back(decode_utf8(&p));
+    }
+
     int total_w = 0;
-    for (size_t i = 0; i < p_text.size(); i++) {
+    for (size_t i = 0; i < codepoints.size(); i++) {
         int ax;
         int lsb;
-        stbtt_GetCodepointHMetrics(info, p_text[i], &ax, &lsb);
+        stbtt_GetCodepointHMetrics(info, codepoints[i], &ax, &lsb);
         total_w += (int)(ax * scale);
         
-        if (i < p_text.size() - 1) {
-            total_w += (int)(stbtt_GetCodepointKernAdvance(info, p_text[i], p_text[i+1]) * scale);
+        if (i < codepoints.size() - 1) {
+            total_w += (int)(stbtt_GetCodepointKernAdvance(info, codepoints[i], codepoints[i+1]) * scale);
         }
     }
 
@@ -364,9 +399,9 @@ Ref<Image> FontVariation::render_text(const String& p_text, int p_font_size) con
     int x = 0;
     int baseline = (int)(ascent * scale);
 
-    for (size_t i = 0; i < p_text.size(); i++) {
+    for (size_t i = 0; i < codepoints.size(); i++) {
         int out_w, out_h, out_xoff, out_yoff;
-        unsigned char* bitmap = stbtt_GetCodepointBitmap(info, 0, scale, p_text[i], &out_w, &out_h, &out_xoff, &out_yoff);
+        unsigned char* bitmap = stbtt_GetCodepointBitmap(info, 0, scale, codepoints[i], &out_w, &out_h, &out_xoff, &out_yoff);
         
         if (bitmap) {
             for (int by = 0; by < out_h; by++) {
@@ -387,10 +422,10 @@ Ref<Image> FontVariation::render_text(const String& p_text, int p_font_size) con
         }
 
         int ax, lsb;
-        stbtt_GetCodepointHMetrics(info, p_text[i], &ax, &lsb);
+        stbtt_GetCodepointHMetrics(info, codepoints[i], &ax, &lsb);
         x += (int)(ax * scale);
-        if (i + 1 < p_text.size()) {
-            x += (int)(stbtt_GetCodepointKernAdvance(info, p_text[i], p_text[i+1]) * scale);
+        if (i + 1 < codepoints.size()) {
+            x += (int)(stbtt_GetCodepointKernAdvance(info, codepoints[i], codepoints[i+1]) * scale);
         }
     }
     text_cache[key] = img;

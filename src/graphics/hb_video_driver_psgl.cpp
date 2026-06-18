@@ -231,7 +231,7 @@ void HBVideoDriverPSGL::swap_buffers() {
 void HBVideoDriverPSGL::clear_buffer() {
 #ifdef __PPU__
     if (!_psgl_device) return;
-    glClearColor(0.2f, 0.2f, 0.4f, 1.0f); // Dark blueish clear color to show it's alive
+    glClearColor(0.129f, 0.071f, 0.259f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 #endif
 }
@@ -255,6 +255,14 @@ bool HBVideoDriverPSGL::should_exit() {
     return _should_exit;
 #else
     return false;
+#endif
+}
+
+Vector2 HBVideoDriverPSGL::get_window_size() {
+#ifdef __PPU__
+    return Vector2(_gl_width, _gl_height);
+#else
+    return Vector2(1920, 1080);
 #endif
 }
 
@@ -385,26 +393,34 @@ void HBVideoDriverPSGL::draw_text(const String& p_text, const Vector2& p_pos, co
 #endif
 }
 
-void HBVideoDriverPSGL::draw_text_with_font(const Ref<FontVariation>& p_font, const String& p_text, const Vector2& p_pos, int p_size, const Color& p_color, bool p_shadow) {
+void HBVideoDriverPSGL::draw_text_with_font(const Ref<FontVariation>& p_font, const String& p_text, const Vector2& p_pos, int p_size, const Color& p_color, bool p_shadow, bool p_center) {
     bool rendered = false;
     if (p_font.is_valid()) {
-        if (p_shadow) {
-            Ref<Image> shadow_img = p_font->render_text(p_text, p_size);
-            if (shadow_img.is_valid()) {
-                draw_texture(shadow_img, Rect2(p_pos + Vector2(2, 2), Vector2(shadow_img->get_width(), shadow_img->get_height())), Color(0, 0, 0, p_color.a * 0.5f));
-            }
-        }
-
         Ref<Image> img = p_font->render_text(p_text, p_size);
         if (img.is_valid()) {
-            draw_texture(img, Rect2(p_pos, Vector2(img->get_width(), img->get_height())), p_color);
+            Vector2 draw_pos = p_pos;
+            if (p_center) {
+                draw_pos.x -= img->get_width() / 2.0f;
+                draw_pos.y -= img->get_height() / 2.0f;
+            }
+
+            if (p_shadow) {
+                draw_texture(img, Rect2(draw_pos + Vector2(2, 2), Vector2(img->get_width(), img->get_height())), Color(0, 0, 0, p_color.a * 0.5f));
+            }
+
+            draw_texture(img, Rect2(draw_pos, Vector2(img->get_width(), img->get_height())), p_color);
             rendered = true;
         }
     }
 
     if (!rendered) {
         // Fallback to debug font if rendering failed
-        draw_text(p_text, p_pos, p_color, (float)p_size / 8.0f, p_shadow);
+        Vector2 draw_pos = p_pos;
+        if (p_center) {
+            draw_pos.x -= (p_text.length() * p_size) / 2.0f;
+            draw_pos.y -= p_size / 2.0f;
+        }
+        draw_text(p_text, draw_pos, p_color, (float)p_size / 8.0f, p_shadow);
     }
 }
 

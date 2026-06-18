@@ -39,6 +39,7 @@ class HBMainMenuNative : public Node {
     Ref<Image> background_tex;
     Ref<FontVariation> font;
     Ref<FontVariation> font_bold;
+    String current_quote;
     float time_passed = 0.0f;
 
 public:

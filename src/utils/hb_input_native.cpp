@@ -15,8 +15,11 @@ void HBInputNative::update() {
     _current_state[ACTION_DOWN] = HBVideoDriverPSGL::is_button_pressed(CELL_PAD_CTRL_DOWN);
     _current_state[ACTION_LEFT] = HBVideoDriverPSGL::is_button_pressed(CELL_PAD_CTRL_LEFT);
     _current_state[ACTION_RIGHT] = HBVideoDriverPSGL::is_button_pressed(CELL_PAD_CTRL_RIGHT);
-    _current_state[ACTION_ACCEPT] = HBVideoDriverPSGL::is_button_pressed(CELL_PAD_CTRL_CROSS);
-    _current_state[ACTION_BACK] = HBVideoDriverPSGL::is_button_pressed(CELL_PAD_CTRL_CIRCLE);
+    // Face buttons are in Digital 2, which we mapped to the high byte in HBVideoDriverPSGL::is_button_pressed
+    _current_state[ACTION_ACCEPT] = HBVideoDriverPSGL::is_button_pressed(CELL_PAD_CTRL_CROSS << 8);
+    _current_state[ACTION_BACK] = HBVideoDriverPSGL::is_button_pressed(CELL_PAD_CTRL_CIRCLE << 8);
+    _current_state[ACTION_SQUARE] = HBVideoDriverPSGL::is_button_pressed(CELL_PAD_CTRL_SQUARE << 8);
+    _current_state[ACTION_TRIANGLE] = HBVideoDriverPSGL::is_button_pressed(CELL_PAD_CTRL_TRIANGLE << 8);
 #endif
 }
 

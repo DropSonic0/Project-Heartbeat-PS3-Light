@@ -19,6 +19,8 @@ public:
         ACTION_RIGHT,
         ACTION_ACCEPT,
         ACTION_BACK,
+        ACTION_SQUARE,
+        ACTION_TRIANGLE,
         ACTION_MAX
     };
 

@@ -488,9 +488,18 @@ void HBVideoDriverPSGL::clear_texture_cache() {
 
 bool HBVideoDriverPSGL::is_button_pressed(int p_button) {
 #ifdef __PPU__
-    if (!_pad_initialized) return false;
-    return (_pad_data.button[CELL_PAD_BTN_OFFSET_DIGITAL2] & p_button) != 0 || 
-           (_pad_data.button[CELL_PAD_BTN_OFFSET_DIGITAL1] & p_button) != 0;
+    if (!_pad_initialized || _pad_data.len <= CELL_PAD_BTN_OFFSET_DIGITAL2) return false;
+    // The PS3 PAD report stores digital buttons in two bytes.
+    // Digital 1: Select (0x01), L3 (0x02), R3 (0x04), Start (0x08), Up (0x10), Right (0x20), Down (0x40), Left (0x80)
+    // Digital 2: L2 (0x01), R2 (0x02), L1 (0x04), R1 (0x08), Triangle (0x10), Circle (0x20), Cross (0x40), Square (0x80)
+    //
+    // In the CellPadData structure, these are separate uint16_t elements at offsets DIGITAL1 (2) and DIGITAL2 (3).
+    // The CELL_PAD_CTRL_* constants (like CELL_PAD_CTRL_CROSS = 0x4000) are defined assuming
+    // a 16-bit word where Digital 2 is the high byte and Digital 1 is the low byte.
+    uint16_t d1 = _pad_data.button[CELL_PAD_BTN_OFFSET_DIGITAL1] & 0xFF;
+    uint16_t d2 = _pad_data.button[CELL_PAD_BTN_OFFSET_DIGITAL2] & 0xFF;
+    uint16_t buttons = (d2 << 8) | d1;
+    return (buttons & p_button) != 0;
 #else
     return false;
 #endif

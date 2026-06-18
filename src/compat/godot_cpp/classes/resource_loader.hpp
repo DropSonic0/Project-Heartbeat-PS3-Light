@@ -21,6 +21,16 @@ public:
 
     Ref<Resource> load(const String& p_path, const String& p_type_hint = "") {
         UtilityFunctions::print("ResourceLoader: Attempting to load: " + p_path);
+
+        // Prioritize raw physical assets in USRDIR if they exist
+        String physical_path = p_path;
+        if (p_path.begins_with("res://")) {
+            physical_path = p_path.replace("res://", "/dev_hdd0/game/PROJECTHB/USRDIR/");
+        }
+        if (FileAccess::file_exists(physical_path)) {
+            UtilityFunctions::print("ResourceLoader: Using prioritized physical resource: " + physical_path);
+            return _load_internal(physical_path, p_type_hint);
+        }
         
         String path = p_path;
         if (!FileAccess::file_exists(path)) {
@@ -85,7 +95,15 @@ public:
                 return (Ref<Resource>)img;
             }
             
-            if (path_lower.find("font") != std::string::npos || path_lower.ends_with(".ttf") || path_lower.ends_with(".otf") || path_lower.ends_with(".tres") || path_lower.ends_with(".res")) {
+            if (path_lower.ends_with(".ttf") || path_lower.ends_with(".otf") || path_lower.ends_with(".fontdata")) {
+                Ref<FileAccess> f = FileAccess::open(path, FileAccess::READ);
+                if (f.is_valid()) {
+                    PackedByteArray buffer = f->get_buffer(f->get_length());
+                    Ref<FontVariation> font;
+                    font.instantiate();
+                    font->set_data(buffer);
+                    return (Ref<Resource>)font;
+                }
                 Ref<FontVariation> font;
                 font.instantiate();
                 return (Ref<Resource>)font;
@@ -96,20 +114,38 @@ public:
             return res;
         }
 
-        // Final fallback to physical path
-        String physical_path = p_path;
-        if (p_path.begins_with("res://")) {
-            physical_path = p_path.replace("res://", "/dev_hdd0/game/PROJECTHB/USRDIR/");
-        }
-        if (FileAccess::file_exists(physical_path)) {
-            UtilityFunctions::print("ResourceLoader: Found physical resource at: " + physical_path);
-            Ref<Resource> res;
-            res.instantiate();
-            return res;
-        }
-
         UtilityFunctions::print("ResourceLoader: Resource not found: " + p_path);
         return Ref<Resource>(NULL);
+    }
+
+private:
+    Ref<Resource> _load_internal(const String& path, const String& p_type_hint) {
+        String path_lower = path.to_lower();
+        if (path_lower.ends_with(".png") || path_lower.ends_with(".svg") || path_lower.ends_with(".webp") || path_lower.ends_with(".ctex")) {
+            Ref<FileAccess> f = FileAccess::open(path, FileAccess::READ);
+            if (f.is_valid()) {
+                PackedByteArray buffer = f->get_buffer(f->get_length());
+                Ref<Image> img = Image::load_from_buffer(buffer);
+                if (img.is_valid()) {
+                    return (Ref<Resource>)img;
+                }
+            }
+        }
+        
+        if (path_lower.ends_with(".ttf") || path_lower.ends_with(".otf") || path_lower.ends_with(".fontdata")) {
+            Ref<FileAccess> f = FileAccess::open(path, FileAccess::READ);
+            if (f.is_valid()) {
+                PackedByteArray buffer = f->get_buffer(f->get_length());
+                Ref<FontVariation> font;
+                font.instantiate();
+                font->set_data(buffer);
+                return (Ref<Resource>)font;
+            }
+        }
+
+        Ref<Resource> res;
+        res.instantiate();
+        return res;
     }
 };
 

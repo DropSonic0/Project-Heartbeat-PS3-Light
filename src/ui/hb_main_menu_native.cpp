@@ -18,6 +18,8 @@ HBMainMenuNative::HBMainMenuNative() {
     menu_items.push_back({"Exit", "exit", ResourceLoader::get_singleton()->load("res://graphics/icons/exit-run.svg")});
 
     logo = ResourceLoader::get_singleton()->load("res://graphics/Logo.png");
+    font = ResourceLoader::get_singleton()->load("res://fonts/Roboto-Regular.ttf");
+    font_bold = ResourceLoader::get_singleton()->load("res://fonts/Roboto-Black.ttf");
 }
 
 void HBMainMenuNative::update() {
@@ -55,18 +57,18 @@ void HBMainMenuNative::draw() {
         if (logo.is_valid()) {
             HBVideoDriverPSGL::draw_texture(logo, Rect2(560, 200, 800, 400));
         } else {
-            HBVideoDriverPSGL::draw_text("Project Heartbeat", Vector2(650, 350), Color(1, 1, 1, 1), 6.0f, true);
+            HBVideoDriverPSGL::draw_text_with_font(font_bold, "Project Heartbeat", Vector2(650, 350), 48, Color(1, 1, 1, 1), true);
         }
 
         // Pulse "Press Start"
         float alpha = 0.6f + 0.4f * std::sin(time_passed * 4.0f);
-        HBVideoDriverPSGL::draw_text("PRESS START", Vector2(810, 800), Color(1, 1, 1, alpha), 4.5f, true);
+        HBVideoDriverPSGL::draw_text_with_font(font, "PRESS START", Vector2(810, 800), 36, Color(1, 1, 1, alpha), true);
     } else {
         // Main Menu Layout matching PC's MainMenuLeft.tscn
         if (logo.is_valid()) {
             HBVideoDriverPSGL::draw_texture(logo, Rect2(2, 62, 800, 400));
         } else {
-            HBVideoDriverPSGL::draw_text("Project Heartbeat", Vector2(100, 200), Color(1, 1, 1, 1), 4.0f, true);
+            HBVideoDriverPSGL::draw_text_with_font(font_bold, "Project Heartbeat", Vector2(100, 200), 32, Color(1, 1, 1, 1), true);
         }
 
         float button_width = 430;
@@ -99,13 +101,13 @@ void HBMainMenuNative::draw() {
             }
 
             // Label with shadow
-            HBVideoDriverPSGL::draw_text(menu_items[i].label, Vector2(120, item_y + 18), text_color, 2.8f, true);
+            HBVideoDriverPSGL::draw_text_with_font(font, menu_items[i].label, Vector2(120, item_y + 15), 24, text_color, true);
         }
     }
     
     // Footer
-    HBVideoDriverPSGL::draw_text("HeartbeatNET: Connected", Vector2(20, 1010), Color(0.6, 0.6, 0.6, 0.8), 2.2f, true);
-    HBVideoDriverPSGL::draw_text("Project Heartbeat PS3 Marina's Legacy v1.0.0", Vector2(20, 1045), Color(0.6, 0.6, 0.6, 0.8), 2.2f, true);
+    HBVideoDriverPSGL::draw_text_with_font(font, "HeartbeatNET: Connected", Vector2(20, 1010), 18, Color(0.6, 0.6, 0.6, 0.8), true);
+    HBVideoDriverPSGL::draw_text_with_font(font, "Project Heartbeat PS3 Marina's Legacy v1.0.0", Vector2(20, 1045), 18, Color(0.6, 0.6, 0.6, 0.8), true);
 }
 
 }

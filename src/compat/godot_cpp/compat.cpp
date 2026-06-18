@@ -225,11 +225,178 @@ PackedStringArray ProjectSettings::get_directories_in_packs(const String& p_path
 #define STB_IMAGE_IMPLEMENTATION
 #include "../stb_image.h"
 
+#define STB_TRUETYPE_IMPLEMENTATION
+#include "../stb_truetype.h"
+
 #include "../webp_wrapper.h"
 
 #include "classes/image.hpp"
+#include "classes/font_variation.hpp"
 
 namespace godot {
+
+FontVariation::FontVariation() {
+    font_info = nullptr;
+}
+
+FontVariation::~FontVariation() {
+    if (font_info) {
+        free(font_info);
+    }
+}
+
+void FontVariation::clear_cache() {
+    text_cache.clear();
+}
+
+void FontVariation::set_data(const PackedByteArray& p_data) {
+    data = p_data;
+    clear_cache();
+    if (font_info) {
+        free(font_info);
+        font_info = nullptr;
+    }
+    if (data.size() > 0) {
+        const unsigned char* src_ptr = data.data();
+        size_t src_size = data.size();
+
+        stbtt_fontinfo* info = (stbtt_fontinfo*)malloc(sizeof(stbtt_fontinfo));
+        if (stbtt_InitFont(info, src_ptr, 0)) {
+            font_info = info;
+        } else {
+            // Try searching for TTF/OTF magic (skip Godot resource header)
+            bool found = false;
+            
+            // Check for Godot 4 Compressed Resource magic "RSCC" (52 53 43 43)
+            if (src_size > 4 && src_ptr[0] == 0x52 && src_ptr[1] == 0x53 && src_ptr[2] == 0x43 && src_ptr[3] == 0x43) {
+                UtilityFunctions::print("STBTT: Resource is compressed (RSCC). STBTT cannot load compressed fonts. Please re-import fonts with 'Compress' disabled.");
+            }
+
+            // Search more thoroughly (first 2048 bytes) for font magic
+            for (size_t offset = 0; offset < std::min(src_size, (size_t)2048); offset++) {
+                // TTF: 00 01 00 00
+                if (offset + 4 <= src_size && src_ptr[offset] == 0x00 && src_ptr[offset+1] == 0x01 && src_ptr[offset+2] == 0x00 && src_ptr[offset+3] == 0x00) {
+                    if (stbtt_InitFont(info, src_ptr + offset, 0)) {
+                        src_ptr += offset;
+                        src_size -= offset;
+                        font_info = info;
+                        found = true;
+                        break;
+                    }
+                }
+                // OTF: OTTO
+                if (offset + 4 <= src_size && src_ptr[offset] == 'O' && src_ptr[offset+1] == 'T' && src_ptr[offset+2] == 'T' && src_ptr[offset+3] == 'O') {
+                    if (stbtt_InitFont(info, src_ptr + offset, 0)) {
+                        src_ptr += offset;
+                        src_size -= offset;
+                        font_info = info;
+                        found = true;
+                        break;
+                    }
+                }
+                // WOFF: wOFF
+                if (offset + 4 <= src_size && src_ptr[offset] == 'w' && src_ptr[offset+1] == 'O' && src_ptr[offset+2] == 'F' && src_ptr[offset+3] == 'F') {
+                    UtilityFunctions::print("STBTT: Found WOFF magic. STBTT does not support WOFF. Use TTF or OTF.");
+                }
+            }
+
+            if (!found) {
+                free(info);
+                UtilityFunctions::print("STBTT: Failed to initialize font.");
+                if (src_size > 0) {
+                    std::string hex_dump = "Head: ";
+                    for (size_t i=0; i<std::min(src_size, (size_t)64); i++) {
+                        char b[4];
+                        sprintf(b, "%02X ", src_ptr[i]);
+                        hex_dump += b;
+                    }
+                    UtilityFunctions::print(hex_dump.c_str());
+                }
+            }
+        }
+
+        if (font_info) {
+            char diag[128];
+            sprintf(diag, "STBTT: Font initialized successfully. Data size: %zu", src_size);
+            UtilityFunctions::print(diag);
+        }
+    }
+}
+
+Ref<Image> FontVariation::render_text(const String& p_text, int p_font_size) const {
+    if (!font_info || p_text.is_empty()) return Ref<Image>();
+
+    CacheKey key = {p_text, p_font_size};
+    if (text_cache.count(key)) {
+        // UtilityFunctions::print("STBTT: Cache hit for: " + p_text);
+        return text_cache[key];
+    }
+
+    UtilityFunctions::print("STBTT: Rendering text: " + p_text);
+
+    stbtt_fontinfo* info = (stbtt_fontinfo*)font_info;
+
+    float scale = stbtt_ScaleForPixelHeight(info, (float)p_font_size);
+    
+    int ascent, descent, lineGap;
+    stbtt_GetFontVMetrics(info, &ascent, &descent, &lineGap);
+    
+    int total_w = 0;
+    for (size_t i = 0; i < p_text.size(); i++) {
+        int ax;
+        int lsb;
+        stbtt_GetCodepointHMetrics(info, p_text[i], &ax, &lsb);
+        total_w += (int)(ax * scale);
+        
+        if (i < p_text.size() - 1) {
+            total_w += (int)(stbtt_GetCodepointKernAdvance(info, p_text[i], p_text[i+1]) * scale);
+        }
+    }
+
+    int total_h = (int)((ascent - descent) * scale);
+    if (total_w <= 0 || total_h <= 0) return Ref<Image>();
+
+    Ref<Image> img = Image::create(total_w, total_h, false, 3); // Format 3 is RGBA8 in our shim
+    PackedByteArray& img_data = img->get_data_rw();
+    unsigned char* pixels = img_data.data_ptr();
+    memset(pixels, 0, img_data.size());
+
+    int x = 0;
+    int baseline = (int)(ascent * scale);
+
+    for (size_t i = 0; i < p_text.size(); i++) {
+        int out_w, out_h, out_xoff, out_yoff;
+        unsigned char* bitmap = stbtt_GetCodepointBitmap(info, 0, scale, p_text[i], &out_w, &out_h, &out_xoff, &out_yoff);
+        
+        if (bitmap) {
+            for (int by = 0; by < out_h; by++) {
+                for (int bx = 0; bx < out_w; bx++) {
+                    int px = x + out_xoff + bx;
+                    int py = baseline + out_yoff + by;
+                    if (px >= 0 && px < total_w && py >= 0 && py < total_h) {
+                        unsigned char alpha = bitmap[bx + by * out_w];
+                        size_t off = (py * total_w + px) * 4;
+                        pixels[off + 0] = 255;
+                        pixels[off + 1] = 255;
+                        pixels[off + 2] = 255;
+                        pixels[off + 3] = alpha;
+                    }
+                }
+            }
+            stbtt_FreeBitmap(bitmap, nullptr);
+        }
+
+        int ax, lsb;
+        stbtt_GetCodepointHMetrics(info, p_text[i], &ax, &lsb);
+        x += (int)(ax * scale);
+        if (i + 1 < p_text.size()) {
+            x += (int)(stbtt_GetCodepointKernAdvance(info, p_text[i], p_text[i+1]) * scale);
+        }
+    }
+    text_cache[key] = img;
+    return img;
+}
+
 
 Ref<Image> Image::load_from_buffer(const PackedByteArray& p_buffer) {
     if (p_buffer.size() == 0) return Ref<Image>();
@@ -245,13 +412,11 @@ Ref<Image> Image::load_from_buffer(const PackedByteArray& p_buffer) {
         
         // Search for image signatures within the first 128 bytes
         size_t limit = std::min(src_size - 12, (size_t)128);
-        bool found = false;
         for (size_t offset = 32; offset <= limit; offset++) {
             // PNG signature: 89 50 4E 47
             if (src_ptr[offset] == 0x89 && src_ptr[offset+1] == 0x50 && src_ptr[offset+2] == 0x4E && src_ptr[offset+3] == 0x47) {
                 src_ptr += offset;
                 src_size -= offset;
-                found = true;
                 break;
             }
             // WebP signature: RIFF .... WEBP
@@ -259,14 +424,12 @@ Ref<Image> Image::load_from_buffer(const PackedByteArray& p_buffer) {
                 src_ptr[offset+8] == 'W' && src_ptr[offset+9] == 'E' && src_ptr[offset+10] == 'B' && src_ptr[offset+11] == 'P') {
                 src_ptr += offset;
                 src_size -= offset;
-                found = true;
                 break;
             }
             // JPEG signature: FF D8 FF
             if (src_ptr[offset] == 0xFF && src_ptr[offset+1] == 0xD8 && src_ptr[offset+2] == 0xFF) {
                 src_ptr += offset;
                 src_size -= offset;
-                found = true;
                 break;
             }
         }

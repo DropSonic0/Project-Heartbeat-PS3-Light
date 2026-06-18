@@ -1,8 +1,10 @@
 #include "hb_video_driver_psgl.hpp"
+#include "compat/godot_cpp/classes/font_variation.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <stdio.h>
 #include <string.h>
 #include <map>
+#include <vector>
 
 #ifdef __PPU__
 #include <cell/cell_fs.h>
@@ -302,8 +304,10 @@ static void _draw_text_internal(const String& p_text, const Vector2& p_pos, cons
 #ifdef __PPU__
     glColor4f(p_color.r, p_color.g, p_color.b, p_color.a);
     float cur_x = p_pos.x;
-    float cur_y = p_pos.y;
     float char_w = 8.0f * p_scale;
+
+    std::vector<GLfloat> vertices;
+    vertices.reserve(p_text.size() * 8 * 8 * 12); // Worst case: all pixels set, 2 triangles (6 verts) * 2 coords per char
 
     for (size_t i = 0; i < p_text.size(); i++) {
         char c = p_text[i];
@@ -315,20 +319,31 @@ static void _draw_text_internal(const String& p_text, const Vector2& p_pos, cons
             for (int x = 0; x < 8; x++) {
                 if (row & (1 << (7 - x))) {
                     float px = cur_x + x * p_scale;
-                    float py = cur_y + y * p_scale;
+                    float py = p_pos.y + y * p_scale;
                     
-                    GLfloat vertices[] = {
-                        px, py,
-                        px + p_scale, py,
-                        px, py + p_scale,
-                        px + p_scale, py + p_scale
-                    };
-                    glVertexPointer(2, GL_FLOAT, 0, vertices);
-                    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+                    // Triangle Strip for each pixel: 4 vertices
+                    // We'll use independent triangles for simplicity in batching: 6 vertices per pixel
+                    float x1 = px;
+                    float y1 = py;
+                    float x2 = px + p_scale;
+                    float y2 = py + p_scale;
+
+                    vertices.push_back(x1); vertices.push_back(y1);
+                    vertices.push_back(x2); vertices.push_back(y1);
+                    vertices.push_back(x1); vertices.push_back(y2);
+
+                    vertices.push_back(x2); vertices.push_back(y1);
+                    vertices.push_back(x2); vertices.push_back(y2);
+                    vertices.push_back(x1); vertices.push_back(y2);
                 }
             }
         }
         cur_x += char_w + 1.0f * p_scale;
+    }
+
+    if (!vertices.empty()) {
+        glVertexPointer(2, GL_FLOAT, 0, &vertices[0]);
+        glDrawArrays(GL_TRIANGLES, 0, vertices.size() / 2);
     }
 #endif
 }
@@ -364,6 +379,29 @@ void HBVideoDriverPSGL::draw_text(const String& p_text, const Vector2& p_pos, co
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 #endif
+}
+
+void HBVideoDriverPSGL::draw_text_with_font(const Ref<FontVariation>& p_font, const String& p_text, const Vector2& p_pos, int p_size, const Color& p_color, bool p_shadow) {
+    bool rendered = false;
+    if (p_font.is_valid()) {
+        if (p_shadow) {
+            Ref<Image> shadow_img = p_font->render_text(p_text, p_size);
+            if (shadow_img.is_valid()) {
+                draw_texture(shadow_img, Rect2(p_pos + Vector2(2, 2), Vector2(shadow_img->get_width(), shadow_img->get_height())), Color(0, 0, 0, p_color.a * 0.5f));
+            }
+        }
+
+        Ref<Image> img = p_font->render_text(p_text, p_size);
+        if (img.is_valid()) {
+            draw_texture(img, Rect2(p_pos, Vector2(img->get_width(), img->get_height())), p_color);
+            rendered = true;
+        }
+    }
+
+    if (!rendered) {
+        // Fallback to debug font if rendering failed
+        draw_text(p_text, p_pos, p_color, (float)p_size / 8.0f, p_shadow);
+    }
 }
 
 void HBVideoDriverPSGL::draw_texture(const Ref<Image>& p_image, const Rect2& p_rect, const Color& p_modulate) {

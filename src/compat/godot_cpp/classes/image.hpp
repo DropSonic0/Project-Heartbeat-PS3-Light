@@ -31,6 +31,7 @@ public:
 
     void set_data(const PackedByteArray& p_data) { data = p_data; }
     PackedByteArray get_data() const { return data; }
+    PackedByteArray& get_data_rw() { return data; }
     int get_width() const { return width; }
     int get_height() const { return height; }
     int get_format() const { return format; }

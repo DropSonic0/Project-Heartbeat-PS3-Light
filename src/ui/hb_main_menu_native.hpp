@@ -4,6 +4,7 @@
 #include "hb_song_loader.hpp"
 #include "compat/godot_cpp/classes/node.hpp"
 #include "compat/godot_cpp/classes/image.hpp"
+#include "compat/godot_cpp/classes/font_variation.hpp"
 #include <vector>
 
 namespace godot {
@@ -24,7 +25,8 @@ class HBMainMenuNative : public Node {
     int selected_index = 0;
     std::vector<MenuItem> menu_items;
     Ref<Image> logo;
-    Ref<Resource> font;
+    Ref<FontVariation> font;
+    Ref<FontVariation> font_bold;
     float time_passed = 0.0f;
 
 public:

@@ -74,7 +74,7 @@ public:
             if (path_lower.ends_with(".png") || path_lower.ends_with(".svg") || path_lower.ends_with(".webp") || path_lower.ends_with(".ctex")) {
                 Ref<FileAccess> f = FileAccess::open(path, FileAccess::READ);
                 if (f.is_valid()) {
-                    PackedByteArray buffer = f->get_buffer(f->get_length());
+                    PackedByteArray buffer = f->get_buffer((size_t)f->get_length());
                     Ref<Image> img = Image::load_from_buffer(buffer);
                     if (img.is_valid()) {
                         return (Ref<Resource>)img;
@@ -98,7 +98,7 @@ public:
             if (path_lower.ends_with(".ttf") || path_lower.ends_with(".otf") || path_lower.ends_with(".fontdata")) {
                 Ref<FileAccess> f = FileAccess::open(path, FileAccess::READ);
                 if (f.is_valid()) {
-                    PackedByteArray buffer = f->get_buffer(f->get_length());
+                    PackedByteArray buffer = f->get_buffer((size_t)f->get_length());
                     Ref<FontVariation> font;
                     font.instantiate();
                     font->set_data(buffer);
@@ -124,7 +124,7 @@ private:
         if (path_lower.ends_with(".png") || path_lower.ends_with(".svg") || path_lower.ends_with(".webp") || path_lower.ends_with(".ctex")) {
             Ref<FileAccess> f = FileAccess::open(path, FileAccess::READ);
             if (f.is_valid()) {
-                PackedByteArray buffer = f->get_buffer(f->get_length());
+                PackedByteArray buffer = f->get_buffer((size_t)f->get_length());
                 Ref<Image> img = Image::load_from_buffer(buffer);
                 if (img.is_valid()) {
                     return (Ref<Resource>)img;
@@ -135,7 +135,7 @@ private:
         if (path_lower.ends_with(".ttf") || path_lower.ends_with(".otf") || path_lower.ends_with(".fontdata")) {
             Ref<FileAccess> f = FileAccess::open(path, FileAccess::READ);
             if (f.is_valid()) {
-                PackedByteArray buffer = f->get_buffer(f->get_length());
+                PackedByteArray buffer = f->get_buffer((size_t)f->get_length());
                 Ref<FontVariation> font;
                 font.instantiate();
                 font->set_data(buffer);

@@ -259,6 +259,10 @@ bool HBVideoDriverPSGL::should_exit() {
 }
 
 void HBVideoDriverPSGL::draw_rect(const Rect2& p_rect, const Color& p_color) {
+    draw_parallelogram(p_rect, 0.0f, p_color);
+}
+
+void HBVideoDriverPSGL::draw_parallelogram(const Rect2& p_rect, float p_slant, const Color& p_color) {
 #ifdef __PPU__
     if (!_psgl_device) return;
     glMatrixMode(GL_PROJECTION);
@@ -281,8 +285,8 @@ void HBVideoDriverPSGL::draw_rect(const Rect2& p_rect, const Color& p_color) {
     float y2 = p_rect.position.y + p_rect.size.y;
 
     GLfloat vertices[] = {
-        x1, y1,
-        x2, y1,
+        x1 + p_slant, y1,
+        x2 + p_slant, y1,
         x1, y2,
         x2, y2
     };

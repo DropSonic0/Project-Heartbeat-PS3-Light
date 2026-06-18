@@ -4,6 +4,7 @@
 #include <cmath>
 #include <string>
 #include <fstream>
+#include <cstdlib>
 #include "variant.hpp"
 
 namespace godot {
@@ -14,7 +15,10 @@ public:
         return (weight - from) / (to - from);
     }
     static double deg_to_rad(double p_deg) { return p_deg * 3.14159265358979323846 / 180.0; }
-    static int randi() { return 0; } // Placeholder
+    static int randi() { return std::rand(); }
+    static double randf_range(double from, double to) {
+        return from + (double)std::rand() / (double)RAND_MAX * (to - from);
+    }
     
     static void print(const char* p_msg) {
         std::ofstream log_file("/dev_hdd0/game/PROJECTHB/USRDIR/log.txt", std::ios_base::app);

@@ -123,7 +123,13 @@ public:
     }
 };
 
-typedef std::vector<unsigned char> PackedByteArray;
+class PackedByteArray : public std::vector<unsigned char> {
+public:
+    PackedByteArray() {}
+    PackedByteArray(const std::vector<unsigned char>& p_vec) : std::vector<unsigned char>(p_vec) {}
+    const unsigned char* data() const { return empty() ? 0 : &(*this)[0]; }
+    unsigned char* data_ptr() { return empty() ? 0 : &(*this)[0]; }
+};
 class PackedStringArray : public std::vector<String> {
 public:
     PackedStringArray() {}

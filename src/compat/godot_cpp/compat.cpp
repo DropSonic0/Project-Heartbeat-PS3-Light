@@ -221,3 +221,107 @@ PackedStringArray ProjectSettings::get_directories_in_packs(const String& p_path
 }
 
 }
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "../stb_image.h"
+
+#include "../webp_wrapper.h"
+
+#include "classes/image.hpp"
+
+namespace godot {
+
+Ref<Image> Image::load_from_buffer(const PackedByteArray& p_buffer) {
+    if (p_buffer.size() == 0) return Ref<Image>();
+
+    const unsigned char* src_ptr = p_buffer.data();
+    size_t src_size = p_buffer.size();
+
+    // Handle Godot 4 .ctex header (CompressedTexture2D / StreamTexture2D)
+    // Magic for StreamTexture2D is "GST2" (47 53 54 32)
+    if (src_size > 32 && src_ptr[0] == 'G' && src_ptr[1] == 'S' && src_ptr[2] == 'T' && src_ptr[3] == '2') {
+        // Godot 4 texture header is 32 bytes
+        // Magic (4), Version (4), Width (4), Height (4), Flags (4), Format (4), Mipmaps (4), Reserved (4)
+        
+        // Search for image signatures within the first 128 bytes
+        size_t limit = std::min(src_size - 12, (size_t)128);
+        bool found = false;
+        for (size_t offset = 32; offset <= limit; offset++) {
+            // PNG signature: 89 50 4E 47
+            if (src_ptr[offset] == 0x89 && src_ptr[offset+1] == 0x50 && src_ptr[offset+2] == 0x4E && src_ptr[offset+3] == 0x47) {
+                src_ptr += offset;
+                src_size -= offset;
+                found = true;
+                break;
+            }
+            // WebP signature: RIFF .... WEBP
+            if (src_ptr[offset] == 'R' && src_ptr[offset+1] == 'I' && src_ptr[offset+2] == 'F' && src_ptr[offset+3] == 'F' &&
+                src_ptr[offset+8] == 'W' && src_ptr[offset+9] == 'E' && src_ptr[offset+10] == 'B' && src_ptr[offset+11] == 'P') {
+                src_ptr += offset;
+                src_size -= offset;
+                found = true;
+                break;
+            }
+            // JPEG signature: FF D8 FF
+            if (src_ptr[offset] == 0xFF && src_ptr[offset+1] == 0xD8 && src_ptr[offset+2] == 0xFF) {
+                src_ptr += offset;
+                src_size -= offset;
+                found = true;
+                break;
+            }
+        }
+        // If no signature found, it might be VRAM compressed, which STBI can't handle.
+        // But for lossless imports, it should be at offset 32.
+    }
+
+    // Try WebP first if it looks like one
+    if (src_size > 12 && src_ptr[0] == 'R' && src_ptr[1] == 'I' && src_ptr[2] == 'F' && src_ptr[3] == 'F' &&
+        src_ptr[8] == 'W' && src_ptr[9] == 'E' && src_ptr[10] == 'B' && src_ptr[11] == 'P') {
+        
+        jebp_image_t jebp_img;
+        jebp_error_t err = jebp_decode(&jebp_img, src_size, src_ptr);
+        if (err == JEBP_OK) {
+            Ref<Image> img = Image::create(jebp_img.width, jebp_img.height, false, 0);
+            PackedByteArray img_data;
+            img_data.resize(jebp_img.width * jebp_img.height * 4);
+            memcpy(img_data.data_ptr(), jebp_img.pixels, jebp_img.width * jebp_img.height * 4);
+            img->set_data(img_data);
+            jebp_free_image(&jebp_img);
+            return img;
+        } else {
+            char diag[256];
+            sprintf(diag, "JEBP load failed: %s", jebp_error_string(err));
+            UtilityFunctions::print(diag);
+            // Fallthrough to STBI just in case
+        }
+    }
+
+    int w, h, channels;
+    unsigned char* data_ptr = stbi_load_from_memory(src_ptr, src_size, &w, &h, &channels, 4);
+    if (!data_ptr) {
+        char diag[256];
+        sprintf(diag, "STBI load failed: %s (Buffer size: %zu)", stbi_failure_reason(), src_size);
+        UtilityFunctions::print(diag);
+        if (src_size > 0) {
+            std::string hex_dump = "Head: ";
+            for (size_t i=0; i<std::min(src_size, (size_t)64); i++) {
+                char b[4];
+                sprintf(b, "%02X ", src_ptr[i]);
+                hex_dump += b;
+            }
+            UtilityFunctions::print(hex_dump.c_str());
+        }
+        return Ref<Image>();
+    }
+
+    Ref<Image> img = Image::create(w, h, false, 0);
+    PackedByteArray img_data;
+    img_data.resize(w * h * 4);
+    memcpy(img_data.data_ptr(), data_ptr, w * h * 4);
+    img->set_data(img_data);
+
+    stbi_image_free(data_ptr);
+    return img;
+}
+
+}

@@ -235,6 +235,20 @@ public:
         return f_in.eof() || (f_in.peek() == EOF);
     }
 
+    uint64_t get_length() const {
+        if (is_pck_file) return pck_entry.size;
+        if (mode == READ) {
+            if (!f_in.is_open()) return 0;
+            std::streampos pos = f_in.tellg();
+            f_in.seekg(0, std::ios::end);
+            uint64_t len = (uint64_t)f_in.tellg();
+            f_in.clear();
+            f_in.seekg(pos);
+            return len;
+        }
+        return 0;
+    }
+
     void store_8(uint8_t p_dest) {
         f_out.write((char*)&p_dest, 1);
     }

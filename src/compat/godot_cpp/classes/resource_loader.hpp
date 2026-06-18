@@ -62,7 +62,16 @@ public:
 
             String path_lower = path.to_lower();
             if (path_lower.ends_with(".png") || path_lower.ends_with(".svg") || path_lower.ends_with(".webp") || path_lower.ends_with(".ctex")) {
-                // Return an Image object which the driver can upload to VRAM
+                Ref<FileAccess> f = FileAccess::open(path, FileAccess::READ);
+                if (f.is_valid()) {
+                    PackedByteArray buffer = f->get_buffer(f->get_length());
+                    Ref<Image> img = Image::load_from_buffer(buffer);
+                    if (img.is_valid()) {
+                        return (Ref<Resource>)img;
+                    }
+                }
+
+                // Fallback: Return an Image object which the driver can upload to VRAM
                 Ref<Image> img = Image::create(64, 64, false, 0);
                 PackedByteArray data;
                 data.resize(64 * 64 * 4);

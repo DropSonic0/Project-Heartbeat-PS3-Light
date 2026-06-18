@@ -35,6 +35,8 @@ public:
     int get_height() const { return height; }
     int get_format() const { return format; }
 
+    static Ref<Image> load_from_buffer(const PackedByteArray& p_buffer);
+
     void generate_mipmaps() {
         if (width <= 0 || height <= 0) return;
         

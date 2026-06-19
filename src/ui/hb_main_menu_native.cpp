@@ -39,7 +39,7 @@ HBMainMenuNative::HBMainMenuNative() {
     quotes.push_back("Now featuring 100% more leaderboards");
     quotes.push_back("Powered by Godot");
     quotes.push_back("Made with love, from Spain");
-    quotes.push_back("↑ ↑ ↓ ↓ ← → ← → X O");
+    quotes.push_back("^ ^ v v < > < > X O");
     quotes.push_back("Tontoelquelolea");
     quotes.push_back("Como que 33?");
     quotes.push_back("An offer you can't refuse!");
@@ -84,13 +84,23 @@ void HBMainMenuNative::update() {
         if (bokeh_circles[i].position.y > 1280) bokeh_circles[i].position.y = -200;
     }
 
-    if (state == PRESS_START) {
+    if (is_transitioning) {
+        transition_progress += 0.016f * 2.0f; // 0.5s transition
+        if (transition_progress >= 1.0f) {
+            transition_progress = 1.0f;
+            is_transitioning = false;
+            state = MAIN_MENU;
+        }
+    }
+
+    if (state == PRESS_START && !is_transitioning) {
         if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_ACCEPT) || 
             HBInputNative::is_action_just_pressed(HBInputNative::ACTION_UP) ||
             HBInputNative::is_action_just_pressed(HBInputNative::ACTION_DOWN)) {
-            state = MAIN_MENU;
+            is_transitioning = true;
+            transition_progress = 0.0f;
         }
-    } else if (state == MAIN_MENU) {
+    } else if (state == MAIN_MENU && !is_transitioning) {
         if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_DOWN)) {
             selected_index = (selected_index + 1) % menu_items.size();
         }
@@ -118,6 +128,17 @@ void HBMainMenuNative::draw() {
         HBVideoDriverPSGL::draw_rect(Rect2(0, 0, window_size.x, window_size.y), Color(0.129, 0.071, 0.259, 1.0));
     }
 
+    float splash_alpha = 1.0f;
+    float menu_alpha = 0.0f;
+
+    if (is_transitioning) {
+        splash_alpha = 1.0f - transition_progress;
+        menu_alpha = transition_progress;
+    } else if (state == MAIN_MENU) {
+        splash_alpha = 0.0f;
+        menu_alpha = 1.0f;
+    }
+
     // Draw bokeh
     for (size_t i = 0; i < bokeh_circles.size(); i++) {
         Vector2 pos = Vector2(bokeh_circles[i].position.x * scale_x, bokeh_circles[i].position.y * scale_y);
@@ -129,7 +150,7 @@ void HBMainMenuNative::draw() {
         }
     }
 
-    if (state == PRESS_START) {
+    if (splash_alpha > 0.0f) {
         // Draw logo centered with shadow
         if (logo.is_valid()) {
             float logo_orig_w = logo->get_width();
@@ -140,24 +161,26 @@ void HBMainMenuNative::draw() {
             float logo_y = 420.0f - logo_h / 2.0f;
 
             // Simulated Shadow
-            HBVideoDriverPSGL::draw_texture(logo, Rect2((logo_x + 10) * scale_x, (logo_y + 10) * scale_y, logo_w * scale_x, logo_h * scale_y), Color(0.0f, 0.0f, 0.0f, 0.6f));
-            HBVideoDriverPSGL::draw_texture(logo, Rect2(logo_x * scale_x, logo_y * scale_y, logo_w * scale_x, logo_h * scale_y));
+            HBVideoDriverPSGL::draw_texture(logo, Rect2((logo_x + 10) * scale_x, (logo_y + 10) * scale_y, logo_w * scale_x, logo_h * scale_y), Color(0.0f, 0.0f, 0.0f, 0.6f * splash_alpha));
+            HBVideoDriverPSGL::draw_texture(logo, Rect2(logo_x * scale_x, logo_y * scale_y, logo_w * scale_x, logo_h * scale_y), Color(1, 1, 1, splash_alpha));
             
             // Draw Quote
-            HBVideoDriverPSGL::draw_text_with_font(font_bold, current_quote, Vector2(960 * scale_x, (logo_y + logo_h + 70) * scale_y), 39 * scale_y, Color(1, 1, 1, 0.6f), true, true);
+            HBVideoDriverPSGL::draw_text_with_font(font_bold, current_quote, Vector2(960 * scale_x, (logo_y + logo_h + 70) * scale_y), 39 * scale_y, Color(1, 1, 1, 0.6f * splash_alpha), true, true);
         } else {
-            HBVideoDriverPSGL::draw_text_with_font(font_bold, "Project Heartbeat", Vector2(960 * scale_x, 400 * scale_y), 64 * scale_y, Color(1, 1, 1, 1), true, true);
+            HBVideoDriverPSGL::draw_text_with_font(font_bold, "Project Heartbeat", Vector2(960 * scale_x, 400 * scale_y), 64 * scale_y, Color(1, 1, 1, splash_alpha), true, true);
         }
 
         // Pulse "Presiona cualquier botón"
-        float alpha = 0.6f + 0.4f * std::sin(time_passed * 4.0f);
-        HBVideoDriverPSGL::draw_text_with_font(font_bold, "Presiona cualquier botón", Vector2(960 * scale_x, 765 * scale_y), 39 * scale_y, Color(1, 1, 1, alpha), true, true);
-    } else {
+        float pulse_alpha = (0.6f + 0.4f * std::sin(time_passed * 4.0f)) * splash_alpha;
+        HBVideoDriverPSGL::draw_text_with_font(font_bold, "Presiona cualquier botón", Vector2(960 * scale_x, 765 * scale_y), 39 * scale_y, Color(1, 1, 1, pulse_alpha), true, true);
+    }
+    
+    if (menu_alpha > 0.0f) {
         // Draw central heart
         if (heart.is_valid()) {
             float pulse = 1.0f + 0.05f * std::sin(time_passed * 2.0f);
             float heart_size = 600.0f * pulse;
-            HBVideoDriverPSGL::draw_texture(heart, Rect2((960 - heart_size / 2.0f) * scale_x, (540 - heart_size / 2.0f) * scale_y, heart_size * scale_x, heart_size * scale_y), Color(1, 1, 1, 0.8f));
+            HBVideoDriverPSGL::draw_texture(heart, Rect2((960 - heart_size / 2.0f) * scale_x, (540 - heart_size / 2.0f) * scale_y, heart_size * scale_x, heart_size * scale_y), Color(1, 1, 1, 0.8f * menu_alpha));
         }
 
         // Main Menu Layout matching PC
@@ -167,8 +190,8 @@ void HBMainMenuNative::draw() {
             float logo_w = 450.0f;
             float logo_h = logo_w * (logo_orig_h / logo_orig_w);
             // Shadow for menu logo too
-            HBVideoDriverPSGL::draw_texture(logo, Rect2(65 * scale_x, 125 * scale_y, logo_w * scale_x, logo_h * scale_y), Color(0.0f, 0.0f, 0.0f, 0.6f));
-            HBVideoDriverPSGL::draw_texture(logo, Rect2(60 * scale_x, 120 * scale_y, logo_w * scale_x, logo_h * scale_y));
+            HBVideoDriverPSGL::draw_texture(logo, Rect2(65 * scale_x, 125 * scale_y, logo_w * scale_x, logo_h * scale_y), Color(0.0f, 0.0f, 0.0f, 0.6f * menu_alpha));
+            HBVideoDriverPSGL::draw_texture(logo, Rect2(60 * scale_x, 120 * scale_y, logo_w * scale_x, logo_h * scale_y), Color(1, 1, 1, menu_alpha));
         }
 
         float button_width = 460 * scale_x;
@@ -185,28 +208,28 @@ void HBMainMenuNative::draw() {
             Color text_color = Color(1.0f, 1.0f, 1.0f, 1.0f);
             if (i == selected_index) {
                 // From NewButtonStyleHover.tres: Color(0.929412, 0.219608, 0.8, 0.501961)
-                item_color = Color(0.93f, 0.22f, 0.8f, 0.5f);
+                item_color = Color(0.93f, 0.22f, 0.8f, 0.5f * menu_alpha);
                 HBVideoDriverPSGL::draw_parallelogram(Rect2(50 * scale_x, item_y, button_width, button_height), slant, item_color);
             } else {
                 // From NewButtonStyle.tres: Color(0.186, 0.072, 0.3, 0.501961)
-                item_color = Color(0.19f, 0.07f, 0.3f, 0.5f);
+                item_color = Color(0.19f, 0.07f, 0.3f, 0.5f * menu_alpha);
                 HBVideoDriverPSGL::draw_parallelogram(Rect2(50 * scale_x, item_y, button_width, button_height), slant, item_color);
                 // Simulated left border from Godot: border_width_left = 100, border_color = Color(0.929, 0.22, 0.8, 0.5)
-                HBVideoDriverPSGL::draw_parallelogram(Rect2(50 * scale_x, item_y, 40 * scale_x, button_height), slant, Color(0.93f, 0.22f, 0.8f, 0.5f));
+                HBVideoDriverPSGL::draw_parallelogram(Rect2(50 * scale_x, item_y, 40 * scale_x, button_height), slant, Color(0.93f, 0.22f, 0.8f, 0.5f * menu_alpha));
             }
             
             // Icon
             if (menu_items[i].icon.is_valid()) {
-                HBVideoDriverPSGL::draw_texture(menu_items[i].icon, Rect2(95 * scale_x, item_y + 10 * scale_y, 40 * scale_x, 40 * scale_y));
+                HBVideoDriverPSGL::draw_texture(menu_items[i].icon, Rect2(95 * scale_x, item_y + 10 * scale_y, 40 * scale_x, 40 * scale_y), Color(1, 1, 1, menu_alpha));
             }
 
             // Label
-        HBVideoDriverPSGL::draw_text_with_font(font, menu_items[i].label, Vector2(155 * scale_x, item_y + 6 * scale_y), 34 * scale_y, text_color, true);
+            HBVideoDriverPSGL::draw_text_with_font(font, menu_items[i].label, Vector2(155 * scale_x, item_y + 6 * scale_y), 34 * scale_y, Color(1, 1, 1, menu_alpha), true);
         }
 
         // Footer - Only in MAIN_MENU
-        HBVideoDriverPSGL::draw_text_with_font(font, "HeartbeatNET: Connected", Vector2(20 * scale_x, 1030 * scale_y), 14 * scale_y, Color(1, 1, 1, 0.4f), true);
-        HBVideoDriverPSGL::draw_text_with_font(font, "Project Heartbeat PS3 Marina's Legacy v1.0.0", Vector2(20 * scale_x, 1055 * scale_y), 14 * scale_y, Color(1, 1, 1, 0.4f), true);
+        HBVideoDriverPSGL::draw_text_with_font(font, "HeartbeatNET: Connected", Vector2(20 * scale_x, 1030 * scale_y), 14 * scale_y, Color(1, 1, 1, 0.4f * menu_alpha), true);
+        HBVideoDriverPSGL::draw_text_with_font(font, "Project Heartbeat PS3 Marina's Legacy v1.0.0", Vector2(20 * scale_x, 1055 * scale_y), 14 * scale_y, Color(1, 1, 1, 0.4f * menu_alpha), true);
     }
 }
 

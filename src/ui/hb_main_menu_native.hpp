@@ -30,6 +30,8 @@ class HBMainMenuNative : public Node {
     };
 
     State state = PRESS_START;
+    float transition_progress = 0.0f;
+    bool is_transitioning = false;
     int selected_index = 0;
     std::vector<MenuItem> menu_items;
     std::vector<BokehCircle> bokeh_circles;

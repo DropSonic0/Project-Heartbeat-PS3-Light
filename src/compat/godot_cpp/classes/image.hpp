@@ -7,8 +7,13 @@
 
 namespace godot {
 
+class HBVideoDriverPSGL;
+
 class Image : public Resource {
     GDCLASS(Image, Resource);
+public:
+    virtual ~Image();
+private:
     int width = 0;
     int height = 0;
     int format = 0;

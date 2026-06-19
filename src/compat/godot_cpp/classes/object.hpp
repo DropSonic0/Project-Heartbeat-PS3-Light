@@ -21,6 +21,7 @@ public:
     virtual bool has_method(const std::string &p_method) const;
     virtual Variant call(const std::string &p_method, const Variant& p_arg1, const Variant& p_arg2);
     static void _bind_methods() {}
+    virtual bool is_ref_counted() const { return false; }
 };
 
 #define GDCLASS(m_class, m_inherits) \

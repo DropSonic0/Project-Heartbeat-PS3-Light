@@ -35,6 +35,7 @@ public:
     static void draw_text_with_font(const Ref<FontVariation>& p_font, const String& p_text, const Vector2& p_pos, int p_size, const Color& p_color = Color(1, 1, 1, 1), bool p_shadow = false, bool p_center = false);
     static void draw_text_with_font_3d(const Ref<FontVariation>& p_font, const String& p_text, const Vector2& p_pos, int p_size, const Transform3D& p_transform, const Color& p_color = Color(1, 1, 1, 1), bool p_shadow = false, bool p_center = false);
     static void clear_texture_cache();
+    static void on_image_destroyed(uintptr_t p_image_ptr);
     static bool is_button_pressed(int p_button);
 };
 

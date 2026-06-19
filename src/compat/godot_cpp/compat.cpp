@@ -31,10 +31,39 @@ Variant Object::get(const std::string &p_name) const {
 
 
 
-Variant::~Variant() {
+void Variant::_ref_obj(Object* p_obj) {
+    obj_val = p_obj;
+    if (obj_val && obj_val->is_ref_counted()) {
+        ((RefCounted*)obj_val)->reference();
+    }
+}
+
+void Variant::_unref_obj() {
+    if (type == OBJECT && obj_val && obj_val->is_ref_counted()) {
+        if (((RefCounted*)obj_val)->unreference()) {
+            delete obj_val;
+        }
+    }
+    obj_val = 0;
+}
+
+void Variant::_clear() {
     if (array_val) { delete array_val; array_val = 0; }
     if (dict_val) { delete dict_val; dict_val = 0; }
     if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
+    _unref_obj();
+    type = NIL;
+    i_val = 0;
+    f_val = 0.0;
+    s_val = "";
+}
+
+Variant::Variant(const Variant& p_other) : type(NIL), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {
+    *this = p_other;
+}
+
+Variant::~Variant() {
+    _clear();
 }
 
 bool Object::has_method(const std::string &p_method) const {
@@ -60,86 +89,78 @@ Variant Variant::call(const String& p_method, const Variant& p_arg1, const Varia
     return Variant();
 }
 
+Variant& Variant::operator=(const Variant& p_other) {
+    if (this == &p_other) return *this;
+    _clear();
+    type = p_other.type;
+    s_val = p_other.s_val;
+    i_val = p_other.i_val;
+    f_val = p_other.f_val;
+    _ref_obj(p_other.obj_val);
+    if (p_other.array_val) array_val = new Array(*p_other.array_val);
+    if (p_other.dict_val) dict_val = new Dictionary(*p_other.dict_val);
+    if (p_other.packed_byte_array_val) packed_byte_array_val = new PackedByteArray(*p_other.packed_byte_array_val);
+    return *this;
+}
+
 Variant& Variant::operator=(Object* p_obj) {
-    if (array_val) { delete array_val; array_val = 0; }
-    if (dict_val) { delete dict_val; dict_val = 0; }
-    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
+    _clear();
     type = OBJECT;
-    obj_val = p_obj;
+    _ref_obj(p_obj);
     return *this;
 }
 
 Variant& Variant::operator=(const Array& p_array) {
-    if (array_val) { delete array_val; }
-    if (dict_val) { delete dict_val; dict_val = 0; }
-    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
+    _clear();
     type = ARRAY;
     array_val = new Array(p_array);
     return *this;
 }
 
 Variant& Variant::operator=(const Dictionary& p_dict) {
-    if (dict_val) { delete dict_val; }
-    if (array_val) { delete array_val; array_val = 0; }
-    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
+    _clear();
     type = DICTIONARY;
     dict_val = new Dictionary(p_dict);
     return *this;
 }
 
 Variant& Variant::operator=(const std::string& p_string) {
-    if (array_val) { delete array_val; array_val = 0; }
-    if (dict_val) { delete dict_val; dict_val = 0; }
-    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
+    _clear();
     type = STRING; s_val = p_string; return *this;
 }
 
 Variant& Variant::operator=(long p_int) {
-    if (array_val) { delete array_val; array_val = 0; }
-    if (dict_val) { delete dict_val; dict_val = 0; }
-    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
+    _clear();
     type = INT; i_val = p_int; return *this;
 }
 
 Variant& Variant::operator=(double p_float) {
-    if (array_val) { delete array_val; array_val = 0; }
-    if (dict_val) { delete dict_val; dict_val = 0; }
-    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
+    _clear();
     type = FLOAT; f_val = p_float; return *this;
 }
 
 Variant& Variant::operator=(float p_float) {
-    if (array_val) { delete array_val; array_val = 0; }
-    if (dict_val) { delete dict_val; dict_val = 0; }
-    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
+    _clear();
     type = FLOAT; f_val = p_float; return *this;
 }
 
 Variant& Variant::operator=(long long p_int) {
-    if (array_val) { delete array_val; array_val = 0; }
-    if (dict_val) { delete dict_val; dict_val = 0; }
-    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
+    _clear();
     type = INT; i_val = p_int; return *this;
 }
 
 Variant& Variant::operator=(int p_int) {
-    if (array_val) { delete array_val; array_val = 0; }
-    if (dict_val) { delete dict_val; dict_val = 0; }
-    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
+    _clear();
     type = INT; i_val = p_int; return *this;
 }
 
 Variant& Variant::operator=(const char* p_string) {
-    if (array_val) { delete array_val; array_val = 0; }
-    if (dict_val) { delete dict_val; dict_val = 0; }
-    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
+    _clear();
     type = STRING; s_val = p_string; return *this;
 }
 
 Variant& Variant::operator=(const PackedByteArray& p_packed_byte_array) {
-    if (array_val) { delete array_val; array_val = 0; }
-    if (dict_val) { delete dict_val; dict_val = 0; }
-    if (packed_byte_array_val) { delete packed_byte_array_val; }
+    _clear();
     type = PACKED_BYTE_ARRAY;
     packed_byte_array_val = new PackedByteArray(p_packed_byte_array);
     return *this;
@@ -234,8 +255,13 @@ PackedStringArray ProjectSettings::get_directories_in_packs(const String& p_path
 
 #include "classes/image.hpp"
 #include "classes/font_variation.hpp"
+#include "../../graphics/hb_video_driver_psgl.hpp"
 
 namespace godot {
+
+Image::~Image() {
+    HBVideoDriverPSGL::on_image_destroyed((uintptr_t)this);
+}
 
 FontVariation::FontVariation() {
     font_info = nullptr;

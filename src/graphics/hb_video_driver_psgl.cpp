@@ -690,6 +690,15 @@ void HBVideoDriverPSGL::clear_texture_cache() {
 #endif
 }
 
+void HBVideoDriverPSGL::on_image_destroyed(uintptr_t p_image_ptr) {
+#ifdef __PPU__
+    if (_texture_cache.count(p_image_ptr)) {
+        glDeleteTextures(1, &_texture_cache[p_image_ptr]);
+        _texture_cache.erase(p_image_ptr);
+    }
+#endif
+}
+
 bool HBVideoDriverPSGL::is_button_pressed(int p_button) {
 #ifdef __PPU__
     if (!_pad_initialized || _pad_data.len <= CELL_PAD_BTN_OFFSET_DIGITAL2) return false;

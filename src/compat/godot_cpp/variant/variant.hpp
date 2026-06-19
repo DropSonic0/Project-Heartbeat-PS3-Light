@@ -172,10 +172,16 @@ public:
     Variant(const RID& p_rid) : type(RID_TYPE), i_val(p_rid.get_id()), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
 
     template <class T>
-    Variant(const Ref<T> &p_ref) : type(OBJECT), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val((Object*)p_ref.ptr()), packed_byte_array_val(0) {}
+    Variant(const Ref<T> &p_ref) : type(OBJECT), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {
+        _ref_obj((Object*)p_ref.ptr());
+    }
 
     Variant(const Variant& p_other);
     ~Variant();
+
+    void _ref_obj(Object* p_obj);
+    void _unref_obj();
+    void _clear();
 
     Type get_type() const { return type; }
 
@@ -408,33 +414,12 @@ inline Variant::Variant(const PackedByteArray& p_packed_byte_array) : type(PACKE
     packed_byte_array_val = new PackedByteArray(p_packed_byte_array);
 }
 
-inline Variant::Variant(const Variant& p_other) : type(NIL), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {
-    *this = p_other;
-}
-
-
 inline Variant::operator Array() const { return array_val ? *array_val : Array(); }
 inline Variant::operator Dictionary() const { return dict_val ? *dict_val : Dictionary(); }
 inline Variant::operator PackedByteArray() const { return packed_byte_array_val ? *packed_byte_array_val : PackedByteArray(); }
 
 template <class T>
 inline Variant::operator Ref<T>() const { return Ref<T>((T*)obj_val); }
-
-inline Variant& Variant::operator=(const Variant& p_other) {
-    if (this == &p_other) return *this;
-    if (array_val) { delete array_val; array_val = 0; }
-    if (dict_val) { delete dict_val; dict_val = 0; }
-    if (packed_byte_array_val) { delete packed_byte_array_val; packed_byte_array_val = 0; }
-    type = p_other.type;
-    s_val = p_other.s_val;
-    i_val = p_other.i_val;
-    f_val = p_other.f_val;
-    obj_val = p_other.obj_val;
-    if (p_other.array_val) array_val = new Array(*p_other.array_val);
-    if (p_other.dict_val) dict_val = new Dictionary(*p_other.dict_val);
-    if (p_other.packed_byte_array_val) packed_byte_array_val = new PackedByteArray(*p_other.packed_byte_array_val);
-    return *this;
-}
 
 }
 

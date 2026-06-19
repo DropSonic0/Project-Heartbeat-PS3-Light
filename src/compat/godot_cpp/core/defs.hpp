@@ -22,13 +22,31 @@ template <class T>
 class Ref {
     T *reference;
 
+    void _ref(T *p_ptr) {
+        if (p_ptr == reference) return;
+        _unref();
+        reference = p_ptr;
+        if (reference) {
+            reference->reference();
+        }
+    }
+
+    void _unref() {
+        if (reference && reference->unreference()) {
+            delete reference;
+        }
+        reference = 0;
+    }
+
 public:
     Ref() : reference(0) {}
-    Ref(T *p_ptr) : reference(p_ptr) {}
-    
+    Ref(T *p_ptr) : reference(0) { _ref(p_ptr); }
+    Ref(const Ref<T> &p_other) : reference(0) { _ref(p_other.reference); }
+    ~Ref() { _unref(); }
+
     // Upcasting support
     template <class T_Other>
-    Ref(const Ref<T_Other> &p_other) : reference((T*)p_other.ptr()) {}
+    Ref(const Ref<T_Other> &p_other) : reference(0) { _ref((T*)p_other.ptr()); }
 
     T *operator->() { return reference; }
     const T *operator->() const { return reference; }
@@ -36,13 +54,18 @@ public:
     const T &operator*() const { return *reference; }
     bool is_valid() const { return reference != 0; }
     bool is_null() const { return reference == 0; }
-    void instantiate() { reference = new T(); }
-    void unref() { reference = 0; }
+    void instantiate() { _ref(new T()); }
+    void unref() { _unref(); }
     T* ptr() const { return reference; }
+
+    Ref<T>& operator=(const Ref<T> &p_other) {
+        _ref(p_other.reference);
+        return *this;
+    }
 
     template <class T_Other>
     Ref<T>& operator=(const Ref<T_Other> &p_other) {
-        reference = (T*)p_other.ptr();
+        _ref((T*)p_other.ptr());
         return *this;
     }
 };

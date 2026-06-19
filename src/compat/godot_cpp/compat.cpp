@@ -10,6 +10,10 @@ namespace godot {
 
 static std::map<const Object*, std::map<std::string, Variant> > _object_properties;
 
+Object::~Object() {
+    _object_properties.erase(this);
+}
+
 void Object::set(const std::string &p_name, const Variant& p_value) {
     _object_properties[this][p_name] = p_value;
 }
@@ -25,9 +29,7 @@ Variant Object::get(const std::string &p_name) const {
     return Variant();
 }
 
-Object::~Object() {
-    _object_properties.erase(this);
-}
+
 
 Variant::~Variant() {
     if (array_val) { delete array_val; array_val = 0; }

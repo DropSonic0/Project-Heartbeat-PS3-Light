@@ -1,4 +1,5 @@
 #include "hb_main_menu_native.hpp"
+#include "hb_game.hpp"
 #include "utils/hb_input_native.hpp"
 #include "graphics/hb_video_driver_psgl.hpp"
 #include "compat/godot_cpp/variant/utility_functions.hpp"
@@ -8,7 +9,6 @@
 namespace godot {
 
 HBMainMenuNative::HBMainMenuNative() {
-    UtilityFunctions::randomize();
     menu_items.push_back({"Juego Libre", "song_list", ResourceLoader::get_singleton()->load("res://graphics/icons/music-box-outline.svg")});
     menu_items.push_back({"Workshop", "workshop_browser", ResourceLoader::get_singleton()->load("res://graphics/icons/steam.svg")});
     menu_items.push_back({"Como jugar", "tutorial", ResourceLoader::get_singleton()->load("res://graphics/icons/help-circle.svg")});
@@ -108,7 +108,13 @@ void HBMainMenuNative::update() {
             selected_index = (selected_index - 1 + menu_items.size()) % menu_items.size();
         }
         if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_ACCEPT)) {
-            UtilityFunctions::print("Menu: ACCEPT: " + menu_items[selected_index].label);
+            String next = menu_items[selected_index].next_menu;
+            if (next == "exit") {
+                HBVideoDriverPSGL::request_exit();
+            } else {
+                HBGameNative::get_singleton()->change_to_menu(next);
+                return;
+            }
         }
         if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_BACK)) {
             state = PRESS_START;

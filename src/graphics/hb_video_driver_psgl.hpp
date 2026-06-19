@@ -22,6 +22,7 @@ public:
     static void clear_buffer();
     static void update_system_callbacks();
     static bool should_exit();
+    static void request_exit();
     static Vector2 get_window_size();
     
     static void draw_rect(const Rect2& p_rect, const Color& p_color);

@@ -95,6 +95,8 @@ Ref<HBSongNative> HBSongLoaderNative::load_song_meta(const String &p_path, const
 
     Ref<HBSongNative> song;
     song.instantiate();
+    song->set_path(p_path.get_base_dir());
+    song->set_id(p_id);
 
     Dictionary d = data;
     Array keys = d.keys();

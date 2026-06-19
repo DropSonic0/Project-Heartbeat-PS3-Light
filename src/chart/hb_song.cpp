@@ -223,24 +223,34 @@ void HBSongNative::update_bpm_string() {
 }
 
 String HBSongNative::get_song_audio_res_path() const {
-    if (!audio.is_empty()) {
-        return HBUtilsNative::join_path(path, audio);
+    String audio_file = get("audio");
+    if (!audio_file.is_empty()) {
+        return HBUtilsNative::join_path(path, audio_file);
     } else {
-        return HBUtilsNative::join_path(path, HBUtilsNative::get_valid_filename(title) + ".ogg");
+        return HBUtilsNative::join_path(path, HBUtilsNative::get_valid_filename(get("title")) + ".ogg");
     }
 }
 
 String HBSongNative::get_song_voice_res_path() const {
-    if (!voice.is_empty()) {
-        return HBUtilsNative::join_path(path, voice);
+    String voice_file = get("voice");
+    if (!voice_file.is_empty()) {
+        return HBUtilsNative::join_path(path, voice_file);
     } else {
         return HBUtilsNative::join_path(path, "voice.ogg");
     }
 }
 
 String HBSongNative::get_song_preview_res_path() const {
-    if (!preview_image.is_empty()) {
-        return HBUtilsNative::join_path(path, preview_image);
+    String img = get("preview_image");
+    if (img.is_empty()) {
+        img = get("circle_image");
+    }
+    if (img.is_empty()) {
+        img = get("circle_logo");
+    }
+
+    if (!img.is_empty()) {
+        return HBUtilsNative::join_path(path, img);
     } else {
         return "";
     }

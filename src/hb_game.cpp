@@ -1,6 +1,9 @@
 #include "hb_game.hpp"
 #include <godot_cpp/core/class_db.hpp>
 #include "graphics/hb_video_driver_psgl.hpp"
+#include "ui/hb_main_menu_native.hpp"
+#include "ui/hb_song_list_native.hpp"
+#include "compat/godot_cpp/variant/utility_functions.hpp"
 
 using namespace godot;
 
@@ -17,13 +20,14 @@ void HBGameNative::_bind_methods() {
 
 HBGameNative::HBGameNative() {
     singleton = this;
+    UtilityFunctions::randomize();
     HBVideoDriverPSGL::initialize();
-    main_menu = new HBMainMenuNative();
+    current_ui = new HBMainMenuNative();
 }
 
 HBGameNative::~HBGameNative() {
-    if (main_menu) {
-        delete main_menu;
+    if (current_ui) {
+        delete current_ui;
     }
     HBVideoDriverPSGL::terminate();
     singleton = nullptr;
@@ -37,17 +41,30 @@ void HBGameNative::register_serializable_type(const String &p_name, const Varian
     serializable_types[p_name] = p_type;
 }
 
+void HBGameNative::change_to_menu(const String& p_menu) {
+    if (current_ui) {
+        delete current_ui;
+        current_ui = nullptr;
+    }
+
+    if (p_menu == "main_menu") {
+        current_ui = new HBMainMenuNative();
+    } else if (p_menu == "song_list") {
+        current_ui = new HBSongListNative();
+    }
+}
+
 void HBGameNative::main_loop_step() {
     HBVideoDriverPSGL::update_system_callbacks();
     
-    if (main_menu) {
-        main_menu->update();
+    if (current_ui) {
+        current_ui->update();
     }
 
     HBVideoDriverPSGL::clear_buffer();
     
-    if (main_menu) {
-        main_menu->draw();
+    if (current_ui) {
+        current_ui->draw();
     }
     
     HBVideoDriverPSGL::swap_buffers();

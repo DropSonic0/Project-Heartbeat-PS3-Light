@@ -258,6 +258,10 @@ bool HBVideoDriverPSGL::should_exit() {
 #endif
 }
 
+void HBVideoDriverPSGL::request_exit() {
+    _should_exit = true;
+}
+
 Vector2 HBVideoDriverPSGL::get_window_size() {
 #ifdef __PPU__
     return Vector2(_gl_width, _gl_height);

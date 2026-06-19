@@ -29,7 +29,7 @@ protected:
 private:
     bool demo_mode = false;
     Dictionary serializable_types;
-    HBMainMenuNative* main_menu = nullptr;
+    Node* current_ui = nullptr;
 
 public:
     HBGameNative();
@@ -40,6 +40,8 @@ public:
 
     Dictionary get_serializable_types() const;
     void register_serializable_type(const String &p_name, const Variant &p_type);
+
+    void change_to_menu(const String& p_menu);
 
     void main_loop_step();
 

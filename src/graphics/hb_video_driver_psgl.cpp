@@ -342,7 +342,7 @@ static void _psgl_look_at(const Vector3& eye, const Vector3& center, const Vecto
     glMultMatrixf(m);
 }
 
-void HBVideoDriverPSGL::draw_rect_3d(const Rect2& p_rect, const Transform3D& p_transform, const Color& p_color) {
+void HBVideoDriverPSGL::draw_rect_3d(const Rect2& p_rect, const Transform3D& p_transform, const Color& p_color, float p_slant) {
 #ifdef __PPU__
     if (!_psgl_device) return;
 
@@ -354,7 +354,7 @@ void HBVideoDriverPSGL::draw_rect_3d(const Rect2& p_rect, const Transform3D& p_t
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
-    _psgl_look_at(Vector3(0, 0, 2), Vector3(0, 0, 0), Vector3(0, 1, 0));
+    _psgl_look_at(Vector3(0, 0, 1), Vector3(0, 0, 0), Vector3(0, 1, 0));
 
     // Apply Transform3D
     GLfloat mat[16] = {
@@ -378,10 +378,11 @@ void HBVideoDriverPSGL::draw_rect_3d(const Rect2& p_rect, const Transform3D& p_t
     float h = p_rect.size.y / 1000.0f;
     float x = (p_rect.position.x - 960.0f) / 1000.0f;
     float y = -(p_rect.position.y - 540.0f) / 1000.0f;
+    float s = p_slant / 1000.0f;
 
     GLfloat vertices[] = {
-        x, y, 0,
-        x + w, y, 0,
+        x + s, y, 0,
+        x + w + s, y, 0,
         x, y - h, 0,
         x + w, y - h, 0
     };
@@ -480,7 +481,7 @@ void HBVideoDriverPSGL::draw_text(const String& p_text, const Vector2& p_pos, co
 #endif
 }
 
-void HBVideoDriverPSGL::draw_texture_3d(const Ref<Image>& p_image, const Rect2& p_rect, const Transform3D& p_transform, const Color& p_modulate) {
+void HBVideoDriverPSGL::draw_texture_3d(const Ref<Image>& p_image, const Rect2& p_rect, const Transform3D& p_transform, const Color& p_modulate, float p_slant) {
 #ifdef __PPU__
     if (!_psgl_device || p_image.is_null()) return;
 
@@ -507,7 +508,7 @@ void HBVideoDriverPSGL::draw_texture_3d(const Ref<Image>& p_image, const Rect2& 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
-    _psgl_look_at(Vector3(0, 0, 2), Vector3(0, 0, 0), Vector3(0, 1, 0));
+    _psgl_look_at(Vector3(0, 0, 1), Vector3(0, 0, 0), Vector3(0, 1, 0));
 
     // Apply Transform3D
     GLfloat mat[16] = {
@@ -529,10 +530,11 @@ void HBVideoDriverPSGL::draw_texture_3d(const Ref<Image>& p_image, const Rect2& 
     float h = p_rect.size.y / 1000.0f;
     float x = (p_rect.position.x - 960.0f) / 1000.0f;
     float y = -(p_rect.position.y - 540.0f) / 1000.0f;
+    float s = p_slant / 1000.0f;
 
     GLfloat vertices[] = {
-        x, y, 0,
-        x + w, y, 0,
+        x + s, y, 0,
+        x + w + s, y, 0,
         x, y - h, 0,
         x + w, y - h, 0
     };

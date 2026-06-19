@@ -64,7 +64,7 @@ HBMainMenuNative::HBMainMenuNative() {
     for (int i = 0; i < 40; i++) {
         BokehCircle circle;
         circle.position = Vector2(UtilityFunctions::randf_range(0, 1920), UtilityFunctions::randf_range(0, 1080));
-        circle.velocity = Vector2(UtilityFunctions::randf_range(-10, 10), UtilityFunctions::randf_range(-10, 10));
+        circle.velocity = Vector2(UtilityFunctions::randf_range(-20, 20), UtilityFunctions::randf_range(-20, 20));
         circle.size = UtilityFunctions::randf_range(20, 80);
         circle.color = Color(0.4f, 0.3f, 0.8f, UtilityFunctions::randf_range(0.01f, 0.05f));
         bokeh_circles.push_back(circle);
@@ -167,18 +167,18 @@ void HBMainMenuNative::draw() {
             float logo_y = 420.0f - logo_h / 2.0f;
 
             // Simulated Shadow
-            HBVideoDriverPSGL::draw_texture(logo, Rect2((logo_x + 10) * scale_x, (logo_y + 10) * scale_y, logo_w * scale_x, logo_h * scale_y), Color(0.0f, 0.0f, 0.0f, 0.6f * splash_alpha));
+            HBVideoDriverPSGL::draw_texture(logo, Rect2((logo_x + 8) * scale_x, (logo_y + 8) * scale_y, logo_w * scale_x, logo_h * scale_y), Color(0.0f, 0.0f, 0.0f, 0.6f * splash_alpha));
             HBVideoDriverPSGL::draw_texture(logo, Rect2(logo_x * scale_x, logo_y * scale_y, logo_w * scale_x, logo_h * scale_y), Color(1, 1, 1, splash_alpha));
             
             // Draw Quote
-            HBVideoDriverPSGL::draw_text_with_font(font_bold, current_quote, Vector2(960 * scale_x, (logo_y + logo_h + 70) * scale_y), 39 * scale_y, Color(1, 1, 1, 0.6f * splash_alpha), true, true);
+            HBVideoDriverPSGL::draw_text_with_font(font_bold, current_quote, Vector2(960 * scale_x, (logo_y + logo_h + 70) * scale_y), 30 * scale_y, Color(1, 1, 1, 0.6f * splash_alpha), true, true);
         } else {
             HBVideoDriverPSGL::draw_text_with_font(font_bold, "Project Heartbeat", Vector2(960 * scale_x, 400 * scale_y), 64 * scale_y, Color(1, 1, 1, splash_alpha), true, true);
         }
 
         // Pulse "Presiona cualquier botón"
         float pulse_alpha = (0.6f + 0.4f * std::sin(time_passed * 4.0f)) * splash_alpha;
-        HBVideoDriverPSGL::draw_text_with_font(font_bold, "Presiona cualquier botón", Vector2(960 * scale_x, 765 * scale_y), 39 * scale_y, Color(1, 1, 1, pulse_alpha), true, true);
+        HBVideoDriverPSGL::draw_text_with_font(font_bold, "Presiona cualquier botón", Vector2(960 * scale_x, 820 * scale_y), 36 * scale_y, Color(1, 1, 1, pulse_alpha), true, true);
     }
     
     if (menu_alpha > 0.0f) {
@@ -196,7 +196,7 @@ void HBMainMenuNative::draw() {
             float logo_w = 450.0f;
             float logo_h = logo_w * (logo_orig_h / logo_orig_w);
             // Shadow for menu logo too
-            HBVideoDriverPSGL::draw_texture(logo, Rect2(65 * scale_x, 125 * scale_y, logo_w * scale_x, logo_h * scale_y), Color(0.0f, 0.0f, 0.0f, 0.6f * menu_alpha));
+            HBVideoDriverPSGL::draw_texture(logo, Rect2(68 * scale_x, 128 * scale_y, logo_w * scale_x, logo_h * scale_y), Color(0.0f, 0.0f, 0.0f, 0.6f * menu_alpha));
             HBVideoDriverPSGL::draw_texture(logo, Rect2(60 * scale_x, 120 * scale_y, logo_w * scale_x, logo_h * scale_y), Color(1, 1, 1, menu_alpha));
         }
 
@@ -205,38 +205,39 @@ void HBMainMenuNative::draw() {
         float separation = 10;
         int num_items = (int)menu_items.size();
         float start_y = 320.0f;
+        float slant = 35.0f;
 
         // Apply a 3D tilt to the menu items
-        Transform3D tilt = Transform3D::rotated(Vector3(0, 1, 0), -0.5f); // More pronounced tilt
-        tilt = tilt.translated(Vector3(0.2f, 0, 0.5f)); // Move forward and right to compensate tilt
+        Transform3D tilt = Transform3D::rotated(Vector3(0, 1, 0), 0.1745f); // 10 degree tilt
+        tilt = tilt.translated(Vector3(0, 0, -0.488f)); // Match UITilt position
 
         for (int i = 0; i < num_items; i++) {
             float item_y = start_y + i * (button_height + separation);
-            Rect2 item_rect(50, item_y, button_width, button_height);
+            Rect2 item_rect(40, item_y, button_width, button_height);
             
             Color item_color;
             if (i == selected_index) {
-                item_color = Color(0.93f, 0.22f, 0.8f, 0.5f * menu_alpha);
-                HBVideoDriverPSGL::draw_rect_3d(item_rect, tilt, item_color);
+                item_color = Color(0.73f, 0.22f, 0.52f, 0.8f * menu_alpha);
+                HBVideoDriverPSGL::draw_rect_3d(item_rect, tilt, item_color, slant);
             } else {
-                item_color = Color(0.19f, 0.07f, 0.3f, 0.5f * menu_alpha);
-                HBVideoDriverPSGL::draw_rect_3d(item_rect, tilt, item_color);
+                item_color = Color(0.186f, 0.072f, 0.3f, 0.8f * menu_alpha);
+                HBVideoDriverPSGL::draw_rect_3d(item_rect, tilt, item_color, slant);
                 // Simulated left border
-                HBVideoDriverPSGL::draw_rect_3d(Rect2(50, item_y, 40, button_height), tilt, Color(0.93f, 0.22f, 0.8f, 0.5f * menu_alpha));
+                HBVideoDriverPSGL::draw_rect_3d(Rect2(40, item_y, 10, button_height), tilt, Color(0.73f, 0.22f, 0.52f, 0.8f * menu_alpha), slant);
             }
             
-            // Icon
+            // Icon - adjust X to be inside the button, and don't slant the texture itself
             if (menu_items[i].icon.is_valid()) {
-                HBVideoDriverPSGL::draw_texture_3d(menu_items[i].icon, Rect2(95, item_y + 10, 40, 40), tilt, Color(1, 1, 1, menu_alpha));
+                HBVideoDriverPSGL::draw_texture_3d(menu_items[i].icon, Rect2(85, item_y + 10, 40, 40), tilt, Color(1, 1, 1, menu_alpha), 0.0f);
             }
 
-            // Label
-            HBVideoDriverPSGL::draw_text_with_font_3d(font, menu_items[i].label, Vector2(155, item_y + 6), 34, tilt, Color(1, 1, 1, menu_alpha), true);
+            // Label - adjust X to be inside the button
+            HBVideoDriverPSGL::draw_text_with_font_3d(font, menu_items[i].label, Vector2(145, item_y + 6), 34, tilt, Color(1, 1, 1, menu_alpha), true);
         }
 
         // Footer - Only in MAIN_MENU
-        HBVideoDriverPSGL::draw_text_with_font(font, "HeartbeatNET: Connected", Vector2(20 * scale_x, 1030 * scale_y), 14 * scale_y, Color(1, 1, 1, 0.4f * menu_alpha), true);
-        HBVideoDriverPSGL::draw_text_with_font(font, "Project Heartbeat PS3 Marina's Legacy v1.0.0", Vector2(20 * scale_x, 1055 * scale_y), 14 * scale_y, Color(1, 1, 1, 0.4f * menu_alpha), true);
+        HBVideoDriverPSGL::draw_text_with_font(font, "HeartbeatNET: Connected (production)", Vector2(20 * scale_x, 1025 * scale_y), 16 * scale_y, Color(0, 1, 0, 0.8f * menu_alpha), true);
+        HBVideoDriverPSGL::draw_text_with_font(font, "(psgl 0.9.9)", Vector2(20 * scale_x, 1055 * scale_y), 14 * scale_y, Color(1, 1, 1, 0.4f * menu_alpha), true);
     }
 }
 

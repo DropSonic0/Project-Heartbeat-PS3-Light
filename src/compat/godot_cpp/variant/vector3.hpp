@@ -15,6 +15,14 @@ struct Vector3 {
     Vector3 operator*(float p_s) const { return Vector3(x * p_s, y * p_s, z * p_s); }
 
     float length() const { return std::sqrt(x * x + y * y + z * z); }
+    float dot(const Vector3& p_v) const { return x * p_v.x + y * p_v.y + z * p_v.z; }
+    Vector3 cross(const Vector3& p_v) const {
+        return Vector3(
+            y * p_v.z - z * p_v.y,
+            z * p_v.x - x * p_v.z,
+            x * p_v.y - y * p_v.x
+        );
+    }
     Vector3 normalized() const {
         float l = length();
         if (l == 0) return Vector3();

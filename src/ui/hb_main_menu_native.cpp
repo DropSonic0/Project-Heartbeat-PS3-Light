@@ -200,37 +200,38 @@ void HBMainMenuNative::draw() {
             HBVideoDriverPSGL::draw_texture(logo, Rect2(60 * scale_x, 120 * scale_y, logo_w * scale_x, logo_h * scale_y), Color(1, 1, 1, menu_alpha));
         }
 
-        float button_width = 460 * scale_x;
-        float button_height = 60 * scale_y;
-        float separation = 10 * scale_y;
-        float slant = -60.0f * scale_x; // Approx from Godot's skew Vector2(-1, 0)
+        float button_width = 460;
+        float button_height = 60;
+        float separation = 10;
         int num_items = (int)menu_items.size();
-        float start_y = 320.0f * scale_y;
+        float start_y = 320.0f;
+
+        // Apply a 3D tilt to the menu items
+        Transform3D tilt = Transform3D::rotated(Vector3(0, 1, 0), -0.5f); // More pronounced tilt
+        tilt = tilt.translated(Vector3(0.2f, 0, 0.5f)); // Move forward and right to compensate tilt
 
         for (int i = 0; i < num_items; i++) {
             float item_y = start_y + i * (button_height + separation);
+            Rect2 item_rect(50, item_y, button_width, button_height);
             
             Color item_color;
-            Color text_color = Color(1.0f, 1.0f, 1.0f, 1.0f);
             if (i == selected_index) {
-                // From NewButtonStyleHover.tres: Color(0.929412, 0.219608, 0.8, 0.501961)
                 item_color = Color(0.93f, 0.22f, 0.8f, 0.5f * menu_alpha);
-                HBVideoDriverPSGL::draw_parallelogram(Rect2(50 * scale_x, item_y, button_width, button_height), slant, item_color);
+                HBVideoDriverPSGL::draw_rect_3d(item_rect, tilt, item_color);
             } else {
-                // From NewButtonStyle.tres: Color(0.186, 0.072, 0.3, 0.501961)
                 item_color = Color(0.19f, 0.07f, 0.3f, 0.5f * menu_alpha);
-                HBVideoDriverPSGL::draw_parallelogram(Rect2(50 * scale_x, item_y, button_width, button_height), slant, item_color);
-                // Simulated left border from Godot: border_width_left = 100, border_color = Color(0.929, 0.22, 0.8, 0.5)
-                HBVideoDriverPSGL::draw_parallelogram(Rect2(50 * scale_x, item_y, 40 * scale_x, button_height), slant, Color(0.93f, 0.22f, 0.8f, 0.5f * menu_alpha));
+                HBVideoDriverPSGL::draw_rect_3d(item_rect, tilt, item_color);
+                // Simulated left border
+                HBVideoDriverPSGL::draw_rect_3d(Rect2(50, item_y, 40, button_height), tilt, Color(0.93f, 0.22f, 0.8f, 0.5f * menu_alpha));
             }
             
             // Icon
             if (menu_items[i].icon.is_valid()) {
-                HBVideoDriverPSGL::draw_texture(menu_items[i].icon, Rect2(95 * scale_x, item_y + 10 * scale_y, 40 * scale_x, 40 * scale_y), Color(1, 1, 1, menu_alpha));
+                HBVideoDriverPSGL::draw_texture_3d(menu_items[i].icon, Rect2(95, item_y + 10, 40, 40), tilt, Color(1, 1, 1, menu_alpha));
             }
 
             // Label
-            HBVideoDriverPSGL::draw_text_with_font(font, menu_items[i].label, Vector2(155 * scale_x, item_y + 6 * scale_y), 34 * scale_y, Color(1, 1, 1, menu_alpha), true);
+            HBVideoDriverPSGL::draw_text_with_font_3d(font, menu_items[i].label, Vector2(155, item_y + 6), 34, tilt, Color(1, 1, 1, menu_alpha), true);
         }
 
         // Footer - Only in MAIN_MENU

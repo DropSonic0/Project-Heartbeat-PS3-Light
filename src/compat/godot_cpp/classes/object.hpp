@@ -10,7 +10,7 @@ namespace godot {
 class Variant;
 class Object {
 public:
-    virtual ~Object() {}
+    virtual ~Object();
     virtual void set(const std::string &p_name, const Variant& p_value);
     virtual Variant get(const std::string &p_name) const;
     

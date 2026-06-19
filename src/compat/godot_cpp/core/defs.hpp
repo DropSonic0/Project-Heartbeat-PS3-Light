@@ -37,6 +37,7 @@ public:
     bool is_valid() const { return reference != 0; }
     bool is_null() const { return reference == 0; }
     void instantiate() { reference = new T(); }
+    void unref() { reference = 0; }
     T* ptr() const { return reference; }
 
     template <class T_Other>

@@ -1,8 +1,10 @@
 #include "hb_video_driver_psgl.hpp"
 #include "compat/godot_cpp/classes/font_variation.hpp"
+#include "compat/godot_cpp/variant/vector3.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include <map>
 #include <vector>
 
@@ -316,6 +318,87 @@ void HBVideoDriverPSGL::draw_parallelogram(const Rect2& p_rect, float p_slant, c
 #endif
 }
 
+static void _psgl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
+    GLfloat f = 1.0f / tanf(fovy * 3.14159265f / 360.0f);
+    GLfloat m[16];
+    memset(m, 0, sizeof(m));
+    m[0] = f / aspect;
+    m[5] = f;
+    m[10] = (zFar + zNear) / (zNear - zFar);
+    m[11] = -1.0f;
+    m[14] = (2.0f * zFar * zNear) / (zNear - zFar);
+    glMultMatrixf(m);
+}
+
+static void _psgl_look_at(const Vector3& eye, const Vector3& center, const Vector3& up) {
+    Vector3 f = (center + (eye * -1.0f)).normalized();
+    Vector3 s = f.cross(up).normalized();
+    Vector3 u = s.cross(f);
+    GLfloat m[16];
+    m[0] = s.x; m[4] = s.y; m[8] = s.z; m[12] = -s.dot(eye);
+    m[1] = u.x; m[5] = u.y; m[9] = u.z; m[13] = -u.dot(eye);
+    m[2] = -f.x; m[6] = -f.y; m[10] = -f.z; m[14] = f.dot(eye);
+    m[3] = 0; m[7] = 0; m[11] = 0; m[15] = 1;
+    glMultMatrixf(m);
+}
+
+void HBVideoDriverPSGL::draw_rect_3d(const Rect2& p_rect, const Transform3D& p_transform, const Color& p_color) {
+#ifdef __PPU__
+    if (!_psgl_device) return;
+
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    _psgl_perspective(47.0f, (GLfloat)_gl_width / (GLfloat)_gl_height, 0.01f, 100.0f);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    _psgl_look_at(Vector3(0, 0, 2), Vector3(0, 0, 0), Vector3(0, 1, 0));
+
+    // Apply Transform3D
+    GLfloat mat[16] = {
+        p_transform.basis[0], p_transform.basis[3], p_transform.basis[6], 0,
+        p_transform.basis[1], p_transform.basis[4], p_transform.basis[7], 0,
+        p_transform.basis[2], p_transform.basis[5], p_transform.basis[8], 0,
+        p_transform.origin.x, p_transform.origin.y, p_transform.origin.z, 1
+    };
+    glMultMatrixf(mat);
+
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Map p_rect (0-1920, 0-1080) to 3D space (-1 to 1 approx, but depends on distance)
+    // For now we just use the rect as-is but scaled down to 0-1 range roughly.
+    // Godot 3D UI is usually centered at origin.
+    float w = p_rect.size.x / 1000.0f;
+    float h = p_rect.size.y / 1000.0f;
+    float x = (p_rect.position.x - 960.0f) / 1000.0f;
+    float y = -(p_rect.position.y - 540.0f) / 1000.0f;
+
+    GLfloat vertices[] = {
+        x, y, 0,
+        x + w, y, 0,
+        x, y - h, 0,
+        x + w, y - h, 0
+    };
+
+    glColor4f(p_color.r, p_color.g, p_color.b, p_color.a);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+#endif
+}
+
 static void _draw_text_internal(const String& p_text, const Vector2& p_pos, const Color& p_color, float p_scale) {
 #ifdef __PPU__
     glColor4f(p_color.r, p_color.g, p_color.b, p_color.a);
@@ -397,6 +480,86 @@ void HBVideoDriverPSGL::draw_text(const String& p_text, const Vector2& p_pos, co
 #endif
 }
 
+void HBVideoDriverPSGL::draw_texture_3d(const Ref<Image>& p_image, const Rect2& p_rect, const Transform3D& p_transform, const Color& p_modulate) {
+#ifdef __PPU__
+    if (!_psgl_device || p_image.is_null()) return;
+
+    GLuint tex_id = 0;
+    uintptr_t img_ptr = (uintptr_t)p_image.ptr();
+    if (_texture_cache.count(img_ptr)) {
+        tex_id = _texture_cache[img_ptr];
+    } else {
+        glGenTextures(1, &tex_id);
+        glBindTexture(GL_TEXTURE_2D, tex_id);
+        PackedByteArray data = p_image->get_data();
+        const void* data_ptr = data.empty() ? nullptr : &data[0];
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, p_image->get_width(), p_image->get_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, data_ptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        _texture_cache[img_ptr] = tex_id;
+    }
+
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    _psgl_perspective(47.0f, (GLfloat)_gl_width / (GLfloat)_gl_height, 0.01f, 100.0f);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    _psgl_look_at(Vector3(0, 0, 2), Vector3(0, 0, 0), Vector3(0, 1, 0));
+
+    // Apply Transform3D
+    GLfloat mat[16] = {
+        p_transform.basis[0], p_transform.basis[3], p_transform.basis[6], 0,
+        p_transform.basis[1], p_transform.basis[4], p_transform.basis[7], 0,
+        p_transform.basis[2], p_transform.basis[5], p_transform.basis[8], 0,
+        p_transform.origin.x, p_transform.origin.y, p_transform.origin.z, 1
+    };
+    glMultMatrixf(mat);
+
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, tex_id);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    float w = p_rect.size.x / 1000.0f;
+    float h = p_rect.size.y / 1000.0f;
+    float x = (p_rect.position.x - 960.0f) / 1000.0f;
+    float y = -(p_rect.position.y - 540.0f) / 1000.0f;
+
+    GLfloat vertices[] = {
+        x, y, 0,
+        x + w, y, 0,
+        x, y - h, 0,
+        x + w, y - h, 0
+    };
+
+    GLfloat tex_coords[] = {
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        0.0f, 1.0f,
+        1.0f, 1.0f
+    };
+
+    glColor4f(p_modulate.r, p_modulate.g, p_modulate.b, p_modulate.a);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+    glTexCoordPointer(2, GL_FLOAT, 0, tex_coords);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+#endif
+}
+
 void HBVideoDriverPSGL::draw_text_with_font(const Ref<FontVariation>& p_font, const String& p_text, const Vector2& p_pos, int p_size, const Color& p_color, bool p_shadow, bool p_center) {
     bool rendered = false;
     if (p_font.is_valid()) {
@@ -425,6 +588,25 @@ void HBVideoDriverPSGL::draw_text_with_font(const Ref<FontVariation>& p_font, co
             draw_pos.y -= p_size / 2.0f;
         }
         draw_text(p_text, draw_pos, p_color, (float)p_size / 8.0f, p_shadow);
+    }
+}
+
+void HBVideoDriverPSGL::draw_text_with_font_3d(const Ref<FontVariation>& p_font, const String& p_text, const Vector2& p_pos, int p_size, const Transform3D& p_transform, const Color& p_color, bool p_shadow, bool p_center) {
+    if (p_font.is_valid()) {
+        Ref<Image> img = p_font->render_text(p_text, p_size);
+        if (img.is_valid()) {
+            Vector2 draw_pos = p_pos;
+            if (p_center) {
+                draw_pos.x -= img->get_width() / 2.0f;
+                draw_pos.y -= img->get_height() / 2.0f;
+            }
+
+            if (p_shadow) {
+                draw_texture_3d(img, Rect2(draw_pos + Vector2(2, 2), Vector2(img->get_width(), img->get_height())), p_transform, Color(0, 0, 0, p_color.a * 0.5f));
+            }
+
+            draw_texture_3d(img, Rect2(draw_pos, Vector2(img->get_width(), img->get_height())), p_transform, p_color);
+        }
     }
 }
 

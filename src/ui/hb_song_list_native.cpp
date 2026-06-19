@@ -64,7 +64,7 @@ void HBSongListNative::draw() {
         HBVideoDriverPSGL::draw_rect(Rect2(0, 0, window_size.x, window_size.y), Color(0.129, 0.071, 0.259, 1.0));
     }
 
-    HBVideoDriverPSGL::draw_text_with_font(font_bold, "Juego Libre", Vector2(100 * scale_x, 80 * scale_y), 50 * scale_y, Color(1, 1, 1, 1));
+    HBVideoDriverPSGL::draw_text_with_font(font_bold, "Juego Libre", Vector2(100 * scale_x, 80 * scale_y), (int)(50 * scale_y), Color(1, 1, 1, 1));
 
     float item_height = 80.0f * scale_y;
     float start_y = 150.0f * scale_y;
@@ -83,7 +83,7 @@ void HBSongListNative::draw() {
         Color item_color = (idx == selected_index) ? Color(0.93f, 0.22f, 0.8f, 0.5f) : Color(0.19f, 0.07f, 0.3f, 0.5f);
         
         HBVideoDriverPSGL::draw_parallelogram(Rect2(100 * scale_x, item_y, 800 * scale_x, item_height - 5 * scale_y), -40.0f * scale_x, item_color);
-        HBVideoDriverPSGL::draw_text_with_font(font, songs[idx].song->get_title(), Vector2(150 * scale_x, item_y + 15 * scale_y), 30 * scale_y, Color(1, 1, 1, 1));
+        HBVideoDriverPSGL::draw_text_with_font(font, songs[idx].song->get_title(), Vector2(150 * scale_x, item_y + 15 * scale_y), (int)(30 * scale_y), Color(1, 1, 1, 1));
     }
     
     // Draw "preview" for selected song
@@ -103,8 +103,8 @@ void HBSongListNative::draw() {
             preview = default_preview;
         }
         HBVideoDriverPSGL::draw_texture(preview, Rect2(1000 * scale_x, 200 * scale_y, 600 * scale_x, 600 * scale_y));
-        HBVideoDriverPSGL::draw_text_with_font(font_bold, songs[selected_index].song->get_title(), Vector2(1000 * scale_x, 850 * scale_y), 40 * scale_y, Color(1, 1, 1, 1));
-        HBVideoDriverPSGL::draw_text_with_font(font, songs[selected_index].song->get_artist(), Vector2(1000 * scale_x, 900 * scale_y), 30 * scale_y, Color(1, 1, 1, 0.7f));
+        HBVideoDriverPSGL::draw_text_with_font(font_bold, songs[selected_index].song->get_title(), Vector2(1000 * scale_x, 850 * scale_y), (int)(40 * scale_y), Color(1, 1, 1, 1));
+        HBVideoDriverPSGL::draw_text_with_font(font, songs[selected_index].song->get_artist(), Vector2(1000 * scale_x, 900 * scale_y), (int)(30 * scale_y), Color(1, 1, 1, 0.7f));
     }
 }
 

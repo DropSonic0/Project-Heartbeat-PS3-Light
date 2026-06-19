@@ -90,6 +90,12 @@ public:
         if (pos == std::string::npos) return *this;
         return substr(pos + 1);
     }
+    String get_base_dir() const {
+        size_t pos = find_last_of("/\\");
+        if (pos == std::string::npos) return "";
+        if (pos == 0) return "/";
+        return substr(0, pos);
+    }
     String to_lower() const {
         std::string res = *this;
         for (size_t i = 0; i < res.size(); i++) {

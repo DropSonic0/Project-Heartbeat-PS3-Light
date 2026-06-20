@@ -4,6 +4,7 @@
 #include "object.hpp"
 #include "../variant/variant.hpp"
 #include "../variant/utility_functions.hpp"
+#include "../../../threads/mutex.hpp"
 
 namespace godot {
 
@@ -17,6 +18,7 @@ class PCKReader;
 
 class ProjectSettings : public Object {
     std::vector<PCKReader*> loaded_packs;
+    mutable Threads::Mutex packs_mutex;
 public:
     static ProjectSettings* get_singleton() {
         static ProjectSettings* singleton = new ProjectSettings();

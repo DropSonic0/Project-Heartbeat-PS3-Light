@@ -620,22 +620,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    UtilityFunctions::print("Scanning for songs...");
-    HBSongLoaderNative *global_song_loader = memnew(HBSongLoaderNative);
-    if (global_song_loader) {
-        global_song_loader->scan_songs_recursive("/dev_hdd0/game/PROJECTHB/USRDIR/songs");
-        global_song_loader->scan_songs_recursive("res://songs");
-        
-        Dictionary discovered_songs = global_song_loader->get_songs();
-        UtilityFunctions::print("Song scanning finished. Total songs found: " + String::num(discovered_songs.size()));
-        Array song_names = discovered_songs.keys();
-        for (int i=0; i<song_names.size(); i++) {
-            UtilityFunctions::print(" - " + (String)song_names[i]);
-        }
-    } else {
-        UtilityFunctions::print("FATAL: Failed to instantiate global HBSongLoaderNative.");
-    }
-
     UtilityFunctions::print("Tests finished. Result: SUCCESS");
 
     UtilityFunctions::print("Starting Game Session...");
@@ -658,10 +642,6 @@ int main(int argc, char *argv[]) {
         memdelete(game);
     } else {
         UtilityFunctions::print("FATAL: Failed to instantiate HBGameNative for main loop.");
-    }
-
-    if (global_song_loader) {
-        memdelete(global_song_loader);
     }
 
     UtilityFunctions::print("Project Heartbeat PS3 Shutting Down.");

@@ -21,6 +21,8 @@ public:
         ACTION_BACK,
         ACTION_SQUARE,
         ACTION_TRIANGLE,
+        ACTION_START,
+        ACTION_SELECT,
         ACTION_MAX
     };
 

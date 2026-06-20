@@ -45,9 +45,8 @@ void HBSongListNative::update() {
 
     if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_ACCEPT)) {
         if (selected_index >= 0 && selected_index < (int)songs.size()) {
-            UtilityFunctions::print("Starting song: " + songs[selected_index].song->get_title());
-            // TODO: Actually start the song when the game logic is ready.
-            // For now, we just show a print to verify the button works.
+            HBGameNative::get_singleton()->change_to_menu("rhythm_game", songs[selected_index].song);
+            return;
         }
     }
 }

@@ -3,6 +3,7 @@
 #include "variant/utility_functions.hpp"
 #include "classes/project_settings.hpp"
 #include "../../utils/hb_pck_reader.hpp"
+#include "../../threads/scoped_lock.hpp"
 #include <map>
 #include <string>
 
@@ -170,6 +171,7 @@ bool ProjectSettings::load_resource_pack(const String& p_pack, bool p_replace_fi
     UtilityFunctions::print("ProjectSettings: Loading resource pack: " + p_pack);
     PCKReader* reader = new PCKReader();
     if (reader->load_pck(p_pack)) {
+        Threads::ScopedLock lock(packs_mutex);
         loaded_packs.push_back(reader);
         return true;
     }
@@ -178,6 +180,7 @@ bool ProjectSettings::load_resource_pack(const String& p_pack, bool p_replace_fi
 }
 
 bool ProjectSettings::is_pack_loaded(const String& p_pack) const {
+    Threads::ScopedLock lock(packs_mutex);
     for (size_t i = 0; i < loaded_packs.size(); i++) {
         if (loaded_packs[i]->get_pck_path() == p_pack) return true;
     }
@@ -185,6 +188,7 @@ bool ProjectSettings::is_pack_loaded(const String& p_pack) const {
 }
 
 PCKFileEntry ProjectSettings::find_file_in_packs(const String& p_path, String& r_pck_path) const {
+    Threads::ScopedLock lock(packs_mutex);
     for (int i = (int)loaded_packs.size() - 1; i >= 0; i--) {
         if (loaded_packs[i]->file_exists(p_path)) {
             r_pck_path = loaded_packs[i]->get_pck_path();
@@ -199,8 +203,7 @@ PackedStringArray ProjectSettings::get_files_in_packs(const String& p_path) cons
     String prefix = p_path;
     if (!prefix.ends_with("/")) prefix += "/";
 
-    // UtilityFunctions::print("ProjectSettings: get_files_in_packs for prefix: " + prefix);
-
+    Threads::ScopedLock lock(packs_mutex);
     for (size_t i = 0; i < loaded_packs.size(); i++) {
         std::vector<String> all_files = loaded_packs[i]->get_all_files();
         for (size_t j = 0; j < all_files.size(); j++) {
@@ -221,8 +224,7 @@ PackedStringArray ProjectSettings::get_directories_in_packs(const String& p_path
     String prefix = p_path;
     if (!prefix.ends_with("/")) prefix += "/";
 
-    // UtilityFunctions::print("ProjectSettings: get_directories_in_packs for prefix: " + prefix);
-
+    Threads::ScopedLock lock(packs_mutex);
     for (size_t i = 0; i < loaded_packs.size(); i++) {
         std::vector<String> all_files = loaded_packs[i]->get_all_files();
         for (size_t j = 0; j < all_files.size(); j++) {

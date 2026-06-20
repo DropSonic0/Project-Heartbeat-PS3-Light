@@ -17,6 +17,9 @@
 #include <godot_cpp/variant/array.hpp>
 #endif
 #include "ui/hb_main_menu_native.hpp"
+#include "threads/thread.hpp"
+#include "threads/mutex.hpp"
+#include "compat/godot_cpp/classes/image.hpp"
 
 namespace godot {
 
@@ -30,6 +33,13 @@ private:
     bool demo_mode = false;
     Dictionary serializable_types;
     Node* current_ui = nullptr;
+    
+    Ref<Image> splash_image;
+    bool is_loading = true;
+    Threads::Mutex loading_mutex;
+    Threads::Thread *loading_thread = nullptr;
+
+    void _background_load();
 
 public:
     HBGameNative();
@@ -41,7 +51,7 @@ public:
     Dictionary get_serializable_types() const;
     void register_serializable_type(const String &p_name, const Variant &p_type);
 
-    void change_to_menu(const String& p_menu);
+    void change_to_menu(const String& p_menu, const Variant& p_param = Variant());
 
     void main_loop_step();
 

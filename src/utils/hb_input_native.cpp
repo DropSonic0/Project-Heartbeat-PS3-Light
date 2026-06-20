@@ -20,6 +20,8 @@ void HBInputNative::update() {
     _current_state[ACTION_BACK] = HBVideoDriverPSGL::is_button_pressed(CELL_PAD_CTRL_CIRCLE << 8);
     _current_state[ACTION_SQUARE] = HBVideoDriverPSGL::is_button_pressed(CELL_PAD_CTRL_SQUARE << 8);
     _current_state[ACTION_TRIANGLE] = HBVideoDriverPSGL::is_button_pressed(CELL_PAD_CTRL_TRIANGLE << 8);
+    _current_state[ACTION_START] = HBVideoDriverPSGL::is_button_pressed(CELL_PAD_CTRL_START);
+    _current_state[ACTION_SELECT] = HBVideoDriverPSGL::is_button_pressed(CELL_PAD_CTRL_SELECT);
 #endif
 }
 

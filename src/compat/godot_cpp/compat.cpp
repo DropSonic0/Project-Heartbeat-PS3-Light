@@ -5,28 +5,50 @@
 #include "../../utils/hb_pck_reader.hpp"
 #include <map>
 #include <string>
+#include <pthread.h>
 
 namespace godot {
 
 static std::map<const Object*, std::map<std::string, Variant> > _object_properties;
+static pthread_mutex_t _object_properties_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 Object::~Object() {
-    _object_properties.erase(this);
+    std::map<std::string, Variant> props;
+    pthread_mutex_lock(&_object_properties_mutex);
+    std::map<const Object*, std::map<std::string, Variant> >::iterator it = _object_properties.find(this);
+    if (it != _object_properties.end()) {
+        props = it->second;
+        _object_properties.erase(it);
+    }
+    pthread_mutex_unlock(&_object_properties_mutex);
+    // props goes out of scope here, safely destroying Variants outside the lock
 }
 
 void Object::set(const std::string &p_name, const Variant& p_value) {
-    _object_properties[this][p_name] = p_value;
+    Variant old_val;
+    pthread_mutex_lock(&_object_properties_mutex);
+    std::map<std::string, Variant> &props = _object_properties[this];
+    std::map<std::string, Variant>::iterator it = props.find(p_name);
+    if (it != props.end()) {
+        old_val = it->second;
+    }
+    props[p_name] = p_value;
+    pthread_mutex_unlock(&_object_properties_mutex);
+    // old_val goes out of scope here, safely destroying potential objects outside the lock
 }
 
 Variant Object::get(const std::string &p_name) const {
+    pthread_mutex_lock(&_object_properties_mutex);
+    Variant res;
     std::map<const Object*, std::map<std::string, Variant> >::iterator it = _object_properties.find(this);
     if (it != _object_properties.end()) {
         std::map<std::string, Variant>::iterator it2 = it->second.find(p_name);
         if (it2 != it->second.end()) {
-            return it2->second;
+            res = it2->second;
         }
     }
-    return Variant();
+    pthread_mutex_unlock(&_object_properties_mutex);
+    return res;
 }
 
 

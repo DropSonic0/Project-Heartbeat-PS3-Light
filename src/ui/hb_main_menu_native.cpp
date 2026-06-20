@@ -8,7 +8,8 @@
 
 namespace godot {
 
-HBMainMenuNative::HBMainMenuNative() {
+HBMainMenuNative::HBMainMenuNative(State p_initial_state) {
+    state = p_initial_state;
     menu_items.push_back({"Juego Libre", "song_list", ResourceLoader::get_singleton()->load("res://graphics/icons/music-box-outline.svg")});
     menu_items.push_back({"Workshop", "workshop_browser", ResourceLoader::get_singleton()->load("res://graphics/icons/steam.svg")});
     menu_items.push_back({"Como jugar", "tutorial", ResourceLoader::get_singleton()->load("res://graphics/icons/help-circle.svg")});
@@ -20,6 +21,8 @@ HBMainMenuNative::HBMainMenuNative() {
 
     logo = ResourceLoader::get_singleton()->load("res://graphics/Logo.png");
     heart = ResourceLoader::get_singleton()->load("res://graphics/heart.png");
+    visualizer_tex = ResourceLoader::get_singleton()->load("res://graphics/bar_visualizer/bar_visualizer_heart.png");
+    visualizer_lut = ResourceLoader::get_singleton()->load("res://graphics/logo_visualizer_color_lut.png");
     bokeh_tex = ResourceLoader::get_singleton()->load("res://graphics/icons/menu_heart_white.png");
     background_tex = ResourceLoader::get_singleton()->load("res://graphics/predarkenedbg.png");
     font = ResourceLoader::get_singleton()->load("res://fonts/orbitron/Orbitron-Regular.ttf");
@@ -60,6 +63,10 @@ HBMainMenuNative::HBMainMenuNative() {
     
     current_quote = quotes[UtilityFunctions::randi() % quotes.size()];
 
+    for (int i = 0; i < 200; i++) {
+        spectrum_values[i] = 0.0f;
+    }
+
     // Initialize bokeh circles
     for (int i = 0; i < 40; i++) {
         BokehCircle circle;
@@ -74,6 +81,14 @@ HBMainMenuNative::HBMainMenuNative() {
 void HBMainMenuNative::update() {
     HBInputNative::update();
     time_passed += 0.016f; // Approx 60fps
+
+    // Update spectrum values (simulated)
+    for (int i = 0; i < 200; i++) {
+        float target = 0.05f + 0.15f * std::sin(time_passed * 2.0f + i * 0.1f);
+        target += 0.05f * (UtilityFunctions::randf_range(0, 1));
+        if (target < 0) target = 0;
+        spectrum_values[i] = spectrum_values[i] * 0.8f + target * 0.2f;
+    }
 
     // Update bokeh circles
     for (size_t i = 0; i < bokeh_circles.size(); i++) {
@@ -116,9 +131,7 @@ void HBMainMenuNative::update() {
                 return;
             }
         }
-        if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_BACK)) {
-            state = PRESS_START;
-        }
+        // Back button in main menu no longer returns to splash screen
     }
 }
 
@@ -182,6 +195,41 @@ void HBMainMenuNative::draw() {
     }
     
     if (menu_alpha > 0.0f) {
+        // Draw radial visualizer
+        if (visualizer_tex.is_valid()) {
+            float center_x = 960 * scale_x;
+            float center_y = 540 * scale_y;
+            float inner_radius = 200.0f * scale_x;
+            float outer_radius_max = 500.0f * scale_x;
+            int num_bars = 200;
+
+            for (int i = 0; i < num_bars; i++) {
+                float angle = (i / (float)num_bars) * 2.0f * 3.14159265f;
+                float energy = spectrum_values[i];
+                float bar_len = energy * (outer_radius_max - inner_radius);
+                
+                float cos_a = std::cos(angle);
+                float sin_a = std::sin(angle);
+                
+                float x1 = center_x + cos_a * inner_radius;
+                float y1 = center_y + sin_a * inner_radius;
+                float x2 = center_x + cos_a * (inner_radius + bar_len);
+                float y2 = center_y + sin_a * (inner_radius + bar_len);
+
+                // Color from pinkish to purple
+                Color col = Color(0.73f, 0.22f, 0.52f, 0.6f * menu_alpha * (0.2f + energy));
+                
+                // We use a parallelogram to represent a rotated bar
+                // Slant calculation is tricky for arbitrary rotation, but we can simulate it
+                // by using 3D drawing or simple rects. 
+                // Let's use draw_texture_3d with a simple white texture or the visualizer_tex
+                Transform3D bar_rot = Transform3D::rotated(Vector3(0, 0, 1), angle);
+                bar_rot.origin = Vector3((x1 - 960 * scale_x) / 1000.0f, -(y1 - 540 * scale_y) / 1000.0f, 0);
+                
+                HBVideoDriverPSGL::draw_texture_3d(visualizer_tex, Rect2(0, 0, bar_len, 4 * scale_x), bar_rot, col, 0.0f);
+            }
+        }
+
         // Draw central heart
         if (heart.is_valid()) {
             float pulse = 1.0f + 0.05f * std::sin(time_passed * 2.0f);

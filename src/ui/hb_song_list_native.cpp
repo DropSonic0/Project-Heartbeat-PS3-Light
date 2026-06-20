@@ -39,7 +39,7 @@ void HBSongListNative::update() {
         }
     }
     if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_BACK)) {
-        HBGameNative::get_singleton()->change_to_menu("main_menu");
+        HBGameNative::get_singleton()->change_to_menu("main_menu", "skip_splash");
         return;
     }
 

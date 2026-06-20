@@ -215,6 +215,13 @@ public:
     operator Ref<T>() const;
 
     Variant& operator=(const Variant& p_other);
+    template <class T>
+    Variant& operator=(const Ref<T>& p_ref) {
+        _clear();
+        type = OBJECT;
+        _ref_obj((Object*)p_ref.ptr());
+        return *this;
+    }
     Variant& operator=(Object* p_obj);
     Variant& operator=(const Array& p_array);
     Variant& operator=(const Dictionary& p_dict);

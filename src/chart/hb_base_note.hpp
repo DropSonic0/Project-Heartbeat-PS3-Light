@@ -74,6 +74,8 @@ public:
     int64_t get_time_out(double p_bpm) const;
     int64_t get_score(int p_rating) const;
 
+    virtual void set(const std::string &p_name, const Variant& p_value) GD_OVERRIDE;
+
     virtual String get_serialized_type() const GD_OVERRIDE;
 
     VARIANT_ENUM_CAST(NoteType);

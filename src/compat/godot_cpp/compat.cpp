@@ -98,6 +98,8 @@ Variant& Variant::operator=(const Variant& p_other) {
     i_val = p_other.i_val;
     f_val = p_other.f_val;
     _ref_obj(p_other.obj_val);
+    v2_val[0] = p_other.v2_val[0];
+    v2_val[1] = p_other.v2_val[1];
     if (p_other.array_val) array_val = new Array(*p_other.array_val);
     if (p_other.dict_val) dict_val = new Dictionary(*p_other.dict_val);
     if (p_other.packed_byte_array_val) packed_byte_array_val = new PackedByteArray(*p_other.packed_byte_array_val);

@@ -256,6 +256,52 @@ String HBSongNative::get_song_preview_res_path() const {
     }
 }
 
+void HBSongNative::set(const std::string &p_name, const Variant& p_value) {
+    if (p_name == "title") title = p_value;
+    else if (p_name == "romanized_title") romanized_title = p_value;
+    else if (p_name == "artist") artist = p_value;
+    else if (p_name == "artist_alias") artist_alias = p_value;
+    else if (p_name == "composers") composers = p_value;
+    else if (p_name == "writers") writers = p_value;
+    else if (p_name == "vocals") vocals = p_value;
+    else if (p_name == "audio") audio = p_value;
+    else if (p_name == "video") video = p_value;
+    else if (p_name == "voice") voice = p_value;
+    else if (p_name == "creator") creator = p_value;
+    else if (p_name == "original_title") original_title = p_value;
+    else if (p_name == "bpm") bpm = p_value;
+    else if (p_name == "bpm_string") bpm_string = p_value;
+    else if (p_name == "preview_start") preview_start = p_value;
+    else if (p_name == "preview_end") preview_end = p_value;
+    else if (p_name == "charts") charts = p_value;
+    else if (p_name == "preview_image") preview_image = p_value;
+    else if (p_name == "background_image") background_image = p_value;
+    else if (p_name == "circle_image") circle_image = p_value;
+    else if (p_name == "circle_logo") circle_logo = p_value;
+    else if (p_name == "youtube_url") youtube_url = p_value;
+    else if (p_name == "youtube_preview_url") youtube_preview_url = p_value;
+    else if (p_name == "use_youtube_for_audio") use_youtube_for_audio = p_value;
+    else if (p_name == "use_youtube_for_video") use_youtube_for_video = p_value;
+    else if (p_name == "ugc_service_name") ugc_service_name = p_value;
+    else if (p_name == "ugc_id") ugc_id = p_value;
+    else if (p_name == "allows_intro_skip") allows_intro_skip = p_value;
+    else if (p_name == "intro_skip_min_time") intro_skip_min_time = p_value;
+    else if (p_name == "start_time") start_time = p_value;
+    else if (p_name == "end_time") end_time = p_value;
+    else if (p_name == "volume") volume = p_value;
+    else if (p_name == "hide_artist_name") hide_artist_name = p_value;
+    else if (p_name == "lyrics") lyrics = p_value;
+    else if (p_name == "show_epilepsy_warning") show_epilepsy_warning = p_value;
+    else if (p_name == "has_audio_loudness") has_audio_loudness = p_value;
+    else if (p_name == "audio_loudness") audio_loudness = p_value;
+    else if (p_name == "song_variants") song_variants = p_value;
+    else if (p_name == "sections") sections = p_value;
+    else if (p_name == "skin_ugc_id") skin_ugc_id = p_value;
+    else if (p_name == "timing_changes") timing_changes = p_value;
+    
+    Object::set(p_name, p_value);
+}
+
 String HBSongNative::get_serialized_type() const {
     return "Song";
 }

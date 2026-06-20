@@ -25,6 +25,8 @@ public:
     bool is_slide_hold_piece() const;
     HBBaseNoteNative::NoteType get_chain_type() const;
 
+    virtual void set(const std::string &p_name, const Variant& p_value) GD_OVERRIDE;
+
     virtual String get_serialized_type() const GD_OVERRIDE;
 };
 

@@ -24,6 +24,7 @@ HBRhythmGameNative::HBRhythmGameNative(const Ref<HBSongNative>& p_song) {
             String chart_name = charts.keys()[0];
             Dictionary chart_data_ref = charts[chart_name];
             String chart_path = song->get_path().path_join((String)chart_data_ref["chart"]);
+            UtilityFunctions::print("HBRhythmGameNative: Loading chart from: " + chart_path);
             
             Ref<FileAccess> fa = FileAccess::open(chart_path, FileAccess::READ);
             if (fa.is_valid()) {
@@ -53,7 +54,16 @@ HBRhythmGameNative::HBRhythmGameNative(const Ref<HBSongNative>& p_song) {
     note_textures[HBBaseNoteNative::RIGHT] = ResourceLoader::get_singleton()->load("res://graphics/icons/menu-right.svg");
     note_textures[HBBaseNoteNative::SLIDE_LEFT] = ResourceLoader::get_singleton()->load("res://graphics/icons/arc-counterclockwise.svg");
     note_textures[HBBaseNoteNative::SLIDE_RIGHT] = ResourceLoader::get_singleton()->load("res://graphics/icons/arc-clockwise.svg");
-    note_textures[HBBaseNoteNative::HEART] = ResourceLoader::get_singleton()->load("res://graphics/heart.png");
+    note_textures[HBBaseNoteNative::HEART] = ResourceLoader::get_singleton()->load("res://graphics/icons/menu_heart_white.svg");
+
+    if (song.is_valid()) {
+        String bg_img = song->get_background_image();
+        if (!bg_img.is_empty()) {
+            String path = song->get_path().path_join(bg_img);
+            UtilityFunctions::print("HBRhythmGameNative: Loading background from: " + path);
+            background_texture = ResourceLoader::get_singleton()->load(path);
+        }
+    }
 
     is_playing = true;
 }
@@ -84,8 +94,13 @@ void HBRhythmGameNative::update() {
     }
 
     // Activate new notes
-    while (next_note_idx < timing_points.size()) {
-        Ref<HBBaseNoteNative> note = timing_points[next_note_idx];
+    while (next_note_idx < (int)timing_points.size()) {
+        Variant v = timing_points[next_note_idx];
+        Ref<HBBaseNoteNative> note;
+        if (v.get_type() == Variant::OBJECT) {
+            note = v;
+        }
+
         if (note.is_valid()) {
             double note_time = note->get_time() / 1000.0;
             double note_out = note->get_time_out(song->get_bpm()) / 1000.0;
@@ -93,9 +108,11 @@ void HBRhythmGameNative::update() {
                 active_notes.push_back(note);
                 next_note_idx++;
             } else {
+                // Not time yet for this note, and since they are ordered, we stop here
                 break;
             }
         } else {
+            // Skip invalid objects in timing points
             next_note_idx++;
         }
     }
@@ -133,6 +150,8 @@ void HBRhythmGameNative::_process_judgement(HBBaseNoteNative::NoteType p_type) {
                 score += note->get_score(rating);
                 combo++;
                 if (combo > max_combo) max_combo = combo;
+                last_rating = rating;
+                last_rating_time = time;
                 active_notes.erase(active_notes.begin() + i);
                 // Play SFX? 
                 return;
@@ -148,20 +167,37 @@ void HBRhythmGameNative::draw() {
 
     HBVideoDriverPSGL::clear_buffer();
     
+    // Draw Background
+    if (background_texture.is_valid()) {
+        HBVideoDriverPSGL::draw_texture(background_texture, Rect2(0, 0, window_size.x, window_size.y), Color(1, 1, 1, 0.4f));
+    }
+
     if (song.is_valid()) {
+        // HUD Area background
+        HBVideoDriverPSGL::draw_rect(Rect2(0, 0, window_size.x, 180 * scale_y), Color(0, 0, 0, 0.4f));
+
         HBVideoDriverPSGL::draw_text_with_font(font, song->get_title(), Vector2(50 * scale_x, 50 * scale_y), (int)(40 * scale_y), Color(1, 1, 1, 1));
         HBVideoDriverPSGL::draw_text_with_font(font, "Score: " + String::num_int64(score), Vector2(50 * scale_x, 100 * scale_y), (int)(30 * scale_y), Color(1, 1, 1, 1));
         HBVideoDriverPSGL::draw_text_with_font(font, "Combo: " + String::num_int64(combo), Vector2(50 * scale_x, 140 * scale_y), (int)(30 * scale_y), Color(1, 1, 1, 1));
     }
 
-    // Draw Note Targets
-    for (int i = 0; i < 9; i++) {
-        // Simple fixed targets for now
-        Vector2 pos(960 * scale_x, 540 * scale_y); // Default center
-        // In real game, targets are at note.position
+    // Draw Upcoming Note Targets
+    for (int i = next_note_idx; i < (int)timing_points.size(); i++) {
+        Variant v = timing_points[i];
+        Ref<HBBaseNoteNative> note;
+        if (v.get_type() == Variant::OBJECT) {
+            note = v;
+        }
+        if (note.is_null()) continue;
+        
+        double note_time = note->get_time() / 1000.0;
+        if (note_time > time + 3.0) break; // Next 3 seconds
+        
+        Vector2 note_pos = note->get_position();
+        HBVideoDriverPSGL::draw_rect(Rect2(note_pos.x * scale_x - 45 * scale_x, note_pos.y * scale_y - 45 * scale_y, 90 * scale_x, 90 * scale_y), Color(1, 1, 1, 0.15f));
     }
     
-    // Draw Active Notes
+    // Draw Active Notes and their targets
     for (size_t i = 0; i < active_notes.size(); i++) {
         Ref<HBBaseNoteNative> note = active_notes[i];
         double note_time = note->get_time() / 1000.0;
@@ -173,22 +209,43 @@ void HBRhythmGameNative::draw() {
         Vector2 note_pos = note->get_position();
         Vector2 draw_pos = HBUtilsNative::calculate_note_sine(1.0f - progress, note_pos, note->get_entry_angle(), (float)note->get_oscillation_frequency(), note->get_oscillation_amplitude(), note->get_distance());
         
-        draw_pos.x *= scale_x;
-        draw_pos.y *= scale_y;
+        float dx = draw_pos.x * scale_x;
+        float dy = draw_pos.y * scale_y;
+        float nx = note_pos.x * scale_x;
+        float ny = note_pos.y * scale_y;
 
-        // Draw Target
-        HBVideoDriverPSGL::draw_rect(Rect2(note_pos.x * scale_x - 32 * scale_x, note_pos.y * scale_y - 32 * scale_y, 64 * scale_x, 64 * scale_y), Color(1, 1, 1, 0.3f));
+        // Draw Target (More opaque for active notes)
+        HBVideoDriverPSGL::draw_rect(Rect2(nx - 45 * scale_x, ny - 45 * scale_y, 90 * scale_x, 90 * scale_y), Color(1, 1, 1, 0.4f));
 
         // Draw Note
         Ref<Image> tex = note_textures[note->get_note_type()];
         if (tex.is_valid()) {
-            HBVideoDriverPSGL::draw_texture(tex, Rect2(draw_pos.x - 32 * scale_x, draw_pos.y - 32 * scale_y, 64 * scale_x, 64 * scale_y));
+            HBVideoDriverPSGL::draw_texture(tex, Rect2(dx - 40 * scale_x, dy - 40 * scale_y, 80 * scale_x, 80 * scale_y));
         } else {
-            HBVideoDriverPSGL::draw_rect(Rect2(draw_pos.x - 20 * scale_x, draw_pos.y - 20 * scale_y, 40 * scale_x, 40 * scale_y), Color(1, 1, 0, 1));
+            HBVideoDriverPSGL::draw_rect(Rect2(dx - 30 * scale_x, dy - 30 * scale_y, 60 * scale_x, 60 * scale_y), Color(1, 1, 0, 1));
         }
     }
     
-    HBVideoDriverPSGL::draw_text_with_font(font, "Press BACK to return", Vector2(50 * scale_x, 1000 * scale_y), (int)(24 * scale_y), Color(1, 1, 1, 0.5f));
+    // Draw Rating
+    if (last_rating != -1 && time < last_rating_time + 0.5) {
+        String rating_text = "";
+        Color rating_color = Color(1, 1, 1);
+        switch (last_rating) {
+            case 4: rating_text = "COOL"; rating_color = Color(0, 1, 1); break;
+            case 3: rating_text = "FINE"; rating_color = Color(0, 1, 0); break;
+            case 2: rating_text = "SAFE"; rating_color = Color(1, 1, 0); break;
+            case 1: rating_text = "SAD"; rating_color = Color(1, 0, 1); break;
+        }
+        HBVideoDriverPSGL::draw_text_with_font(font, rating_text, Vector2(window_size.x / 2.0f, 800 * scale_y), (int)(60 * scale_y), rating_color, true, true);
+    }
+
+    // Bottom progress bar
+    if (timing_points.size() > 0) {
+        float progress_val = (float)next_note_idx / (float)timing_points.size();
+        HBVideoDriverPSGL::draw_rect(Rect2(0, window_size.y - 10 * scale_y, window_size.x * progress_val, 10 * scale_y), Color(0, 0.8, 1, 0.7f));
+    }
+
+    HBVideoDriverPSGL::draw_text_with_font(font, "Press BACK to return", Vector2(50 * scale_x, window_size.y - 50 * scale_y), (int)(24 * scale_y), Color(1, 1, 1, 0.5f));
 }
 
 }

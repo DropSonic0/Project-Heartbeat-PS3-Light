@@ -147,6 +147,7 @@ typedef std::vector<int64_t> PackedInt64Array;
 typedef std::vector<float> PackedFloat32Array;
 typedef std::vector<double> PackedFloat64Array;
 
+class Vector2;
 class Array;
 class Dictionary;
 class Callable;
@@ -165,6 +166,7 @@ public:
     Variant(float p_float) : type(FLOAT), i_val(0), f_val(p_float), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
     Variant(const String& p_string) : type(STRING), s_val(p_string), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
     Variant(const char* p_string) : type(STRING), s_val(p_string), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {}
+    Variant(const Vector2& p_vec);
     Variant(const Array& p_array);
     Variant(const Dictionary& p_dict);
     Variant(const Callable& p_callable);
@@ -197,6 +199,7 @@ public:
     operator double() const { return (type == INT || type == BOOL) ? (double)i_val : f_val; }
     operator float() const { return (type == INT || type == BOOL) ? (float)i_val : (float)f_val; }
     operator int() const { return (type == FLOAT) ? (int)f_val : (int)i_val; }
+    operator Vector2() const;
     operator bool() const {
         if (type == BOOL || type == INT) return i_val != 0;
         if (type == FLOAT) return f_val != 0.0;
@@ -226,6 +229,7 @@ public:
     Variant& operator=(double p_float);
     Variant& operator=(float p_float);
     Variant& operator=(const PackedByteArray& p_packed_byte_array);
+    Variant& operator=(const Vector2& p_vec);
 
     Variant get(const String& p_name) const;
     Variant call(const String& p_method, const Variant& p_arg1 = Variant(), const Variant& p_arg2 = Variant());
@@ -252,6 +256,7 @@ private:
     String s_val;
     long long i_val;
     double f_val;
+    float v2_val[2];
     Array *array_val;
     Dictionary *dict_val;
     Object *obj_val;
@@ -400,8 +405,24 @@ public:
 } // namespace godot
 
 #include "callable.hpp"
+#include "vector2.hpp"
 
 namespace godot {
+inline Variant::Variant(const Vector2& p_vec) : type(VECTOR2), i_val(0), f_val(0.0), array_val(0), dict_val(0), obj_val(0), packed_byte_array_val(0) {
+    v2_val[0] = p_vec.x;
+    v2_val[1] = p_vec.y;
+}
+
+inline Variant::operator Vector2() const { return (type == VECTOR2) ? Vector2(v2_val[0], v2_val[1]) : Vector2(); }
+
+inline Variant& Variant::operator=(const Vector2& p_vec) {
+    _clear();
+    type = VECTOR2;
+    v2_val[0] = p_vec.x;
+    v2_val[1] = p_vec.y;
+    return *this;
+}
+
 inline Variant::Variant(const Array& p_array) : type(ARRAY), i_val(0), f_val(0.0), dict_val(0), obj_val(0), packed_byte_array_val(0) {
     array_val = new Array(p_array);
 }

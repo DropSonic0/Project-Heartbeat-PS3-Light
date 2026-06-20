@@ -60,23 +60,56 @@ HBBaseNoteNative::HBBaseNoteNative() {
 
 HBBaseNoteNative::~HBBaseNoteNative() {}
 
-void HBBaseNoteNative::set_position(Vector2 p_position) { position = p_position; }
+void HBBaseNoteNative::set_position(Vector2 p_position) { 
+    position = p_position; 
+}
 Vector2 HBBaseNoteNative::get_position() const { return position; }
 void HBBaseNoteNative::set_time_out(int64_t p_time_out) { time_out = p_time_out; }
 int64_t HBBaseNoteNative::get_time_out_val() const { return time_out; }
 void HBBaseNoteNative::set_auto_time_out(bool p_auto_time_out) { auto_time_out = p_auto_time_out; }
 bool HBBaseNoteNative::get_auto_time_out() const { return auto_time_out; }
-void HBBaseNoteNative::set_entry_angle(float p_entry_angle) { entry_angle = p_entry_angle; }
+void HBBaseNoteNative::set_entry_angle(float p_entry_angle) { 
+    entry_angle = p_entry_angle; 
+}
 float HBBaseNoteNative::get_entry_angle() const { return entry_angle; }
-void HBBaseNoteNative::set_oscillation_amplitude(float p_oscillation_amplitude) { oscillation_amplitude = p_oscillation_amplitude; }
+void HBBaseNoteNative::set_oscillation_amplitude(float p_oscillation_amplitude) { 
+    oscillation_amplitude = p_oscillation_amplitude; 
+}
 float HBBaseNoteNative::get_oscillation_amplitude() const { return oscillation_amplitude; }
-void HBBaseNoteNative::set_oscillation_frequency(int32_t p_oscillation_frequency) { oscillation_frequency = p_oscillation_frequency; }
+void HBBaseNoteNative::set_oscillation_frequency(int32_t p_oscillation_frequency) { 
+    oscillation_frequency = p_oscillation_frequency; 
+}
 int32_t HBBaseNoteNative::get_oscillation_frequency() const { return oscillation_frequency; }
 void HBBaseNoteNative::set_distance(float p_distance) { distance = p_distance; }
 float HBBaseNoteNative::get_distance() const { return distance; }
 void HBBaseNoteNative::set_pos_modified(bool p_pos_modified) { pos_modified = p_pos_modified; }
 bool HBBaseNoteNative::get_pos_modified() const { return pos_modified; }
-void HBBaseNoteNative::set_note_type(NoteType p_note_type) { note_type = p_note_type; }
+void HBBaseNoteNative::set_note_type(NoteType p_note_type) { 
+    note_type = p_note_type; 
+}
+
+void HBBaseNoteNative::set(const std::string &p_name, const Variant& p_value) {
+    if (p_name == "position") {
+        set_position(p_value);
+    } else if (p_name == "time_out") {
+        set_time_out((int64_t)p_value);
+    } else if (p_name == "auto_time_out") {
+        set_auto_time_out((bool)p_value);
+    } else if (p_name == "entry_angle") {
+        set_entry_angle((float)p_value);
+    } else if (p_name == "oscillation_amplitude") {
+        set_oscillation_amplitude((float)p_value);
+    } else if (p_name == "oscillation_frequency") {
+        set_oscillation_frequency((int32_t)p_value);
+    } else if (p_name == "distance") {
+        set_distance((float)p_value);
+    } else if (p_name == "pos_modified") {
+        set_pos_modified((bool)p_value);
+    } else if (p_name == "note_type") {
+        set_note_type((NoteType)(int)p_value);
+    }
+    HBTimingPointNative::set(p_name, p_value);
+}
 HBBaseNoteNative::NoteType HBBaseNoteNative::get_note_type() const { return note_type; }
 
 int64_t HBBaseNoteNative::get_time_out(double p_bpm) const {

@@ -19,6 +19,13 @@ HBNoteDataNative::HBNoteDataNative() {
 HBNoteDataNative::~HBNoteDataNative() {}
 
 void HBNoteDataNative::set_hold(bool p_hold) { hold = p_hold; }
+
+void HBNoteDataNative::set(const std::string &p_name, const Variant& p_value) {
+    if (p_name == "hold") {
+        set_hold((bool)p_value);
+    }
+    HBBaseNoteNative::set(p_name, p_value);
+}
 bool HBNoteDataNative::get_hold() const { return hold; }
 
 bool HBNoteDataNative::is_slide_note() const {

@@ -18,11 +18,17 @@ HBTimingPointNative::~HBTimingPointNative() {}
 
 void HBTimingPointNative::set_time(int64_t p_time) {
     time = p_time;
-    set("time", p_time);
 }
 
 int64_t HBTimingPointNative::get_time() const {
     return time;
+}
+
+void HBTimingPointNative::set(const std::string &p_name, const Variant& p_value) {
+    if (p_name == "time") {
+        set_time((int64_t)p_value);
+    }
+    Object::set(p_name, p_value);
 }
 
 String HBTimingPointNative::get_serialized_type() const {

@@ -23,10 +23,13 @@ class HBRhythmGameNative : public Node {
     int64_t score = 0;
     int combo = 0;
     int max_combo = 0;
+    int last_rating = -1;
+    double last_rating_time = 0.0;
     
     Ref<FontVariation> font;
     Ref<Image> note_textures[9];
     Ref<Image> target_textures[9];
+    Ref<Image> background_texture;
 
     Array timing_points;
     int next_note_idx = 0;

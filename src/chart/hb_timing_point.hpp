@@ -23,6 +23,8 @@ public:
     void set_time(int64_t p_time);
     int64_t get_time() const;
 
+    virtual void set(const std::string &p_name, const Variant& p_value) GD_OVERRIDE;
+
     virtual String get_serialized_type() const GD_OVERRIDE;
 };
 

@@ -17,9 +17,6 @@
 #include <godot_cpp/variant/array.hpp>
 #endif
 #include "ui/hb_main_menu_native.hpp"
-#include "threads/thread.hpp"
-#include "threads/mutex.hpp"
-#include "hb_song_loader.hpp"
 
 namespace godot {
 
@@ -33,13 +30,6 @@ private:
     bool demo_mode = false;
     Dictionary serializable_types;
     Node* current_ui = nullptr;
-    bool is_loading = true;
-    Threads::Mutex loading_mutex;
-    Ref<Image> splash_image;
-    Threads::Thread* loading_thread = nullptr;
-    HBSongLoaderNative* song_loader = nullptr;
-
-    void _load_resources();
 
 public:
     HBGameNative();
@@ -51,7 +41,7 @@ public:
     Dictionary get_serializable_types() const;
     void register_serializable_type(const String &p_name, const Variant &p_type);
 
-    void change_to_menu(const String& p_menu, const String& p_param = "");
+    void change_to_menu(const String& p_menu);
 
     void main_loop_step();
 

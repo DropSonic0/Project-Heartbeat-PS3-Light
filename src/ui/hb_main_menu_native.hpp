@@ -11,7 +11,6 @@
 namespace godot {
 
 class HBMainMenuNative : public Node {
-public:
     struct MenuItem {
         String label;
         String next_menu;
@@ -30,7 +29,6 @@ public:
         Color color;
     };
 
-private:
     State state = PRESS_START;
     float transition_progress = 0.0f;
     bool is_transitioning = false;
@@ -39,18 +37,15 @@ private:
     std::vector<BokehCircle> bokeh_circles;
     Ref<Image> logo;
     Ref<Image> heart;
-    Ref<Image> visualizer_tex;
-    Ref<Image> visualizer_lut;
     Ref<Image> bokeh_tex;
     Ref<Image> background_tex;
     Ref<FontVariation> font;
     Ref<FontVariation> font_bold;
     String current_quote;
     float time_passed = 0.0f;
-    float spectrum_values[200];
 
 public:
-    HBMainMenuNative(State p_initial_state = PRESS_START);
+    HBMainMenuNative();
     void update();
     void draw();
 };

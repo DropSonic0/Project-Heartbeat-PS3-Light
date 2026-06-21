@@ -44,7 +44,7 @@ class HBRhythmGameNative : public Node {
     void _process_judgement(HBBaseNoteNative::NoteType p_type);
 
 public:
-    HBRhythmGameNative(const Ref<HBSongNative>& p_song);
+    HBRhythmGameNative(const Variant& p_params);
     ~HBRhythmGameNative();
     
     void update();

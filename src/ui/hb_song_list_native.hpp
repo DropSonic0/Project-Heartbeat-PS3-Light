@@ -43,7 +43,12 @@ class HBSongListNative : public Node {
     Transform3D tilt_list;
     Transform3D tilt_info;
 
+    bool selecting_difficulty = false;
+    int selected_difficulty_idx = 0;
+    Array available_difficulties;
+
     Color get_difficulty_color(String p_difficulty);
+    Array get_sorted_difficulties(Ref<HBSongNative> p_song);
 
 public:
     HBSongListNative();

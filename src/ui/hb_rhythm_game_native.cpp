@@ -11,17 +11,32 @@
 
 namespace godot {
 
-HBRhythmGameNative::HBRhythmGameNative(const Ref<HBSongNative>& p_song) {
-    song = p_song;
+HBRhythmGameNative::HBRhythmGameNative(const Variant& p_params) {
+    String selected_chart = "";
+    if (p_params.get_type() == Variant::DICTIONARY) {
+        Dictionary d = p_params;
+        if (d.has("song")) {
+            song = d["song"];
+        }
+        if (d.has("difficulty")) {
+            selected_chart = d["difficulty"];
+        }
+    } else if (p_params.get_type() == Variant::OBJECT) {
+        song = p_params;
+    }
+
     judge.instantiate();
     font = ResourceLoader::get_singleton()->load("res://fonts/orbitron/Orbitron-Regular.ttf");
     
-    UtilityFunctions::print("HBRhythmGameNative: Starting song: " + (song.is_valid() ? song->get_title() : "NULL"));
+    UtilityFunctions::print("HBRhythmGameNative: Starting song: " + (song.is_valid() ? song->get_title() : "NULL") + " Difficulty: " + selected_chart);
     
     if (song.is_valid()) {
         Dictionary charts = song->get_charts();
         if (charts.size() > 0) {
-            String chart_name = charts.keys()[0];
+            String chart_name = selected_chart;
+            if (chart_name.is_empty() || !charts.has(chart_name)) {
+                chart_name = charts.keys()[0];
+            }
             Dictionary chart_data_ref = charts[chart_name];
             String chart_path = song->get_path().path_join((String)chart_data_ref["chart"]);
             UtilityFunctions::print("HBRhythmGameNative: Loading chart from: " + chart_path);

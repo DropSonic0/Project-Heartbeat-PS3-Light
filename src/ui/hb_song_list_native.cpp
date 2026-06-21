@@ -1,4 +1,4 @@
-﻿#include "hb_song_list_native.hpp"
+#include "hb_song_list_native.hpp"
 #include "hb_game.hpp"
 #include "utils/hb_input_native.hpp"
 #include "graphics/hb_video_driver_psgl.hpp"
@@ -37,25 +37,60 @@ HBSongListNative::HBSongListNative() {
 void HBSongListNative::update() {
     HBInputNative::update();
 
-    if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_DOWN)) {
-        if (!songs.empty()) {
-            selected_index = (selected_index + 1) % songs.size();
+    if (!selecting_difficulty) {
+        if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_DOWN)) {
+            if (!songs.empty()) {
+                selected_index = (selected_index + 1) % songs.size();
+            }
         }
-    }
-    if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_UP)) {
-        if (!songs.empty()) {
-            selected_index = (selected_index - 1 + songs.size()) % songs.size();
+        if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_UP)) {
+            if (!songs.empty()) {
+                selected_index = (selected_index - 1 + songs.size()) % songs.size();
+            }
         }
-    }
-    if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_BACK)) {
-        HBGameNative::get_singleton()->change_to_menu("main_menu");
-        return;
-    }
-
-    if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_ACCEPT)) {
-        if (selected_index >= 0 && selected_index < (int)songs.size()) {
-            HBGameNative::get_singleton()->change_to_menu("rhythm_game", songs[selected_index].song);
+        if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_BACK)) {
+            HBGameNative::get_singleton()->change_to_menu("main_menu");
             return;
+        }
+
+        if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_ACCEPT)) {
+            if (selected_index >= 0 && selected_index < (int)songs.size()) {
+                available_difficulties = get_sorted_difficulties(songs[selected_index].song);
+                
+                if (available_difficulties.is_empty()) {
+                    // No charts? should not happen but just in case
+                    return;
+                }
+
+                selecting_difficulty = true;
+                selected_difficulty_idx = 0;
+
+                return;
+            }
+        }
+    } else {
+        if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_DOWN)) {
+            if (!available_difficulties.is_empty()) {
+                selected_difficulty_idx = (selected_difficulty_idx + 1) % available_difficulties.size();
+            }
+        }
+        if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_UP)) {
+            if (!available_difficulties.is_empty()) {
+                selected_difficulty_idx = (selected_difficulty_idx - 1 + available_difficulties.size()) % available_difficulties.size();
+            }
+        }
+        if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_BACK)) {
+            selecting_difficulty = false;
+            return;
+        }
+        if (HBInputNative::is_action_just_pressed(HBInputNative::ACTION_ACCEPT)) {
+            if (selected_index >= 0 && selected_index < (int)songs.size() && !available_difficulties.is_empty()) {
+                Dictionary params;
+                params["song"] = songs[selected_index].song;
+                params["difficulty"] = available_difficulties[selected_difficulty_idx];
+                HBGameNative::get_singleton()->change_to_menu("rhythm_game", params);
+                return;
+            }
         }
     }
 }
@@ -67,6 +102,51 @@ Color HBSongListNative::get_difficulty_color(String p_difficulty) {
     if (diff == "hard") return Color::from_hsv(46.0f / 360.0f, 0.7f, 0.75f);
     if (diff == "extreme") return Color::from_hsv(343.0f / 360.0f, 0.7f, 0.75f);
     return Color(0.5, 0.5, 0.5);
+}
+
+Array HBSongListNative::get_sorted_difficulties(Ref<HBSongNative> p_song) {
+    if (p_song.is_null()) return Array();
+    Dictionary charts = p_song->get_charts();
+    Array keys = charts.keys();
+    
+    for (size_t i = 0; i < keys.size(); i++) {
+        for (size_t j = i + 1; j < keys.size(); j++) {
+            String key_i = keys[i];
+            String key_j = keys[j];
+            
+            float stars_i = 0.0f;
+            Dictionary chart_i = charts[key_i];
+            if (chart_i.has("stars")) stars_i = (float)chart_i["stars"];
+            
+            float stars_j = 0.0f;
+            Dictionary chart_j = charts[key_j];
+            if (chart_j.has("stars")) stars_j = (float)chart_j["stars"];
+            
+            bool swap = false;
+            if (stars_i > stars_j) {
+                swap = true;
+            } else if (stars_i == stars_j) {
+                auto get_rank = [](String p_diff) {
+                    String d = p_diff.to_lower();
+                    if (d == "easy") return 0;
+                    if (d == "normal") return 1;
+                    if (d == "hard") return 2;
+                    if (d == "extreme") return 3;
+                    return 4;
+                };
+                if (get_rank(key_i) > get_rank(key_j)) {
+                    swap = true;
+                }
+            }
+            
+            if (swap) {
+                Variant temp = keys[i];
+                keys[i] = keys[j];
+                keys[j] = temp;
+            }
+        }
+    }
+    return keys;
 }
 
 static String array_to_string(Array p_array) {
@@ -154,19 +234,11 @@ void HBSongListNative::draw() {
         if (!songs[idx].song->get_creator().is_empty()) {
             artist_creator += "  " + songs[idx].song->get_creator();
         }
-        HBVideoDriverPSGL::draw_text_with_font_3d(font, artist_creator, Vector2(text_x + 350.0f * current_scale, item_y + offset_y + 84.0f), (int)(22 * current_scale), tilt_list, Color(0.9, 0.9, 0.9, 1.0));
+        HBVideoDriverPSGL::draw_text_with_font_3d(font, artist_creator, Vector2(text_x + 350.0f * current_scale, item_y + offset_y + 44.0f), (int)(22 * current_scale), tilt_list, Color(0.9, 0.9, 0.9, 1.0));
 
         // Draw Difficulty Tags (3D)
         Dictionary charts = songs[idx].song->get_charts();
-        Array chart_keys = charts.keys();
-        // Simple sorting for common difficulties
-        Array sorted_keys;
-        const char* diff_order[] = {"Easy", "Normal", "Hard", "Extreme"};
-        for (int d = 0; d < 4; d++) {
-            if (charts.has(diff_order[d])) {
-                sorted_keys.push_back(diff_order[d]);
-            }
-        }
+        Array sorted_keys = get_sorted_difficulties(songs[idx].song);
 
         float tag_x = text_x;
         float tag_y = item_y + offset_y + 65.0f * current_scale;
@@ -286,6 +358,51 @@ void HBSongListNative::draw() {
             HBVideoDriverPSGL::draw_text_with_font_3d(font, "Mapa por: " + songs[selected_index].song->get_creator(), Vector2(info_x + 240.0f, detail_y + 150.0f), (int)(18.0f), tilt_info, Color(1, 1, 1, 0.8), false, true);
         }
 
+    }
+
+    // Difficulty Selection Overlay
+    if (selecting_difficulty) {
+        HBVideoDriverPSGL::draw_rect(Rect2(0, 0, window_size.x, window_size.y), Color(0, 0, 0, 0.7f));
+        
+        float dialog_w = 500.0f * scale_x;
+        float dialog_h = (available_difficulties.size() * 70.0f + 120.0f) * scale_y;
+        float dialog_x = (window_size.x - dialog_w) / 2.0f;
+        float dialog_y = (window_size.y - dialog_h) / 2.0f;
+        
+        // Draw dialog background with a slant to match the style
+        HBVideoDriverPSGL::draw_parallelogram(Rect2(dialog_x, dialog_y, dialog_w, dialog_h), -20.0f * scale_x, Color(0.12f, 0.06f, 0.22f, 0.95f));
+        HBVideoDriverPSGL::draw_text_with_font(font_bold, "SELECCIONAR DIFICULTAD", Vector2(window_size.x / 2.0f, dialog_y + 45.0f * scale_y), (int)(32 * scale_y), Color(1, 1, 1, 1), true, true);
+        
+        for (int i = 0; i < available_difficulties.size(); i++) {
+            String diff_name = available_difficulties[i];
+            bool is_sel = (i == selected_difficulty_idx);
+            
+            float item_y = dialog_y + 110.0f * scale_y + i * 70.0f * scale_y;
+            Color diff_color = get_difficulty_color(diff_name);
+            
+            if (is_sel) {
+                // Highlight for selected difficulty
+                HBVideoDriverPSGL::draw_parallelogram(Rect2(dialog_x + 30.0f * scale_x, item_y - 10.0f * scale_y, dialog_w - 60.0f * scale_x, 60.0f * scale_y), -10.0f * scale_x, Color(1, 1, 1, 0.15f));
+            }
+            
+            // Draw a small color indicator
+            HBVideoDriverPSGL::draw_parallelogram(Rect2(dialog_x + 50.0f * scale_x, item_y + 5.0f * scale_y, 25.0f * scale_x, 30.0f * scale_y), -5.0f * scale_x, diff_color);
+            
+            Color text_col = is_sel ? Color(1, 1, 1, 1) : Color(0.8, 0.8, 0.8, 0.8);
+            HBVideoDriverPSGL::draw_text_with_font(font_bold, diff_name.to_upper(), Vector2(dialog_x + 90.0f * scale_x, item_y + 30.0f * scale_y), (int)(28 * scale_y), text_col, true);
+            
+            // Draw star rating if available
+            Dictionary charts = songs[selected_index].song->get_charts();
+            if (charts.has(diff_name)) {
+                Dictionary chart_data = charts[diff_name];
+                if (chart_data.has("stars")) {
+                    float stars = (float)chart_data["stars"];
+                    String star_text = String::num(stars);
+                    if (stars == (int)stars) star_text = String::num_int64((long long)stars);
+                    HBVideoDriverPSGL::draw_text_with_font(font, star_text + " ★", Vector2(dialog_x + dialog_w - 100.0f * scale_x, item_y + 30.0f * scale_y), (int)(24 * scale_y), text_col, true);
+                }
+            }
+        }
     }
 }
 

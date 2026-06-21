@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <iomanip>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -19,8 +20,11 @@ public:
     String() : std::string() {}
     String(const char* s) : std::string(s) {}
     String(const std::string& s) : std::string(s) {}
-    static String num(double p_num) {
+    static String num(double p_num, int p_decimals = -1) {
         std::stringstream ss;
+        if (p_decimals >= 0) {
+            ss << std::fixed << std::setprecision(p_decimals);
+        }
         ss << p_num;
         return ss.str().c_str();
     }

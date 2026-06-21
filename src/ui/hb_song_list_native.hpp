@@ -6,6 +6,7 @@
 #include "compat/godot_cpp/classes/image.hpp"
 #include "compat/godot_cpp/classes/font_variation.hpp"
 #include "compat/godot_cpp/variant/vector2.hpp"
+#include "compat/godot_cpp/variant/transform3d.hpp"
 #include <vector>
 
 namespace godot {
@@ -23,6 +24,7 @@ class HBSongListNative : public Node {
     Ref<FontVariation> font_bold;
     Ref<Image> background_tex;
     Ref<Image> default_preview;
+    Ref<Image> default_avatar;
     Ref<Image> current_preview;
     int loaded_preview_idx = -1;
 
@@ -37,6 +39,9 @@ class HBSongListNative : public Node {
     Ref<Image> prompt_circle;
     Ref<Image> prompt_square;
     Ref<Image> prompt_triangle;
+
+    Transform3D tilt_list;
+    Transform3D tilt_info;
 
     Color get_difficulty_color(String p_difficulty);
 

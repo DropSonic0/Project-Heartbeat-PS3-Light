@@ -1,4 +1,4 @@
-#include "hb_song_list_native.hpp"
+ï»¿#include "hb_song_list_native.hpp"
 #include "hb_game.hpp"
 #include "utils/hb_input_native.hpp"
 #include "graphics/hb_video_driver_psgl.hpp"
@@ -8,21 +8,12 @@
 namespace godot {
 
 HBSongListNative::HBSongListNative() {
-    font = ResourceLoader::get_singleton()->load("res://fonts/orbitron/Orbitron-Regular.ttf");
-    font_bold = ResourceLoader::get_singleton()->load("res://fonts/orbitron/Orbitron-Black.ttf");
+    // Using paths confirmed to be in the PS3 PCK
+    font = ResourceLoader::get_singleton()->load("res://graphics/resource_packs/default_skin/skin_resources/orbitron_medium.otf");
+    font_bold = ResourceLoader::get_singleton()->load("res://graphics/resource_packs/default_skin/skin_resources/orbitron_black.otf");
     background_tex = ResourceLoader::get_singleton()->load("res://graphics/predarkenedbg.png");
     default_preview = ResourceLoader::get_singleton()->load("res://graphics/no_preview_texture.png");
-    arcade_icon = ResourceLoader::get_singleton()->load("res://graphics/resource_packs/fallback/notes/slide_right_note.png");
-    console_icon = ResourceLoader::get_singleton()->load("res://graphics/resource_packs/fallback/notes/heart_note.png");
-    heart_icon = ResourceLoader::get_singleton()->load("res://graphics/icons/menu_heart.png");
-    folder_icon = ResourceLoader::get_singleton()->load("res://graphics/icons/menu_folder.png");
-    star_icon = ResourceLoader::get_singleton()->load("res://graphics/icons/menu_star.png");
-    filter_icon = ResourceLoader::get_singleton()->load("res://graphics/icons/filter-menu.svg");
-    
-    prompt_cross = ResourceLoader::get_singleton()->load("res://graphics/resource_packs/playstation/notes/down_note.png");
-    prompt_circle = ResourceLoader::get_singleton()->load("res://graphics/resource_packs/playstation/notes/right_note.png");
-    prompt_square = ResourceLoader::get_singleton()->load("res://graphics/resource_packs/playstation/notes/left_note.png");
-    prompt_triangle = ResourceLoader::get_singleton()->load("res://graphics/resource_packs/playstation/notes/up_note.png");
+    default_avatar = ResourceLoader::get_singleton()->load("res://graphics/default_avatar.png");
 
     Dictionary loaded_songs = HBSongLoaderNative::get_singleton()->get_songs();
     Array keys = loaded_songs.keys();
@@ -34,6 +25,13 @@ HBSongListNative::HBSongListNative() {
     if (!songs.empty()) {
         selected_index = 0;
     }
+
+    // Initialize 3D tilts
+    tilt_list = Transform3D::rotated(Vector3(0, 1, 0), 0.15f); // ~8.5 degrees
+    tilt_list = tilt_list.translated(Vector3(0, 0, -0.45f));
+
+    tilt_info = Transform3D::rotated(Vector3(0, 1, 0), -0.15f); // ~-8.5 degrees
+    tilt_info = tilt_info.translated(Vector3(0, 0, -0.45f));
 }
 
 void HBSongListNative::update() {
@@ -92,46 +90,7 @@ void HBSongListNative::draw() {
         HBVideoDriverPSGL::draw_rect(Rect2(0, 0, window_size.x, window_size.y), Color(0.129, 0.071, 0.259, 1.0));
     }
 
-    // Top Left Filter/Sort Icons
-    float icon_bar_y = 150 * scale_y;
-    HBVideoDriverPSGL::draw_rect(Rect2(20 * scale_x, icon_bar_y, 50 * scale_x, 40 * scale_y), Color(0.3, 0.1, 0.4, 0.7));
-    if (filter_icon.is_valid()) {
-        HBVideoDriverPSGL::draw_texture(filter_icon, Rect2(30 * scale_x, icon_bar_y + 5 * scale_y, 30 * scale_x, 30 * scale_y));
-    }
-    
-    HBVideoDriverPSGL::draw_rect(Rect2(75 * scale_x, icon_bar_y, 50 * scale_x, 40 * scale_y), Color(0.3, 0.1, 0.4, 0.7));
-    HBVideoDriverPSGL::draw_text_with_font(font_bold, "W", Vector2(85 * scale_x, icon_bar_y + 30 * scale_y), (int)(24 * scale_y), Color(1, 1, 1, 1));
-
-    HBVideoDriverPSGL::draw_rect(Rect2(130 * scale_x, icon_bar_y, 100 * scale_x, 40 * scale_y), Color(0.3, 0.1, 0.4, 0.7));
-    HBVideoDriverPSGL::draw_text_with_font(font, "Título", Vector2(145 * scale_x, icon_bar_y + 28 * scale_y), (int)(18 * scale_y), Color(1, 1, 1, 1));
-
-    HBVideoDriverPSGL::draw_rect(Rect2(235 * scale_x, icon_bar_y, 140 * scale_x, 40 * scale_y), Color(0.3, 0.1, 0.4, 0.7));
-    HBVideoDriverPSGL::draw_text_with_font(font, "Con medios", Vector2(250 * scale_x, icon_bar_y + 28 * scale_y), (int)(18 * scale_y), Color(1, 1, 1, 1));
-
-    // Profile Header (Top Right)
-    float profile_x = 1350 * scale_x;
-    float profile_y = 70 * scale_y;
-    HBVideoDriverPSGL::draw_rect(Rect2(profile_x, profile_y, 500 * scale_x, 100 * scale_y), Color(0.15, 0.05, 0.25, 0.7));
-    HBVideoDriverPSGL::draw_text_with_font(font_bold, "DropSonic", Vector2(profile_x + 100 * scale_x, profile_y + 40 * scale_y), (int)(24 * scale_y), Color(1, 1, 1, 1));
-    HBVideoDriverPSGL::draw_rect(Rect2(profile_x + 100 * scale_x, profile_y + 55 * scale_y, 300 * scale_x, 10 * scale_y), Color(1, 1, 1, 0.2));
-    HBVideoDriverPSGL::draw_rect(Rect2(profile_x + 100 * scale_x, profile_y + 55 * scale_y, 200 * scale_x, 10 * scale_y), Color(0.9, 0.2, 0.8, 1.0)); // Progress bar
-    HBVideoDriverPSGL::draw_text_with_font(font, "Nv. 63", Vector2(profile_x + 420 * scale_x, profile_y + 65 * scale_y), (int)(18 * scale_y), Color(1, 1, 1, 0.8));
-
-    // Category Tabs
-    const char* tabs[] = {"Todo", "Oficial", "Workshop", "Local", "Carpetas"};
-    float tab_x = 850 * scale_x;
-    float tab_y = 190 * scale_y;
-    for (int i = 0; i < 5; i++) {
-        bool is_oficial = (i == 1);
-        Color tab_color = is_oficial ? Color(0.93f, 0.22f, 0.8f, 0.8f) : Color(1, 1, 1, 0.6f);
-        if (is_oficial) {
-            HBVideoDriverPSGL::draw_rect(Rect2(tab_x - 5 * scale_x, tab_y - 25 * scale_y, 80 * scale_x, 35 * scale_y), Color(0.93, 0.22, 0.8, 0.3));
-        }
-        HBVideoDriverPSGL::draw_text_with_font(font, tabs[i], Vector2(tab_x, tab_y), (int)(24 * scale_y), tab_color);
-        tab_x += (i == 1 ? 100 : 120) * scale_x;
-    }
-
-    HBVideoDriverPSGL::draw_text_with_font(font_bold, "Juego Libre", Vector2(100 * scale_x, 80 * scale_y), (int)(50 * scale_y), Color(1, 1, 1, 1), true);
+    HBVideoDriverPSGL::draw_text_with_font(font_bold, "Juego Libre", Vector2(80 * scale_x, 80 * scale_y), (int)(55 * scale_y), Color(1, 1, 1, 1), true);
 
     float item_height = 125.0f * scale_y;
     float start_y = 230.0f * scale_y;
@@ -146,7 +105,7 @@ void HBSongListNative::draw() {
 
     for (int i = 0; i < visible_items && (scroll_offset + i) < (int)songs.size(); i++) {
         int idx = scroll_offset + i;
-        float item_y = start_y + i * item_height;
+        float item_y = (start_y + i * item_height) / scale_y;
         
         bool is_selected = (idx == selected_index);
         float current_scale = is_selected ? 1.0f : 0.85f;
@@ -154,50 +113,50 @@ void HBSongListNative::draw() {
         Color item_color = is_selected ? Color(0.93f, 0.22f, 0.8f, 0.6f) : Color(0.19f, 0.07f, 0.3f, 0.75f);
         Color highlight_color = Color(0.93f, 0.22f, 0.8f, 1.0f);
         
-        float draw_h = (item_height - 10 * scale_y) * current_scale;
-        float draw_w = 1000 * scale_x * current_scale;
-        float offset_y = (item_height - draw_h) / 2.0f;
-        float offset_x = 50 * scale_x;
+        float base_h = 115.0f;
+        float base_w = 1000.0f;
+        float draw_h = base_h * current_scale;
+        float offset_y = (125.0f - draw_h) / 2.0f;
+        float offset_x = 50.0f;
         
-        // Selected Glow
+        Rect2 item_rect(offset_x, item_y + offset_y, base_w, base_h);
+        float slant = -40.0f * current_scale;
+
+        // Selected Glow (3D)
         if (is_selected) {
             for (int j = 1; j <= 3; j++) {
-                float glow_expand = j * 2.0f * scale_x;
-                Color glow_col = highlight_color;
-                glow_col.a = 0.15f / j;
-                HBVideoDriverPSGL::draw_parallelogram(Rect2(offset_x - glow_expand, item_y + offset_y - glow_expand, draw_w + glow_expand * 2, draw_h + glow_expand * 2), -40.0f * scale_x, glow_col);
+                float g = j * 3.0f;
+                Color gc = highlight_color; gc.a = 0.2f / j;
+                HBVideoDriverPSGL::draw_rect_3d(Rect2(offset_x - g, item_y + offset_y - g, base_w + g * 2, base_h + g * 2), tilt_list, gc, slant);
             }
         }
 
-        // Main parallelogram
-        HBVideoDriverPSGL::draw_parallelogram(Rect2(offset_x, item_y + offset_y, draw_w, draw_h), -40.0f * scale_x * current_scale, item_color);
+        // Main item body (3D)
+        HBVideoDriverPSGL::draw_rect_3d(item_rect, tilt_list, item_color, slant);
         
-        // Draw Album Art
-        Ref<Image> album_art = default_preview;
-        
-        float art_size = draw_h - 12 * scale_y;
-        HBVideoDriverPSGL::draw_texture(album_art, Rect2(offset_x + 10 * scale_x, item_y + offset_y + 6 * scale_y, art_size, art_size));
+        // Album Art (3D)
+        float art_size = base_h - 12.0f;
+        HBVideoDriverPSGL::draw_texture_3d(default_preview, Rect2(offset_x + 10.0f, item_y + offset_y + 6.0f, art_size, art_size), tilt_list);
 
-        // Draw Title and Artist/Creator
-        int font_size = (int)(32 * scale_y * current_scale);
-        float text_x = offset_x + art_size + 40 * scale_x;
+        // Text content
+        float text_x = offset_x + art_size + 40.0f;
         
-        // Heart/Folder Icon
+        // Heart Icon
         if (heart_icon.is_valid()) {
-            HBVideoDriverPSGL::draw_texture(heart_icon, Rect2(text_x - 35 * scale_x, item_y + offset_y + 15 * scale_y * current_scale, 25 * scale_x * current_scale, 25 * scale_y * current_scale));
+            HBVideoDriverPSGL::draw_texture_3d(heart_icon, Rect2(text_x - 35.0f, item_y + offset_y + 15.0f, 25.0f, 25.0f), tilt_list);
         }
 
-        HBVideoDriverPSGL::draw_text_with_font(font_bold, songs[idx].song->get_title(), Vector2(text_x, item_y + offset_y + 42 * scale_y * current_scale), font_size, Color(1, 1, 1, 1), true);
+        // Title
+        HBVideoDriverPSGL::draw_text_with_font_3d(font_bold, songs[idx].song->get_title(), Vector2(text_x, item_y + offset_y + 10.0f), (int)(32 * current_scale), tilt_list, Color(1, 1, 1, 1), true);
         
-        int artist_font_size = (int)(24 * scale_y * current_scale);
-        float artist_x = text_x + 500 * scale_x * current_scale; 
-        HBVideoDriverPSGL::draw_text_with_font(font, songs[idx].song->get_artist(), Vector2(artist_x, item_y + offset_y + 42 * scale_y * current_scale), artist_font_size, Color(1, 1, 1, 1));
-
+        // Artist & Creator
+        String artist_creator = songs[idx].song->get_artist();
         if (!songs[idx].song->get_creator().is_empty()) {
-             HBVideoDriverPSGL::draw_text_with_font(font, songs[idx].song->get_creator(), Vector2(artist_x + 250 * scale_x * current_scale, item_y + offset_y + 42 * scale_y * current_scale), (int)(18 * scale_y * current_scale), Color(0.7, 0.7, 0.7, 1.0));
+            artist_creator += "  " + songs[idx].song->get_creator();
         }
+        HBVideoDriverPSGL::draw_text_with_font_3d(font, artist_creator, Vector2(text_x + 350.0f * current_scale, item_y + offset_y + 84.0f), (int)(22 * current_scale), tilt_list, Color(0.9, 0.9, 0.9, 1.0));
 
-        // Draw Difficulty Tags
+        // Draw Difficulty Tags (3D)
         Dictionary charts = songs[idx].song->get_charts();
         Array chart_keys = charts.keys();
         // Simple sorting for common difficulties
@@ -210,9 +169,9 @@ void HBSongListNative::draw() {
         }
 
         float tag_x = text_x;
-        float tag_y = item_y + offset_y + 65 * scale_y * current_scale;
-        float tag_h = 35 * scale_y * current_scale;
-        int tag_font_size = (int)(20 * scale_y * current_scale);
+        float tag_y = item_y + offset_y + 65.0f * current_scale;
+        float tag_h = 35.0f * current_scale;
+        int tag_font_size = (int)(20 * current_scale);
 
         for (int k = 0; k < sorted_keys.size(); k++) {
             String diff_name = sorted_keys[k];
@@ -225,32 +184,33 @@ void HBSongListNative::draw() {
             Color diff_color = get_difficulty_color(diff_name);
             String star_text = String::num(stars);
             if (stars == (int)stars) {
-                star_text = String::num_int64((int64_t)stars);
+                star_text = String::num_int64((long long)stars);
             }
             
-            // Draw star/number part
-            float star_w = 45 * scale_x * current_scale;
-            HBVideoDriverPSGL::draw_parallelogram(Rect2(tag_x, tag_y, star_w, tag_h), -5.0f * scale_x * current_scale, Color(0.1, 0.1, 0.1, 0.8));
-            HBVideoDriverPSGL::draw_text_with_font(font, star_text, Vector2(tag_x + 5 * scale_x, tag_y + tag_h * 0.75f), tag_font_size, Color(1, 1, 1, 1));
+            // Draw star/number part (3D)
+            float star_w = 40.0f * current_scale;
+            float tag_slant = -8.0f * current_scale;
+            HBVideoDriverPSGL::draw_rect_3d(Rect2(tag_x, tag_y, star_w, tag_h), tilt_list, Color(0.1, 0.05, 0.15, 0.9), tag_slant);
+            HBVideoDriverPSGL::draw_text_with_font_3d(font, star_text, Vector2(tag_x + 5.0f, tag_y + 6.0f), tag_font_size, tilt_list, Color(1, 1, 1, 1));
             
-            // Draw difficulty name part
-            float name_w = 110 * scale_x * current_scale;
-            HBVideoDriverPSGL::draw_parallelogram(Rect2(tag_x + star_w + 2 * scale_x, tag_y, name_w, tag_h), -5.0f * scale_x * current_scale, diff_color);
-            HBVideoDriverPSGL::draw_text_with_font(font_bold, diff_name.to_upper(), Vector2(tag_x + star_w + 10 * scale_x, tag_y + tag_h * 0.75f), tag_font_size, Color(1, 1, 1, 1));
+            // Draw difficulty name part (3D)
+            float name_w = 100.0f * current_scale;
+            HBVideoDriverPSGL::draw_rect_3d(Rect2(tag_x + star_w, tag_y, name_w, tag_h), tilt_list, diff_color, tag_slant);
+            HBVideoDriverPSGL::draw_text_with_font_3d(font_bold, diff_name.to_upper(), Vector2(tag_x + star_w + 8.0f, tag_y + 6.0f), tag_font_size, tilt_list, Color(1, 1, 1, 1));
             
-            tag_x += star_w + name_w + 10 * scale_x * current_scale;
+            tag_x += (star_w + name_w + 12.0f) * current_scale;
         }
 
-        // Draw Note Usage Icons
-        float icon_size = 35 * scale_y * current_scale;
-        float icon_x = text_x - 45 * scale_x * current_scale;
+        // Draw Note Usage Icons (3D)
+        float icon_size = 35.0f * current_scale;
+        float icon_x = text_x - 45.0f * current_scale;
         
         if (arcade_icon.is_valid()) {
-            HBVideoDriverPSGL::draw_texture(arcade_icon, Rect2(icon_x, item_y + offset_y + 10 * scale_y * current_scale, icon_size, icon_size));
-            icon_x += 40 * scale_x * current_scale;
+            HBVideoDriverPSGL::draw_texture_3d(arcade_icon, Rect2(icon_x, item_y + offset_y + 10.0f, icon_size, icon_size), tilt_list);
+            icon_x += 40.0f * current_scale;
         }
         if (console_icon.is_valid()) {
-            HBVideoDriverPSGL::draw_texture(console_icon, Rect2(icon_x, item_y + offset_y + 10 * scale_y * current_scale, icon_size, icon_size));
+            HBVideoDriverPSGL::draw_texture_3d(console_icon, Rect2(icon_x, item_y + offset_y + 10.0f, icon_size, icon_size), tilt_list);
         }
     }
     
@@ -266,29 +226,8 @@ void HBSongListNative::draw() {
 
     // Song Counter
     String counter_text = String::num_int64(selected_index + 1) + "/" + String::num_int64(songs.size());
-    HBVideoDriverPSGL::draw_text_with_font(font, counter_text, Vector2(50 * scale_x, 1000 * scale_y), (int)(30 * scale_y), Color(1, 1, 1, 1), true);
+    HBVideoDriverPSGL::draw_text_with_font(font, counter_text, Vector2(70 * scale_x, 970 * scale_y), (int)(32 * scale_y), Color(1, 1, 1, 1));
 
-    // Bottom Hints Bar
-    float hint_bar_w = 900 * scale_x;
-    float hint_bar_x = (window_size.x - hint_bar_w) / 2.0f - 100 * scale_x;
-    HBVideoDriverPSGL::draw_parallelogram(Rect2(hint_bar_x, 960 * scale_y, hint_bar_w, 60 * scale_y), -20.0f * scale_x, Color(0.1, 0.05, 0.2, 0.9));
-    float hint_x = hint_bar_x + 30 * scale_x;
-    float hint_y = 1000 * scale_y;
-    
-    auto draw_hint = [&](const char* label, Ref<Image> button_tex, float label_w, float spacing = 180.0f) {
-        HBVideoDriverPSGL::draw_text_with_font(font, label, Vector2(hint_x, hint_y), (int)(24 * scale_y), Color(1, 1, 1, 1));
-        if (button_tex.is_valid()) {
-            HBVideoDriverPSGL::draw_texture(button_tex, Rect2(hint_x + label_w, hint_y - 40 * scale_y, 45 * scale_x, 45 * scale_y));
-        } else {
-             HBVideoDriverPSGL::draw_rect(Rect2(hint_x + label_w, hint_y - 32 * scale_y, 45 * scale_x, 45 * scale_y), Color(1, 1, 1, 0.9));
-        }
-        hint_x += spacing * scale_x;
-    };
-
-    draw_hint("Buscar", prompt_square, 100 * scale_x, 180.0f);
-    draw_hint("Añadir a...", prompt_triangle, 140 * scale_x, 220.0f);
-    draw_hint("Seleccionar", prompt_circle, 150 * scale_x, 250.0f);
-    draw_hint("Volver", prompt_cross, 100 * scale_x);
 
     // Draw "preview" for selected song
     if (selected_index >= 0 && selected_index < (int)songs.size()) {
@@ -307,51 +246,46 @@ void HBSongListNative::draw() {
             preview = default_preview;
         }
         
-        float preview_x = 1350 * scale_x;
-        float preview_y = 350 * scale_y;
-        float preview_w = 480 * scale_x;
-        float preview_h = 480 * scale_y;
+        float preview_x = 1350.0f;
+        float preview_y = 350.0f;
+        float preview_w = 480.0f;
+        float preview_h = 480.0f;
         
-        // Preview Background and Art
-        HBVideoDriverPSGL::draw_rect(Rect2(preview_x - 10 * scale_x, preview_y - 10 * scale_y, preview_w + 20 * scale_x, preview_h + 20 * scale_y), Color(0.1, 0.1, 0.1, 0.5));
-        HBVideoDriverPSGL::draw_texture(preview, Rect2(preview_x, preview_y, preview_w, preview_h));
+        // Preview Background and Art (3D)
+        HBVideoDriverPSGL::draw_rect_3d(Rect2(preview_x - 10.0f, preview_y - 10.0f, preview_w + 20.0f, preview_h + 20.0f), tilt_info, Color(0.1, 0.1, 0.1, 0.5), -5.0f);
+        HBVideoDriverPSGL::draw_texture_3d(preview, Rect2(preview_x, preview_y, preview_w, preview_h), tilt_info, Color(1, 1, 1, 1), -5.0f);
         
-        // Song Info on the right
-        float info_x = 1350 * scale_x;
-        float info_y = 200 * scale_y;
+        // Song Info (3D)
+        float info_x = 1350.0f;
+        float info_y = 150.0f;
         
-        HBVideoDriverPSGL::draw_text_with_font(font_bold, songs[selected_index].song->get_title(), Vector2(info_x, info_y), (int)(42 * scale_y), Color(1, 1, 1, 1), true, true);
-        HBVideoDriverPSGL::draw_text_with_font(font, "por", Vector2(info_x + 200 * scale_x, info_y + 40 * scale_y), (int)(20 * scale_y), Color(1, 1, 1, 0.8));
-        HBVideoDriverPSGL::draw_text_with_font(font_bold, songs[selected_index].song->get_artist(), Vector2(info_x + 50 * scale_x, info_y + 80 * scale_y), (int)(28 * scale_y), Color(1, 1, 1, 1));
+        HBVideoDriverPSGL::draw_text_with_font_3d(font_bold, songs[selected_index].song->get_title(), Vector2(info_x + 240.0f, info_y), (int)(38.0f), tilt_info, Color(1, 1, 1, 1), true, true);
+        HBVideoDriverPSGL::draw_text_with_font_3d(font, "por", Vector2(info_x + 240.0f, info_y + 45.0f), (int)(18.0f), tilt_info, Color(1, 1, 1, 0.8), false, true);
+        HBVideoDriverPSGL::draw_text_with_font_3d(font_bold, songs[selected_index].song->get_artist(), Vector2(info_x + 240.0f, info_y + 70.0f), (int)(26.0f), tilt_info, Color(1, 1, 1, 1), false, true);
         
-        // BPM and other details
-        float detail_y = 750 * scale_y;
-        HBVideoDriverPSGL::draw_rect(Rect2(info_x - 40 * scale_x, detail_y - 20 * scale_y, 550 * scale_x, 220 * scale_y), Color(0.1, 0.05, 0.2, 0.6));
+        // BPM and other details (3D)
+        float detail_y = 750.0f;
+        HBVideoDriverPSGL::draw_rect_3d(Rect2(info_x - 40.0f, detail_y, 550.0f, 220.0f), tilt_info, Color(0.1, 0.05, 0.2, 0.6), -5.0f);
         
-        String bpm_text = String::num(songs[selected_index].song->get_bpm()) + " BPM";
-        HBVideoDriverPSGL::draw_text_with_font(font, bpm_text, Vector2(info_x + 150 * scale_x, detail_y + 30 * scale_y), (int)(24 * scale_y), Color(1, 1, 1, 1));
+        String bpm_text = String::num(songs[selected_index].song->get_bpm()) + " PPM"; // PPM in screenshot
+        HBVideoDriverPSGL::draw_text_with_font_3d(font, bpm_text, Vector2(info_x + 240.0f, detail_y + 25.0f), (int)(22.0f), tilt_info, Color(1, 1, 1, 1), false, true);
         
         String writers_str = array_to_string(songs[selected_index].song->get_writers());
         if (writers_str.is_empty()) writers_str = "-";
-        HBVideoDriverPSGL::draw_text_with_font(font, "Escrito por: " + writers_str, Vector2(info_x, detail_y + 70 * scale_y), (int)(20 * scale_y), Color(1, 1, 1, 0.8));
+        HBVideoDriverPSGL::draw_text_with_font_3d(font, "Escrito por: " + writers_str, Vector2(info_x + 240.0f, detail_y + 60.0f), (int)(18.0f), tilt_info, Color(1, 1, 1, 0.8), false, true);
         
         String vocals_str = array_to_string(songs[selected_index].song->get_vocals());
         if (vocals_str.is_empty()) vocals_str = "-";
-        HBVideoDriverPSGL::draw_text_with_font(font, "Vocales por: " + vocals_str, Vector2(info_x, detail_y + 110 * scale_y), (int)(20 * scale_y), Color(1, 1, 1, 0.8));
+        HBVideoDriverPSGL::draw_text_with_font_3d(font, "Vocales por: " + vocals_str, Vector2(info_x + 240.0f, detail_y + 90.0f), (int)(18.0f), tilt_info, Color(1, 1, 1, 0.8), false, true);
 
-        // Mini player (Bottom Right)
-        float player_w = 600 * scale_x;
-        float player_x = window_size.x - player_w - 20 * scale_x;
-        float player_y = 950 * scale_y;
-        HBVideoDriverPSGL::draw_parallelogram(Rect2(player_x, player_y, player_w, 100 * scale_y), -40.0f * scale_x, Color(0.15, 0.08, 0.25, 0.9));
-        if (preview.is_valid()) {
-            HBVideoDriverPSGL::draw_texture(preview, Rect2(player_x + 40 * scale_x, player_y + 10 * scale_y, 80 * scale_y, 80 * scale_y));
+        String composers_str = array_to_string(songs[selected_index].song->get_composers());
+        if (composers_str.is_empty()) composers_str = "-";
+        HBVideoDriverPSGL::draw_text_with_font_3d(font, "Compuesto por: " + composers_str, Vector2(info_x + 240.0f, detail_y + 120.0f), (int)(18.0f), tilt_info, Color(1, 1, 1, 0.8), false, true);
+
+        if (!songs[selected_index].song->get_creator().is_empty()) {
+            HBVideoDriverPSGL::draw_text_with_font_3d(font, "Mapa por: " + songs[selected_index].song->get_creator(), Vector2(info_x + 240.0f, detail_y + 150.0f), (int)(18.0f), tilt_info, Color(1, 1, 1, 0.8), false, true);
         }
-        HBVideoDriverPSGL::draw_text_with_font(font_bold, songs[selected_index].song->get_title(), Vector2(player_x + 140 * scale_x, player_y + 45 * scale_y), (int)(24 * scale_y), Color(1, 1, 1, 1));
-        HBVideoDriverPSGL::draw_rect(Rect2(player_x + 140 * scale_x, player_y + 65 * scale_y, 420 * scale_x, 10 * scale_y), Color(1, 1, 1, 0.2));
-        HBVideoDriverPSGL::draw_rect(Rect2(player_x + 140 * scale_x, player_y + 65 * scale_y, 200 * scale_x, 10 * scale_y), Color(1, 1, 1, 1.0)); // Playback bar
-        HBVideoDriverPSGL::draw_text_with_font(font, "00:51", Vector2(player_x + 140 * scale_x, player_y + 95 * scale_y), (int)(18 * scale_y), Color(1, 1, 1, 0.8));
-        HBVideoDriverPSGL::draw_text_with_font(font, "02:44", Vector2(player_x + 520 * scale_x, player_y + 95 * scale_y), (int)(18 * scale_y), Color(1, 1, 1, 0.8));
+
     }
 }
 

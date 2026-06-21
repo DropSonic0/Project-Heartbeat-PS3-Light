@@ -272,11 +272,11 @@ Vector2 HBVideoDriverPSGL::get_window_size() {
 #endif
 }
 
-void HBVideoDriverPSGL::draw_rect(const Rect2& p_rect, const Color& p_color) {
-    draw_parallelogram(p_rect, 0.0f, p_color);
+void HBVideoDriverPSGL::draw_rect(const Rect2& p_rect, const Color& p_color, bool p_additive) {
+    draw_parallelogram(p_rect, 0.0f, p_color, p_additive);
 }
 
-void HBVideoDriverPSGL::draw_parallelogram(const Rect2& p_rect, float p_slant, const Color& p_color) {
+void HBVideoDriverPSGL::draw_parallelogram(const Rect2& p_rect, float p_slant, const Color& p_color, bool p_additive) {
 #ifdef __PPU__
     if (!_psgl_device) return;
     glMatrixMode(GL_PROJECTION);
@@ -291,7 +291,11 @@ void HBVideoDriverPSGL::draw_parallelogram(const Rect2& p_rect, float p_slant, c
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    if (p_additive) {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    } else {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
 
     float x1 = p_rect.position.x;
     float y1 = p_rect.position.y;
@@ -342,7 +346,7 @@ static void _psgl_look_at(const Vector3& eye, const Vector3& center, const Vecto
     glMultMatrixf(m);
 }
 
-void HBVideoDriverPSGL::draw_rect_3d(const Rect2& p_rect, const Transform3D& p_transform, const Color& p_color, float p_slant) {
+void HBVideoDriverPSGL::draw_rect_3d(const Rect2& p_rect, const Transform3D& p_transform, const Color& p_color, float p_slant, bool p_additive) {
 #ifdef __PPU__
     if (!_psgl_device) return;
 
@@ -369,7 +373,11 @@ void HBVideoDriverPSGL::draw_rect_3d(const Rect2& p_rect, const Transform3D& p_t
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    if (p_additive) {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    } else {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
 
     // Map p_rect (0-1920, 0-1080) to 3D space (-1 to 1 approx, but depends on distance)
     // For now we just use the rect as-is but scaled down to 0-1 range roughly.
@@ -448,7 +456,7 @@ static void _draw_text_internal(const String& p_text, const Vector2& p_pos, cons
 #endif
 }
 
-void HBVideoDriverPSGL::draw_text(const String& p_text, const Vector2& p_pos, const Color& p_color, float p_scale, bool p_shadow) {
+void HBVideoDriverPSGL::draw_text(const String& p_text, const Vector2& p_pos, const Color& p_color, float p_scale, bool p_shadow, bool p_additive) {
 #ifdef __PPU__
     if (!_psgl_device) return;
     
@@ -464,7 +472,11 @@ void HBVideoDriverPSGL::draw_text(const String& p_text, const Vector2& p_pos, co
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    if (p_additive) {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    } else {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
 
     glEnableClientState(GL_VERTEX_ARRAY);
 
@@ -481,7 +493,7 @@ void HBVideoDriverPSGL::draw_text(const String& p_text, const Vector2& p_pos, co
 #endif
 }
 
-void HBVideoDriverPSGL::draw_texture_3d(const Ref<Image>& p_image, const Rect2& p_rect, const Transform3D& p_transform, const Color& p_modulate, float p_slant) {
+void HBVideoDriverPSGL::draw_texture_3d(const Ref<Image>& p_image, const Rect2& p_rect, const Transform3D& p_transform, const Color& p_modulate, float p_slant, bool p_additive) {
 #ifdef __PPU__
     if (!_psgl_device || p_image.is_null()) return;
 
@@ -524,7 +536,11 @@ void HBVideoDriverPSGL::draw_texture_3d(const Ref<Image>& p_image, const Rect2& 
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, tex_id);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    if (p_additive) {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    } else {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
 
     float w = p_rect.size.x / 1000.0f;
     float h = p_rect.size.y / 1000.0f;
@@ -562,7 +578,7 @@ void HBVideoDriverPSGL::draw_texture_3d(const Ref<Image>& p_image, const Rect2& 
 #endif
 }
 
-void HBVideoDriverPSGL::draw_text_with_font(const Ref<FontVariation>& p_font, const String& p_text, const Vector2& p_pos, int p_size, const Color& p_color, bool p_shadow, bool p_center) {
+void HBVideoDriverPSGL::draw_text_with_font(const Ref<FontVariation>& p_font, const String& p_text, const Vector2& p_pos, int p_size, const Color& p_color, bool p_shadow, bool p_center, bool p_additive) {
     bool rendered = false;
     if (p_font.is_valid()) {
         Ref<Image> img = p_font->render_text(p_text, p_size);
@@ -574,10 +590,10 @@ void HBVideoDriverPSGL::draw_text_with_font(const Ref<FontVariation>& p_font, co
             }
 
             if (p_shadow) {
-                draw_texture(img, Rect2(draw_pos + Vector2(2, 2), Vector2(img->get_width(), img->get_height())), Color(0, 0, 0, p_color.a * 0.5f));
+                draw_texture(img, Rect2(draw_pos + Vector2(2, 2), Vector2(img->get_width(), img->get_height())), Color(0, 0, 0, p_color.a * 0.5f), p_additive);
             }
 
-            draw_texture(img, Rect2(draw_pos, Vector2(img->get_width(), img->get_height())), p_color);
+            draw_texture(img, Rect2(draw_pos, Vector2(img->get_width(), img->get_height())), p_color, p_additive);
             rendered = true;
         }
     }
@@ -589,7 +605,7 @@ void HBVideoDriverPSGL::draw_text_with_font(const Ref<FontVariation>& p_font, co
             draw_pos.x -= (p_text.length() * p_size) / 2.0f;
             draw_pos.y -= p_size / 2.0f;
         }
-        draw_text(p_text, draw_pos, p_color, (float)p_size / 8.0f, p_shadow);
+        draw_text(p_text, draw_pos, p_color, (float)p_size / 8.0f, p_shadow, p_additive);
     }
 }
 
@@ -612,7 +628,7 @@ void HBVideoDriverPSGL::draw_text_with_font_3d(const Ref<FontVariation>& p_font,
     }
 }
 
-void HBVideoDriverPSGL::draw_texture(const Ref<Image>& p_image, const Rect2& p_rect, const Color& p_modulate) {
+void HBVideoDriverPSGL::draw_texture(const Ref<Image>& p_image, const Rect2& p_rect, const Color& p_modulate, bool p_additive) {
 #ifdef __PPU__
     if (!_psgl_device || p_image.is_null()) return;
 
@@ -644,7 +660,11 @@ void HBVideoDriverPSGL::draw_texture(const Ref<Image>& p_image, const Rect2& p_r
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, tex_id);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    if (p_additive) {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    } else {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
 
     float x1 = p_rect.position.x;
     float y1 = p_rect.position.y;

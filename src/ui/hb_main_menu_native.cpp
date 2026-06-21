@@ -171,14 +171,14 @@ void HBMainMenuNative::draw() {
             HBVideoDriverPSGL::draw_texture(logo, Rect2(logo_x * scale_x, logo_y * scale_y, logo_w * scale_x, logo_h * scale_y), Color(1, 1, 1, splash_alpha));
             
             // Draw Quote
-            HBVideoDriverPSGL::draw_text_with_font(font_bold, current_quote, Vector2(960 * scale_x, (logo_y + logo_h + 70) * scale_y), 30 * scale_y, Color(1, 1, 1, 0.6f * splash_alpha), true, true);
+            HBVideoDriverPSGL::draw_text_with_font(font_bold, current_quote, Vector2(960 * scale_x, (logo_y + logo_h + 70) * scale_y), (int)(30 * scale_y), Color(1, 1, 1, 0.6f * splash_alpha), true, true);
         } else {
-            HBVideoDriverPSGL::draw_text_with_font(font_bold, "Project Heartbeat", Vector2(960 * scale_x, 400 * scale_y), 64 * scale_y, Color(1, 1, 1, splash_alpha), true, true);
+            HBVideoDriverPSGL::draw_text_with_font(font_bold, "Project Heartbeat", Vector2(960 * scale_x, 400 * scale_y), (int)(64 * scale_y), Color(1, 1, 1, splash_alpha), true, true);
         }
 
         // Pulse "Presiona cualquier botón"
         float pulse_alpha = (0.6f + 0.4f * std::sin(time_passed * 4.0f)) * splash_alpha;
-        HBVideoDriverPSGL::draw_text_with_font(font_bold, "Presiona cualquier botón", Vector2(960 * scale_x, 820 * scale_y), 36 * scale_y, Color(1, 1, 1, pulse_alpha), true, true);
+        HBVideoDriverPSGL::draw_text_with_font(font_bold, "Presiona cualquier botón", Vector2(960 * scale_x, 820 * scale_y), (int)(36 * scale_y), Color(1, 1, 1, pulse_alpha), true, true);
     }
     
     if (menu_alpha > 0.0f) {
@@ -236,8 +236,8 @@ void HBMainMenuNative::draw() {
         }
 
         // Footer - Only in MAIN_MENU
-        HBVideoDriverPSGL::draw_text_with_font(font, "HeartbeatNET: Connected (production)", Vector2(20 * scale_x, 1025 * scale_y), 16 * scale_y, Color(0, 1, 0, 0.8f * menu_alpha), true);
-        HBVideoDriverPSGL::draw_text_with_font(font, "(psgl 0.9.9)", Vector2(20 * scale_x, 1055 * scale_y), 14 * scale_y, Color(1, 1, 1, 0.4f * menu_alpha), true);
+        HBVideoDriverPSGL::draw_text_with_font(font, "HeartbeatNET: Connected (production)", Vector2(20 * scale_x, 1025 * scale_y), (int)(16 * scale_y), Color(0, 1, 0, 0.8f * menu_alpha), true);
+        HBVideoDriverPSGL::draw_text_with_font(font, "(psgl 0.9.9)", Vector2(20 * scale_x, 1055 * scale_y), (int)(14 * scale_y), Color(1, 1, 1, 0.4f * menu_alpha), true);
     }
 }
 

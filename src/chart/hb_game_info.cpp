@@ -16,7 +16,7 @@ void HBGameInfoNative::_bind_methods() {
 }
 
 HBGameInfoNative::HBGameInfoNative() {
-    time = Time::get_singleton()->get_unix_time_from_system();
+    time = (int64_t)Time::get_singleton()->get_unix_time_from_system();
     result.instantiate();
 
     serializable_fields.append("game_session_type");

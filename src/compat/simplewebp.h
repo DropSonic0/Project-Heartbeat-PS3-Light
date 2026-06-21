@@ -5161,7 +5161,7 @@ static simplewebp_error swebp__decode_lossless_bitstream_main(
 	memset(filter_data, 0, sizeof(filter_data));
 	for (i = 0; i < sizeof(simplewebp_u8) * 4; i++)
 	{
-		simplewebp_u8 ttype, transform_bits;
+		simplewebp_u8 ttype, transform_bits = 0;
 		struct swebp__pixel *filter_out = NULL;
 
 		if (swebp__vp8l_bitread_read(br, 1) == 0)

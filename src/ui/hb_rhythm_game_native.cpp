@@ -56,6 +56,11 @@ HBRhythmGameNative::HBRhythmGameNative(const Ref<HBSongNative>& p_song) {
     note_textures[HBBaseNoteNative::SLIDE_RIGHT] = ResourceLoader::get_singleton()->load("res://graphics/icons/arc-clockwise.svg");
     note_textures[HBBaseNoteNative::HEART] = ResourceLoader::get_singleton()->load("res://graphics/icons/menu_heart_white.svg");
 
+    health_bar_tex = ResourceLoader::get_singleton()->load("res://graphics/heart_power_bar.png");
+    health_bar_bg_tex = ResourceLoader::get_singleton()->load("res://graphics/heart_power_bar_bg.png");
+    clear_bar_tex = ResourceLoader::get_singleton()->load("res://graphics/clear_bar.png");
+    clear_bar_postclear_tex = ResourceLoader::get_singleton()->load("res://graphics/clear_bar_postclear.png");
+
     if (song.is_valid()) {
         String bg_img = song->get_background_image();
         if (!bg_img.is_empty()) {
@@ -133,6 +138,13 @@ void HBRhythmGameNative::update() {
         if (time > note_time + 0.2) { // 200ms grace period for MISS
             active_notes.erase(active_notes.begin() + i);
             combo = 0;
+            
+            // Health removal on MISS
+            int fail_reduction = (fail_combo < 4) ? fail_combo : 4;
+            health -= (5.0f - (float)fail_reduction);
+            if (health < 0.0f) health = 0.0f;
+            fail_combo++;
+
             UtilityFunctions::print("MISS!");
         }
     }
@@ -152,6 +164,20 @@ void HBRhythmGameNative::_process_judgement(HBBaseNoteNative::NoteType p_type) {
                 if (combo > max_combo) max_combo = combo;
                 last_rating = rating;
                 last_rating_time = time;
+                
+                // Health management
+                if (rating >= HBJudgeNative::FINE) {
+                    health += 1.0f;
+                    if (health > 100.0f) health = 100.0f;
+                    fail_combo = 0;
+                } else {
+                    int fail_reduction = (fail_combo < 4) ? fail_combo : 4;
+                    health -= (5.0f - (float)fail_reduction);
+                    if (health < 0.0f) health = 0.0f;
+                    fail_combo++;
+                    combo = 0; // Combo break on SAD/SAFE in most modes
+                }
+
                 active_notes.erase(active_notes.begin() + i);
                 // Play SFX? 
                 return;
@@ -169,16 +195,72 @@ void HBRhythmGameNative::draw() {
     
     // Draw Background
     if (background_texture.is_valid()) {
-        HBVideoDriverPSGL::draw_texture(background_texture, Rect2(0, 0, window_size.x, window_size.y), Color(1, 1, 1, 0.4f));
+        HBVideoDriverPSGL::draw_texture(background_texture, Rect2(0, 0, window_size.x, window_size.y), Color(1, 1, 1, 0.8f));
     }
 
     if (song.is_valid()) {
-        // HUD Area background
-        HBVideoDriverPSGL::draw_rect(Rect2(0, 0, window_size.x, 180 * scale_y), Color(0, 0, 0, 0.4f));
+        // Top HUD Panel (Slanted)
+        HBVideoDriverPSGL::draw_parallelogram(Rect2(0, 0, window_size.x, 140 * scale_y), -35.0f * scale_x, Color(0, 0, 0, 0.6f));
 
-        HBVideoDriverPSGL::draw_text_with_font(font, song->get_title(), Vector2(50 * scale_x, 50 * scale_y), (int)(40 * scale_y), Color(1, 1, 1, 1));
-        HBVideoDriverPSGL::draw_text_with_font(font, "Score: " + String::num_int64(score), Vector2(50 * scale_x, 100 * scale_y), (int)(30 * scale_y), Color(1, 1, 1, 1));
-        HBVideoDriverPSGL::draw_text_with_font(font, "Combo: " + String::num_int64(combo), Vector2(50 * scale_x, 140 * scale_y), (int)(30 * scale_y), Color(1, 1, 1, 1));
+        // Song Title (Top Left)
+        HBVideoDriverPSGL::draw_text_with_font(font, song->get_title(), Vector2(80 * scale_x, 35 * scale_y), (int)(42 * scale_y), Color(1, 1, 1, 1), true);
+        
+        // Score (Top Left, below title)
+        HBVideoDriverPSGL::draw_text_with_font(font, String::num_int64(score), Vector2(80 * scale_x, 85 * scale_y), (int)(34 * scale_y), Color(1, 1, 1, 1), true);
+
+        // Clear Bar (Magic Bar) - Top Center
+        float cb_w = 600.0f * scale_x;
+        float cb_h = 20.0f * scale_y;
+        float cb_x = (window_size.x - cb_w) / 2.0f;
+        float cb_y = 100 * scale_y;
+
+        if (clear_bar_tex.is_valid()) {
+            HBVideoDriverPSGL::draw_texture(clear_bar_tex, Rect2(cb_x, cb_y, cb_w, cb_h), Color(1, 1, 1, 0.5f));
+            double max_score = chart.is_valid() ? chart->get_max_score() : 1.0;
+            float progress = (float)((double)score / (max_score > 0 ? max_score : 1.0));
+            if (progress > 1.0f) progress = 1.0f;
+            
+            Ref<Image> fill_tex = (progress >= 0.8f) ? clear_bar_postclear_tex : clear_bar_tex;
+            if (fill_tex.is_valid()) {
+                HBVideoDriverPSGL::draw_texture(fill_tex, Rect2(cb_x, cb_y, cb_w * progress, cb_h));
+            }
+        }
+
+        // Percentage display (Top Right)
+        float percentage = 0.0f;
+        if (timing_points.size() > 0) {
+            percentage = (float)next_note_idx / (float)timing_points.size() * 100.0f;
+        }
+        HBVideoDriverPSGL::draw_text_with_font(font, String::num(percentage) + "%", Vector2(window_size.x - 220 * scale_x, 50 * scale_y), (int)(36 * scale_y), Color(1, 1, 1, 1), true);
+
+        // Bottom HUD Panel (Slanted)
+        HBVideoDriverPSGL::draw_parallelogram(Rect2(0, window_size.y - 100 * scale_y, window_size.x, 100 * scale_y), 35.0f * scale_x, Color(0, 0, 0, 0.6f));
+
+        // Health Bar (Bottom Left)
+        float hb_w = 450.0f * scale_x;
+        float hb_h = 30.0f * scale_y;
+        float hb_x = 100 * scale_x;
+        float hb_y = window_size.y - 65 * scale_y;
+
+        if (health_bar_bg_tex.is_valid()) {
+            HBVideoDriverPSGL::draw_texture(health_bar_bg_tex, Rect2(hb_x, hb_y, hb_w, hb_h));
+        }
+
+        float health_w = hb_w * (health / 100.0f);
+        if (health_bar_tex.is_valid()) {
+            HBVideoDriverPSGL::draw_texture(health_bar_tex, Rect2(hb_x, hb_y, health_w, hb_h));
+        } else {
+            Color h_col = Color(0, 1, 0, 1);
+            if (health < 25.0f) h_col = Color(1, 0, 0, 1);
+            else if (health < 50.0f) h_col = Color(1, 1, 0, 1);
+            HBVideoDriverPSGL::draw_rect(Rect2(hb_x, hb_y, health_w, hb_h), h_col);
+        }
+    }
+
+    // Combo (Center Bottom)
+    if (combo > 0) {
+        HBVideoDriverPSGL::draw_text_with_font(font, "COMBO", Vector2(window_size.x / 2.0f, window_size.y - 160 * scale_y), (int)(24 * scale_y), Color(1, 1, 1, 0.8f), true, true);
+        HBVideoDriverPSGL::draw_text_with_font(font, String::num_int64(combo), Vector2(window_size.x / 2.0f, window_size.y - 120 * scale_y), (int)(48 * scale_y), Color(1, 1, 1, 1), true, true);
     }
 
     // Draw Upcoming Note Targets
@@ -194,7 +276,8 @@ void HBRhythmGameNative::draw() {
         if (note_time > time + 3.0) break; // Next 3 seconds
         
         Vector2 note_pos = note->get_position();
-        HBVideoDriverPSGL::draw_rect(Rect2(note_pos.x * scale_x - 45 * scale_x, note_pos.y * scale_y - 45 * scale_y, 90 * scale_x, 90 * scale_y), Color(1, 1, 1, 0.15f));
+        // Use a semi-transparent target texture or rect with better styling
+        HBVideoDriverPSGL::draw_rect(Rect2(note_pos.x * scale_x - 45 * scale_x, note_pos.y * scale_y - 45 * scale_y, 90 * scale_x, 90 * scale_y), Color(1, 1, 1, 0.15f), true);
     }
     
     // Draw Active Notes and their targets
@@ -214,8 +297,8 @@ void HBRhythmGameNative::draw() {
         float nx = note_pos.x * scale_x;
         float ny = note_pos.y * scale_y;
 
-        // Draw Target (More opaque for active notes)
-        HBVideoDriverPSGL::draw_rect(Rect2(nx - 45 * scale_x, ny - 45 * scale_y, 90 * scale_x, 90 * scale_y), Color(1, 1, 1, 0.4f));
+        // Draw Target (More opaque for active notes, additive)
+        HBVideoDriverPSGL::draw_rect(Rect2(nx - 45 * scale_x, ny - 45 * scale_y, 90 * scale_x, 90 * scale_y), Color(1, 1, 1, 0.4f), true);
 
         // Draw Note
         Ref<Image> tex = note_textures[note->get_note_type()];
@@ -236,16 +319,17 @@ void HBRhythmGameNative::draw() {
             case 2: rating_text = "SAFE"; rating_color = Color(1, 1, 0); break;
             case 1: rating_text = "SAD"; rating_color = Color(1, 0, 1); break;
         }
+        // Additive rating for "glow" effect
         HBVideoDriverPSGL::draw_text_with_font(font, rating_text, Vector2(window_size.x / 2.0f, 800 * scale_y), (int)(60 * scale_y), rating_color, true, true);
     }
 
     // Bottom progress bar
     if (timing_points.size() > 0) {
         float progress_val = (float)next_note_idx / (float)timing_points.size();
-        HBVideoDriverPSGL::draw_rect(Rect2(0, window_size.y - 10 * scale_y, window_size.x * progress_val, 10 * scale_y), Color(0, 0.8, 1, 0.7f));
+        HBVideoDriverPSGL::draw_rect(Rect2(0, window_size.y - 10 * scale_y, window_size.x * progress_val, 10 * scale_y), Color(0, 0.8, 1, 0.7f), true);
     }
 
-    HBVideoDriverPSGL::draw_text_with_font(font, "Press BACK to return", Vector2(50 * scale_x, window_size.y - 50 * scale_y), (int)(24 * scale_y), Color(1, 1, 1, 0.5f));
+    HBVideoDriverPSGL::draw_text_with_font(font, "Press BACK to return", Vector2(50 * scale_x, window_size.y - 30 * scale_y), (int)(20 * scale_y), Color(1, 1, 1, 0.5f));
 }
 
 }

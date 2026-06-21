@@ -74,6 +74,13 @@ public:
         }
         return String(res);
     }
+    String to_upper() const {
+        std::string res = *this;
+        for (size_t i = 0; i < res.size(); i++) {
+            if (res[i] >= 'a' && res[i] <= 'z') res[i] -= 32;
+        }
+        return String(res);
+    }
     String path_join(const String& p_file) const {
         if (is_empty()) return p_file;
         if (p_file.is_empty()) return *this;

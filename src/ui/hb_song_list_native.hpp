@@ -26,8 +26,23 @@ class HBSongListNative : public Node {
     Ref<Image> current_preview;
     int loaded_preview_idx = -1;
 
+    Ref<Image> arcade_icon;
+    Ref<Image> console_icon;
+    Ref<Image> heart_icon;
+    Ref<Image> folder_icon;
+    Ref<Image> star_icon;
+    Ref<Image> filter_icon;
+    
+    Ref<Image> prompt_cross;
+    Ref<Image> prompt_circle;
+    Ref<Image> prompt_square;
+    Ref<Image> prompt_triangle;
+
+    Color get_difficulty_color(String p_difficulty);
+
 public:
     HBSongListNative();
+    virtual ~HBSongListNative() {}
     void update();
     void draw();
 };

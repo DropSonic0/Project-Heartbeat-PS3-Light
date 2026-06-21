@@ -4,22 +4,36 @@
 #include "classes/project_settings.hpp"
 #include "../../utils/hb_pck_reader.hpp"
 #include "../../threads/scoped_lock.hpp"
+#include "../../threads/mutex.hpp"
 #include <map>
 #include <string>
 
 namespace godot {
 
 static std::map<const Object*, std::map<std::string, Variant> > _object_properties;
+static Threads::Mutex _object_properties_mutex;
 
 Object::~Object() {
-    _object_properties.erase(this);
+    std::map<std::string, Variant> props;
+    {
+        Threads::ScopedLock lock(_object_properties_mutex);
+        std::map<const Object*, std::map<std::string, Variant> >::iterator it = _object_properties.find(this);
+        if (it != _object_properties.end()) {
+            props = it->second;
+            _object_properties.erase(it);
+        }
+    }
+    // Variant clear can delete other objects, so we clear properties outside the lock
+    props.clear();
 }
 
 void Object::set(const std::string &p_name, const Variant& p_value) {
+    Threads::ScopedLock lock(_object_properties_mutex);
     _object_properties[this][p_name] = p_value;
 }
 
 Variant Object::get(const std::string &p_name) const {
+    Threads::ScopedLock lock(_object_properties_mutex);
     std::map<const Object*, std::map<std::string, Variant> >::iterator it = _object_properties.find(this);
     if (it != _object_properties.end()) {
         std::map<std::string, Variant>::iterator it2 = it->second.find(p_name);
@@ -512,10 +526,14 @@ Ref<Image> Image::load_from_buffer(const PackedByteArray& p_buffer) {
         jebp_error_t err = jebp_decode(&jebp_img, src_size, src_ptr);
         if (err == JEBP_OK) {
             Ref<Image> img = Image::create(jebp_img.width, jebp_img.height, false, 0);
-            PackedByteArray img_data;
-            img_data.resize(jebp_img.width * jebp_img.height * 4);
-            memcpy(img_data.data_ptr(), jebp_img.pixels, jebp_img.width * jebp_img.height * 4);
-            img->set_data(img_data);
+            if (img.is_valid()) {
+                PackedByteArray img_data;
+                img_data.resize(jebp_img.width * jebp_img.height * 4);
+                if (img_data.size() > 0) {
+                    memcpy(img_data.data_ptr(), jebp_img.pixels, jebp_img.width * jebp_img.height * 4);
+                    img->set_data(img_data);
+                }
+            }
             jebp_free_image(&jebp_img);
             return img;
         } else {

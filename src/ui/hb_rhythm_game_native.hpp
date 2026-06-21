@@ -25,11 +25,17 @@ class HBRhythmGameNative : public Node {
     int max_combo = 0;
     int last_rating = -1;
     double last_rating_time = 0.0;
+    float health = 50.0f;
+    int fail_combo = 0;
     
     Ref<FontVariation> font;
     Ref<Image> note_textures[9];
     Ref<Image> target_textures[9];
     Ref<Image> background_texture;
+    Ref<Image> health_bar_tex;
+    Ref<Image> health_bar_bg_tex;
+    Ref<Image> clear_bar_tex;
+    Ref<Image> clear_bar_postclear_tex;
 
     Array timing_points;
     int next_note_idx = 0;

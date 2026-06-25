@@ -45,24 +45,43 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|PS3'">
+    <TargetExt>.elf</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|PS3'">
+    <TargetExt>.elf</TargetExt>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|PS3'">
     <ClCompile>
       <PreprocessorDefinitions>_ PS3_SDK;__CELL_ASSERT__;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <AdditionalIncludeDirectories>C:\Project-Heartbeat-PS3-Light\src\compat;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\src\compat;$(SolutionDir)\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CppLanguageStd>Cpp11</CppLanguageStd>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>C:\usr\local\cell\target\ppu\lib\PSGL\RSX\ultra-opt;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFormat>ELFFile</OutputFormat>
+      <AdditionalDependencies>libPSGLU.a;libPSGLFX.a;libPSGL.a;libPSGLcgc.a;libdbgfont.a;libcgc.a;libgcm_cmd.a;libgcm_sys_stub.a;libsysutil_game_stub.a;libsysutil_stub.a;libsysmodule_stub.a;libresc_stub.a;libio_stub.a;libaudio_stub.a;libnetctl_stub.a;libnet_stub.a;libcs.a;libsn.a;libstdc++.a;libpthread.a;libm.a;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|PS3'">
     <ClCompile>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_ PS3_SDK;__CELL_ASSERT__;NDEBUG;%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <OptimizationLevel>Level2</OptimizationLevel>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\src\compat;$(SolutionDir)\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CppLanguageStd>Cpp11</CppLanguageStd>
     </ClCompile>
+    <Link>
+      <OutputFormat>ELFFile</OutputFormat>
+      <AdditionalDependencies>libPSGLU.a;libPSGLFX.a;libPSGL.a;libPSGLcgc.a;libdbgfont.a;libcgc.a;libgcm_cmd.a;libgcm_sys_stub.a;libsysutil_game_stub.a;libsysutil_stub.a;libsysmodule_stub.a;libresc_stub.a;libio_stub.a;libaudio_stub.a;libnetctl_stub.a;libnet_stub.a;libcs.a;libsn.a;libstdc++.a;libpthread.a;libm.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\usr\local\cell\target\ppu\lib\PSGL\RSX\ultra-opt;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="..\..\PS3_COMPATIBILITY.md" />
+    <None Include="..\..\src\utils\hb_shift_jis_table_data.ipp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\audio\hb_shinobu_playback_offset.cpp" />
@@ -93,8 +112,10 @@
     <ClCompile Include="..\..\src\chart\hb_timing_point.cpp" />
     <ClCompile Include="..\..\src\chart\hb_user_settings.cpp" />
     <ClCompile Include="..\..\src\chart\hb_web_user_info.cpp" />
+    <ClCompile Include="..\..\src\compat\godot_cpp\compat.cpp" />
     <ClCompile Include="..\..\src\graphics\hb_diva_texture_processor.cpp" />
     <ClCompile Include="..\..\src\graphics\hb_mipmap_generator.cpp" />
+    <ClCompile Include="..\..\src\graphics\hb_video_driver_psgl.cpp" />
     <ClCompile Include="..\..\src\hb_error.cpp" />
     <ClCompile Include="..\..\src\hb_game.cpp" />
     <ClCompile Include="..\..\src\hb_input_event.cpp" />
@@ -103,13 +124,23 @@
     <ClCompile Include="..\..\src\hb_song_verification.cpp" />
     <ClCompile Include="..\..\src\hb_version.cpp" />
     <ClCompile Include="..\..\src\register_types.cpp" />
+    <ClCompile Include="..\..\src\threads\cond.cpp" />
+    <ClCompile Include="..\..\src\threads\mutex.cpp" />
+    <ClCompile Include="..\..\src\threads\scoped_lock.cpp" />
+    <ClCompile Include="..\..\src\threads\thread.cpp" />
     <ClCompile Include="..\..\src\ui\hb_3d_ui_quad.cpp" />
+    <ClCompile Include="..\..\src\ui\hb_main_menu_native.cpp" />
+    <ClCompile Include="..\..\src\ui\hb_options_menu_native.cpp" />
+    <ClCompile Include="..\..\src\ui\hb_rhythm_game_native.cpp" />
     <ClCompile Include="..\..\src\ui\hb_rich_text_word_rainbow.cpp" />
+    <ClCompile Include="..\..\src\ui\hb_song_list_native.cpp" />
     <ClCompile Include="..\..\src\ui\hb_ui_component.cpp" />
     <ClCompile Include="..\..\src\ui\hb_ui_font.cpp" />
     <ClCompile Include="..\..\src\ui\hb_ui_stylebox_flat.cpp" />
     <ClCompile Include="..\..\src\ui\hb_ui_stylebox_texture.cpp" />
     <ClCompile Include="..\..\src\utils\hb_ini_parser.cpp" />
+    <ClCompile Include="..\..\src\utils\hb_input_native.cpp" />
+    <ClCompile Include="..\..\src\utils\hb_pck_reader.cpp" />
     <ClCompile Include="..\..\src\utils\hb_ppd_evd_file.cpp" />
     <ClCompile Include="..\..\src\utils\hb_ppd_pack.cpp" />
     <ClCompile Include="..\..\src\utils\hb_shift_jis_table.cpp" />
@@ -146,30 +177,59 @@
     <ClInclude Include="..\..\src\chart\hb_timing_point.hpp" />
     <ClInclude Include="..\..\src\chart\hb_user_settings.hpp" />
     <ClInclude Include="..\..\src\chart\hb_web_user_info.hpp" />
+    <ClInclude Include="..\..\src\compat\gdextension_interface.h" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\area3d.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\canvas_item.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\classes\control.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\dir_access.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\classes\file_access.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\font_variation.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\classes\image.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\input_event_action.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\classes\json.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\mesh_instance3d.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\classes\node.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\classes\object.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\os.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\project_settings.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\rd_texture_format.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\rd_texture_view.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\classes\ref_counted.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\classes\reg_ex.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\rendering_device.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\rendering_server.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\resource.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\resource_loader.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\rich_text_effect.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\style_box_flat.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\style_box_texture.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\sub_viewport.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\classes\texture2d.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\classes\time.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\core\class_db.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\core\defs.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\godot.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\variant\array.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\callable.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\variant\color.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\variant\dictionary.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\variant\packed_byte_array.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\variant\packed_string_array.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\rect2.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\rid.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\variant\string.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\transform3d.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\variant\utility_functions.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\variant\variant.hpp" />
     <ClInclude Include="..\..\src\compat\godot_cpp\variant\vector2.hpp" />
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\vector3.hpp" />
+    <ClInclude Include="..\..\src\compat\simplewebp.h" />
+    <ClInclude Include="..\..\src\compat\stb_image.h" />
+    <ClInclude Include="..\..\src\compat\stb_truetype.h" />
+    <ClInclude Include="..\..\src\compat\webp_wrapper.h" />
     <ClInclude Include="..\..\src\graphics\hb_diva_texture_processor.hpp" />
     <ClInclude Include="..\..\src\graphics\hb_mipmap_generator.hpp" />
+    <ClInclude Include="..\..\src\graphics\hb_video_driver_psgl.hpp" />
     <ClInclude Include="..\..\src\hb_error.hpp" />
     <ClInclude Include="..\..\src\hb_game.hpp" />
     <ClInclude Include="..\..\src\hb_input_event.hpp" />
@@ -177,13 +237,25 @@
     <ClInclude Include="..\..\src\hb_song_loader.hpp" />
     <ClInclude Include="..\..\src\hb_song_verification.hpp" />
     <ClInclude Include="..\..\src\hb_version.hpp" />
+    <ClInclude Include="..\..\src\threads\cond.hpp" />
+    <ClInclude Include="..\..\src\threads\fifo.hpp" />
+    <ClInclude Include="..\..\src\threads\mutex.hpp" />
+    <ClInclude Include="..\..\src\threads\scoped_lock.hpp" />
+    <ClInclude Include="..\..\src\threads\thread.hpp" />
+    <ClInclude Include="..\..\src\threads\thread_fifo.hpp" />
     <ClInclude Include="..\..\src\ui\hb_3d_ui_quad.hpp" />
+    <ClInclude Include="..\..\src\ui\hb_main_menu_native.hpp" />
+    <ClInclude Include="..\..\src\ui\hb_options_menu_native.hpp" />
+    <ClInclude Include="..\..\src\ui\hb_rhythm_game_native.hpp" />
     <ClInclude Include="..\..\src\ui\hb_rich_text_word_rainbow.hpp" />
+    <ClInclude Include="..\..\src\ui\hb_song_list_native.hpp" />
     <ClInclude Include="..\..\src\ui\hb_ui_component.hpp" />
     <ClInclude Include="..\..\src\ui\hb_ui_font.hpp" />
     <ClInclude Include="..\..\src\ui\hb_ui_stylebox_flat.hpp" />
     <ClInclude Include="..\..\src\ui\hb_ui_stylebox_texture.hpp" />
     <ClInclude Include="..\..\src\utils\hb_ini_parser.hpp" />
+    <ClInclude Include="..\..\src\utils\hb_input_native.hpp" />
+    <ClInclude Include="..\..\src\utils\hb_pck_reader.hpp" />
     <ClInclude Include="..\..\src\utils\hb_ppd_evd_file.hpp" />
     <ClInclude Include="..\..\src\utils\hb_ppd_pack.hpp" />
     <ClInclude Include="..\..\src\utils\hb_shift_jis_table.hpp" />

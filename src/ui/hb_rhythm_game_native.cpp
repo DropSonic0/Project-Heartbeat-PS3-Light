@@ -62,14 +62,24 @@ HBRhythmGameNative::HBRhythmGameNative(const Variant& p_params) {
         audio_playback->start();
     }
     
+    Ref<HBUserSettingsNative> settings = HBGameNative::get_singleton()->get_user_settings();
+    String icon_pack = settings->get(std::string("icon_pack"));
+    String pack_path = String("res://graphics/resource_packs/").path_join(icon_pack).path_join(String("notes/"));
+
     // Load textures
-    note_textures[HBBaseNoteNative::UP] = ResourceLoader::get_singleton()->load("res://graphics/icons/triangle-normal.svg");
-    note_textures[HBBaseNoteNative::DOWN] = ResourceLoader::get_singleton()->load("res://graphics/icons/menu-down.svg");
-    note_textures[HBBaseNoteNative::LEFT] = ResourceLoader::get_singleton()->load("res://graphics/icons/menu-left.svg");
-    note_textures[HBBaseNoteNative::RIGHT] = ResourceLoader::get_singleton()->load("res://graphics/icons/menu-right.svg");
-    note_textures[HBBaseNoteNative::SLIDE_LEFT] = ResourceLoader::get_singleton()->load("res://graphics/icons/arc-counterclockwise.svg");
-    note_textures[HBBaseNoteNative::SLIDE_RIGHT] = ResourceLoader::get_singleton()->load("res://graphics/icons/arc-clockwise.svg");
-    note_textures[HBBaseNoteNative::HEART] = ResourceLoader::get_singleton()->load("res://graphics/icons/menu_heart_white.svg");
+    note_textures[HBBaseNoteNative::UP] = ResourceLoader::get_singleton()->load(pack_path.path_join(String("up_note.svg")));
+    note_textures[HBBaseNoteNative::DOWN] = ResourceLoader::get_singleton()->load(pack_path.path_join(String("down_note.svg")));
+    note_textures[HBBaseNoteNative::LEFT] = ResourceLoader::get_singleton()->load(pack_path.path_join(String("left_note.svg")));
+    note_textures[HBBaseNoteNative::RIGHT] = ResourceLoader::get_singleton()->load(pack_path.path_join(String("right_note.svg")));
+    note_textures[HBBaseNoteNative::SLIDE_LEFT] = ResourceLoader::get_singleton()->load(String("res://graphics/icons/arc-counterclockwise.svg"));
+    note_textures[HBBaseNoteNative::SLIDE_RIGHT] = ResourceLoader::get_singleton()->load(String("res://graphics/icons/arc-clockwise.svg"));
+    note_textures[HBBaseNoteNative::HEART] = ResourceLoader::get_singleton()->load(String("res://graphics/icons/menu_heart_white.svg"));
+
+    // Fallbacks if icon pack is missing notes
+    if (note_textures[HBBaseNoteNative::UP].is_null()) note_textures[HBBaseNoteNative::UP] = ResourceLoader::get_singleton()->load("res://graphics/icons/triangle-normal.svg");
+    if (note_textures[HBBaseNoteNative::DOWN].is_null()) note_textures[HBBaseNoteNative::DOWN] = ResourceLoader::get_singleton()->load("res://graphics/icons/menu-down.svg");
+    if (note_textures[HBBaseNoteNative::LEFT].is_null()) note_textures[HBBaseNoteNative::LEFT] = ResourceLoader::get_singleton()->load("res://graphics/icons/menu-left.svg");
+    if (note_textures[HBBaseNoteNative::RIGHT].is_null()) note_textures[HBBaseNoteNative::RIGHT] = ResourceLoader::get_singleton()->load("res://graphics/icons/menu-right.svg");
 
     health_bar_tex = ResourceLoader::get_singleton()->load("res://graphics/heart_power_bar.png");
     health_bar_bg_tex = ResourceLoader::get_singleton()->load("res://graphics/heart_power_bar_bg.png");

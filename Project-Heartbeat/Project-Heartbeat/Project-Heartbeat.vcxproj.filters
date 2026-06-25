@@ -2,6 +2,9 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <None Include="..\..\PS3_COMPATIBILITY.md" />
+    <None Include="..\..\src\utils\hb_shift_jis_table_data.ipp">
+      <Filter>utils</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\hb_game.cpp" />
@@ -83,15 +86,6 @@
     <ClCompile Include="..\..\src\ui\hb_ui_component.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\utils\hb_ini_parser.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\utils\hb_toml_parser.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\utils\hb_utils.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\chart\hb_user_settings.cpp">
       <Filter>chart</Filter>
     </ClCompile>
@@ -129,6 +123,12 @@
     <ClCompile Include="..\..\src\graphics\hb_mipmap_generator.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\compat\godot_cpp\compat.cpp">
+      <Filter>compat\godot_cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\hb_ini_parser.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\utils\hb_ppd_evd_file.cpp">
       <Filter>utils</Filter>
     </ClCompile>
@@ -140,6 +140,45 @@
     </ClCompile>
     <ClCompile Include="..\..\src\utils\hb_smf_loader.cpp">
       <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\hb_toml_parser.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\hb_utils.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\graphics\hb_video_driver_psgl.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\hb_main_menu_native.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\hb_input_native.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\utils\hb_pck_reader.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\hb_song_list_native.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\threads\cond.cpp">
+      <Filter>threads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\threads\mutex.cpp">
+      <Filter>threads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\threads\scoped_lock.cpp">
+      <Filter>threads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\threads\thread.cpp">
+      <Filter>threads</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\hb_rhythm_game_native.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\ui\hb_options_menu_native.cpp">
+      <Filter>ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -221,15 +260,6 @@
     <ClInclude Include="..\..\src\ui\hb_ui_component.hpp">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\utils\hb_ini_parser.hpp">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\utils\hb_toml_parser.hpp">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\utils\hb_utils.hpp">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\chart\hb_user_settings.hpp">
       <Filter>chart</Filter>
     </ClInclude>
@@ -288,18 +318,6 @@
     <ClInclude Include="..\..\src\graphics\hb_mipmap_generator.hpp">
       <Filter>graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\utils\hb_ppd_evd_file.hpp">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\utils\hb_ppd_pack.hpp">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\utils\hb_shift_jis_table.hpp">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\utils\hb_smf_loader.hpp">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\compat\godot_cpp\classes\control.hpp">
       <Filter>compat\godot_cpp\classes</Filter>
     </ClInclude>
@@ -345,6 +363,150 @@
     <ClInclude Include="..\..\src\compat\godot_cpp\variant\packed_string_array.hpp">
       <Filter>compat\godot_cpp\variant</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\callable.hpp">
+      <Filter>compat\godot_cpp\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\area3d.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\font_variation.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\input_event_action.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\mesh_instance3d.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\os.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\project_settings.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\rendering_server.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\rich_text_effect.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\style_box_flat.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\style_box_texture.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\sub_viewport.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\canvas_item.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\dir_access.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\resource.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\resource_loader.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\gdextension_interface.h">
+      <Filter>compat</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utils\hb_ini_parser.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utils\hb_ppd_evd_file.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utils\hb_ppd_pack.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utils\hb_shift_jis_table.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utils\hb_smf_loader.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utils\hb_toml_parser.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utils\hb_utils.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\rd_texture_format.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\rd_texture_view.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\classes\rendering_device.hpp">
+      <Filter>compat\godot_cpp\classes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\rid.hpp">
+      <Filter>compat\godot_cpp\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\graphics\hb_video_driver_psgl.hpp">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\hb_main_menu_native.hpp">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utils\hb_input_native.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\utils\hb_pck_reader.hpp">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\rect2.hpp">
+      <Filter>compat\godot_cpp\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\stb_image.h">
+      <Filter>compat</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\hb_song_list_native.hpp">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\transform3d.hpp">
+      <Filter>compat\godot_cpp\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\godot_cpp\variant\vector3.hpp">
+      <Filter>compat\godot_cpp\variant</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\simplewebp.h">
+      <Filter>compat</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\stb_truetype.h">
+      <Filter>compat</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\compat\webp_wrapper.h">
+      <Filter>compat</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\threads\cond.hpp">
+      <Filter>threads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\threads\fifo.hpp">
+      <Filter>threads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\threads\mutex.hpp">
+      <Filter>threads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\threads\scoped_lock.hpp">
+      <Filter>threads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\threads\thread.hpp">
+      <Filter>threads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\threads\thread_fifo.hpp">
+      <Filter>threads</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\hb_rhythm_game_native.hpp">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ui\hb_options_menu_native.hpp">
+      <Filter>ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="chart">
@@ -376,6 +538,9 @@
     </Filter>
     <Filter Include="graphics">
       <UniqueIdentifier>{0ce4e3e4-94a9-4110-9146-e64c3a2c89e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="threads">
+      <UniqueIdentifier>{ab7e3e68-75b2-496a-82e5-0f90a5b784ec}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
